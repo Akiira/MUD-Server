@@ -2,10 +2,14 @@
  */
 package main
 
+//"database/sql"
+//_ "github.com/go-sql-driver/mysql"
+// port 3306, tcp
+// user: admin1
+// pw: admin
 import (
-	"database/sql"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
+
 	"net"
 	"os"
 	"time"
@@ -37,4 +41,24 @@ func checkError(err error) {
 		fmt.Fprintf(os.Stderr, "Fatal error: %s", err.Error())
 		os.Exit(1)
 	}
+}
+
+func inventoryAndItemTest() {
+	var i Item
+	i.description = "a cool sword"
+	i.name = "Short Sword"
+	i.itemID = 666
+
+	var i2 Item
+	i2.description = "a cool stick"
+	i2.name = "Oaken Bo"
+	i2.itemID = 667
+
+	items := [100]Item{i, i2}
+
+	inventory := createInventory(items)
+
+	var item = inventory.getItemByName("Short Sword")
+
+	fmt.Println(item.name)
 }
