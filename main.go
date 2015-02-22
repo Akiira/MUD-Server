@@ -3,7 +3,9 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
+	_ "github.com/go-sql-driver/mysql"
 	"net"
 	"os"
 	"time"
@@ -11,9 +13,7 @@ import (
 
 func main() {
 
-	test()
-
-	service := ":1200" // Port number?
+	service := ":1200"
 	tcpAddr, err := net.ResolveTCPAddr("tcp4", service)
 	checkError(err)
 
