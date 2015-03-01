@@ -30,7 +30,64 @@ type ServerMessage struct {
 func main() {
 
 	//databaseTest()
+	//GobTest()
+	LogInTest()
+}
 
+func checkError(err error) {
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Fatal error: %s", err.Error())
+		os.Exit(1)
+	}
+}
+
+func LogInWithClientTest() {
+	db, err := sql.Open("mysql",
+		"admin1:admin@tcp(127.0.0.1:3306)/mud-database")
+	checkError(err)
+	defer db.Close()
+
+	err = db.Ping()
+	checkError(err)
+
+	rows, err := db.Query("select CharacterNameLI from login")
+	defer rows.Close()
+	var name string
+	for rows.Next() {
+		err := rows.Scan(&name)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(name)
+	}
+
+	checkError(rows.Err())
+}
+
+func LogInTest() {
+	db, err := sql.Open("mysql",
+		"admin1:admin@tcp(127.0.0.1:3306)/mud-database")
+	checkError(err)
+	defer db.Close()
+
+	err = db.Ping()
+	checkError(err)
+
+	rows, err := db.Query("select CharacterNameLI from login")
+	defer rows.Close()
+	var name string
+	for rows.Next() {
+		err := rows.Scan(&name)
+		if err != nil {
+			log.Fatal(err)
+		}
+		fmt.Println(name)
+	}
+
+	checkError(rows.Err())
+}
+
+func GobTest() {
 	service := "127.0.0.1:1200"
 	tcpAddr, err := net.ResolveTCPAddr("tcp4", service)
 	checkError(err)
@@ -52,13 +109,6 @@ func main() {
 	encoder.Encode(reply)
 
 	conn.Close()
-}
-
-func checkError(err error) {
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Fatal error: %s", err.Error())
-		os.Exit(1)
-	}
 }
 
 func databaseTest() {
