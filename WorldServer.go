@@ -8,34 +8,50 @@ package main
 // user: admin1
 // pw: admin
 import (
+	"database/sql"
+	"encoding/gob"
 	"fmt"
 	"log"
-	//"net"
+	"net"
 	"os"
-	//"time"
+
+	_ "github.com/go-sql-driver/mysql"
 )
-import "database/sql"
-import _ "github.com/go-sql-driver/mysql"
+
+type ClientMessage struct {
+	Command int
+	Value   string
+}
+
+type ServerMessage struct {
+	Value string
+}
 
 func main() {
 
-	//	service := ":1200"
-	//	tcpAddr, err := net.ResolveTCPAddr("tcp4", service)
-	//	checkError(err)
+	//databaseTest()
 
-	//	listener, err := net.ListenTCP("tcp", tcpAddr)
-	//	checkError(err)
+	service := "127.0.0.1:1200"
+	tcpAddr, err := net.ResolveTCPAddr("tcp4", service)
+	checkError(err)
 
-	//	for {
-	//		conn, err := listener.Accept()
-	//		if err != nil {
-	//			continue
-	//		}
+	listener, err := net.ListenTCP("tcp", tcpAddr)
+	checkError(err)
 
-	//		daytime := time.Now().String()
-	//		conn.Write([]byte(daytime)) // don't care about return value
-	//		conn.Close()                // we're finished with this client
-	//	}
+	conn, err := listener.Accept()
+	checkError(err)
+	fmt.Println("Connection established")
+	encoder := gob.NewEncoder(conn)
+	decoder := gob.NewDecoder(conn)
+
+	var clientsMessage ClientMessage
+	decoder.Decode(&clientsMessage)
+
+	fmt.Println("clients message: " + clientsMessage.Value)
+	reply := ServerMessage{Value: "This is the servers reply"}
+	encoder.Encode(reply)
+
+	conn.Close()
 }
 
 func checkError(err error) {
