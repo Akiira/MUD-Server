@@ -14,10 +14,7 @@ import (
 	"os"
 )
 
-type ServerMessage struct {
-	Value string
-}
-var database *sql.DB
+var databaseG *sql.DB //The G means its a global var
 
 func main() {
 
@@ -47,16 +44,16 @@ func checkError(err error) {
 
 func intializeDatabaseConnection(){
 	var err error
-	database, err = sql.Open("mysql",
+	databaseG, err = sql.Open("mysql",
 		"admin1:admin@tcp(127.0.0.1:3306)/mud-database")
 	checkError(err)
 
-	err = database.Ping()
+	err = databaseG.Ping()
 	checkError(err)
 }
 
 func isGoodLogin(name string, pw string) bool{
-	rows, err := database.Query("select Password from Login where CharacterNameLI = ?", name)
+	rows, err := databaseG.Query("select Password from Login where CharacterNameLI = ?", name)
 	
 	checkError(err)
 	defer rows.Close()
@@ -88,7 +85,7 @@ func handleClient(client net.Conn){
 	}else{
 		fmt.Println("Bad Login!")
 	}
-	database.Close() //TODO remove these closes 
+	databaseG.Close() //TODO remove these closes 
 	client.Close()
 }
 
