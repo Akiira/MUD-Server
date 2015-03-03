@@ -14,7 +14,6 @@ import (
 	"log"
 	"net"
 	"os"
-	"strings"
 
 	_ "github.com/go-sql-driver/mysql"
 )

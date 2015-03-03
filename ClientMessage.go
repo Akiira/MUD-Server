@@ -11,6 +11,10 @@ type ClientMessage struct {
 }
 
 
+func ClientMessageConstructor(cmd int, val string) ClientMessage{
+	return ClientMessage{ Command: cmd, Value: val}
+}
+
 func (message *ClientMessage) getPassword() string{
 	split := strings.Split(message.Value, " ")
 	return split[1]
