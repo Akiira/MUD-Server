@@ -14,14 +14,11 @@ import (
 	"log"
 	"net"
 	"os"
+	"strings"
 
 	_ "github.com/go-sql-driver/mysql"
 )
 
-type ClientMessage struct {
-	Command int
-	Value   string
-}
 
 type ServerMessage struct {
 	Value string
@@ -31,7 +28,8 @@ func main() {
 
 	//databaseTest()
 	//GobTest()
-	LogInTest()
+	//LogInTest()
+	
 }
 
 func checkError(err error) {
@@ -42,6 +40,25 @@ func checkError(err error) {
 }
 
 func LogInWithClientTest() {
+	service := "127.0.0.1:1200"
+	tcpAddr, err := net.ResolveTCPAddr("tcp4", service)
+	checkError(err)
+
+	listener, err := net.ListenTCP("tcp", tcpAddr)
+	checkError(err)
+
+	conn, err := listener.Accept()
+	checkError(err)
+	fmt.Println("Connection established")
+	encoder := gob.NewEncoder(conn)
+	decoder := gob.NewDecoder(conn)
+
+	var clientsMessage ClientMessage
+	decoder.Decode(&clientsMessage)
+
+	fmt.Println("clients message: " + clientsMessage.Value)
+	
+
 	db, err := sql.Open("mysql",
 		"admin1:admin@tcp(127.0.0.1:3306)/mud-database")
 	checkError(err)
@@ -50,7 +67,7 @@ func LogInWithClientTest() {
 	err = db.Ping()
 	checkError(err)
 
-	rows, err := db.Query("select CharacterNameLI from login")
+	rows, err := db.Query("select CharacterNameLI, Password from Login where CharacterNameLI = ?", )
 	defer rows.Close()
 	var name string
 	for rows.Next() {
@@ -62,6 +79,9 @@ func LogInWithClientTest() {
 	}
 
 	checkError(rows.Err())
+
+	reply := ServerMessage{Value: "This is the servers reply"}
+	encoder.Encode(reply)
 }
 
 func LogInTest() {
