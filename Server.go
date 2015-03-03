@@ -1,5 +1,3 @@
-/* DaytimeServer
- */
 package main
 
 //"database/sql"
@@ -11,23 +9,32 @@ import (
 	"database/sql"
 	"encoding/gob"
 	"fmt"
-	"log"
+	_ "github.com/go-sql-driver/mysql"
 	"net"
 	"os"
-
-	_ "github.com/go-sql-driver/mysql"
 )
-
 
 type ServerMessage struct {
 	Value string
 }
+var database *sql.DB
 
 func main() {
 
 	//databaseTest()
 	//GobTest()
 	//LogInTest()
+	intializeDatabaseConnection()
+
+	listener := setUpServer()
+
+	
+	conn, err := listener.Accept()
+	checkError(err)
+	fmt.Println("Connection established")
+	
+	//go handleClient(conn)
+	handleClient(conn)
 	
 }
 
@@ -38,148 +45,59 @@ func checkError(err error) {
 	}
 }
 
-func LogInWithClientTest() {
-	service := "127.0.0.1:1200"
-	tcpAddr, err := net.ResolveTCPAddr("tcp4", service)
+func intializeDatabaseConnection(){
+	var err error
+	database, err = sql.Open("mysql",
+		"admin1:admin@tcp(127.0.0.1:3306)/mud-database")
 	checkError(err)
 
-	listener, err := net.ListenTCP("tcp", tcpAddr)
+	err = database.Ping()
 	checkError(err)
+}
 
-	conn, err := listener.Accept()
+func isGoodLogin(name string, pw string) bool{
+	rows, err := database.Query("select Password from Login where CharacterNameLI = ?", name)
+	
 	checkError(err)
-	fmt.Println("Connection established")
-	encoder := gob.NewEncoder(conn)
-	decoder := gob.NewDecoder(conn)
+	defer rows.Close()
+	
+	var DBpassword string
+	
+	if( rows.Next()){
+		err := rows.Scan(&DBpassword)
+		checkError(err)
+		if(DBpassword == pw){
+			return true
+		}
+	}
+	
+	return false
+}
 
+func handleClient(client net.Conn){
+	//encoder := gob.NewEncoder(client)
+	decoder := gob.NewDecoder(client)
+	
 	var clientsMessage ClientMessage
 	decoder.Decode(&clientsMessage)
 
 	fmt.Println("clients message: " + clientsMessage.Value)
 	
-
-	db, err := sql.Open("mysql",
-		"admin1:admin@tcp(127.0.0.1:3306)/mud-database")
-	checkError(err)
-	defer db.Close()
-
-	err = db.Ping()
-	checkError(err)
-
-	rows, err := db.Query("select CharacterNameLI, Password from Login where CharacterNameLI = ?", )
-	defer rows.Close()
-	var name string
-	for rows.Next() {
-		err := rows.Scan(&name)
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Println(name)
+	if(isGoodLogin(clientsMessage.getUsername(), clientsMessage.getPassword())){
+		fmt.Println("Good Login!")
+	}else{
+		fmt.Println("Bad Login!")
 	}
-
-	checkError(rows.Err())
-
-	reply := ServerMessage{Value: "This is the servers reply"}
-	encoder.Encode(reply)
+	database.Close() //TODO remove these closes 
+	client.Close()
 }
 
-func LogInTest() {
-	db, err := sql.Open("mysql",
-		"admin1:admin@tcp(127.0.0.1:3306)/mud-database")
-	checkError(err)
-	defer db.Close()
-
-	err = db.Ping()
-	checkError(err)
-
-	rows, err := db.Query("select CharacterNameLI from login")
-	defer rows.Close()
-	var name string
-	for rows.Next() {
-		err := rows.Scan(&name)
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Println(name)
-	}
-
-	checkError(rows.Err())
-}
-
-func GobTest() {
+func setUpServer() *net.TCPListener{
 	service := "127.0.0.1:1200"
 	tcpAddr, err := net.ResolveTCPAddr("tcp4", service)
 	checkError(err)
 
 	listener, err := net.ListenTCP("tcp", tcpAddr)
 	checkError(err)
-
-	conn, err := listener.Accept()
-	checkError(err)
-	fmt.Println("Connection established")
-	encoder := gob.NewEncoder(conn)
-	decoder := gob.NewDecoder(conn)
-
-	var clientsMessage ClientMessage
-	decoder.Decode(&clientsMessage)
-
-	fmt.Println("clients message: " + clientsMessage.Value)
-	reply := ServerMessage{Value: "This is the servers reply"}
-	encoder.Encode(reply)
-
-	conn.Close()
-}
-
-func databaseTest() {
-	db, err := sql.Open("mysql",
-		"admin1:admin@tcp(127.0.0.1:3306)/sakila")
-
-	if err != nil {
-		panic(err.Error()) // Just for example purpose. You should use proper error handling instead of panic
-	}
-	fmt.Println("After if stmt")
-	defer db.Close()
-
-	err = db.Ping()
-	if err != nil {
-		panic(err.Error())
-	}
-	fmt.Println("After 2nd if stmt")
-	var name string
-	rows, err := db.Query("select title from film")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer rows.Close()
-	for rows.Next() {
-		err := rows.Scan(&name)
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Println(name)
-	}
-	err = rows.Err()
-	if err != nil {
-		log.Fatal(err)
-	}
-}
-
-func inventoryAndItemTest() {
-	var i Item
-	i.description = "a cool sword"
-	i.name = "Short Sword"
-	i.itemID = 666
-
-	var i2 Item
-	i2.description = "a cool stick"
-	i2.name = "Oaken Bo"
-	i2.itemID = 667
-
-	items := [100]Item{i, i2}
-
-	inventory := createInventory(items)
-
-	var item = inventory.getItemByName("Short Sword")
-
-	fmt.Println(item.name)
+	return listener
 }
