@@ -1,9 +1,46 @@
 package main
 
 type Character struct {
-	name string
+	Name string
+	Strength int
+	Constitution int
+	Dexterity int
+	Wisdom int
+	Charisma int
+	Inteligence int
+	
+	Location string
+	
+	Race string
+	Class string
+
+	PersonalInvetory Inventory
+	
+	Weapon Item
+	//ArmourSet 
+}
+
+func (c *Character) addItemToInventory(item Item) {
+	
+}
+
+func (c *Character) equipItemFromGround(item Item) {
+	
+}
+
+func (c *Character) equipItemFromInventory(itemName string) {
+	
+}
+
+func (c *Character) moveCharacter(direction string) {
+	
+}
+
+
+func (c *Character) getAttack() int {
+	return -1
 }
 
 func (c *Character) getName() string {
-	return c.name
+	return c.Name
 }

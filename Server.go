@@ -23,6 +23,14 @@ func main() {
 	//databaseTest()
 	//GobTest()
 	//LogInTest()
+	
+//	var m map[string]Character
+//	m = make(map[string]Character)
+	
+//	m["Ragnar"] = Character{ name: "Ragnar"}
+	
+//	fmt.Println(m["Ragnar"])
+	
 	intializeDatabaseConnection()
 
 	listener := setUpServer()
