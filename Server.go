@@ -12,9 +12,11 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"net"
 	"os"
+	"sync"
 )
 
 var databaseG *sql.DB //The G means its a global var
+var eventQueuMutexG sync.Mutex
 
 func main() {
 
@@ -26,12 +28,15 @@ func main() {
 	listener := setUpServer()
 
 	
-	conn, err := listener.Accept()
-	checkError(err)
-	fmt.Println("Connection established")
+	for{
+		conn, err := listener.Accept()
+		checkError(err)
+		fmt.Println("Connection established")
 	
-	//go handleClient(conn)
-	handleClient(conn)
+		go handleClient(conn)
+		//handleClient(conn)	
+	}
+	
 	
 }
 
