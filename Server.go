@@ -16,6 +16,7 @@ import (
 )
 
 var databaseG *sql.DB //The G means its a global var
+var onlinePlayers map[string]Character
 var eventQueuMutexG sync.Mutex
 
 func main() {
@@ -47,6 +48,46 @@ func main() {
 	
 	
 }
+
+func handleClient(client net.Conn){
+	//encoder := gob.NewEncoder(client)
+	decoder := gob.NewDecoder(client)
+	
+	var clientsMessage ClientMessage
+	decoder.Decode(&clientsMessage)
+
+	fmt.Println("clients message: " + clientsMessage.Value)
+	
+	if(isGoodLogin(clientsMessage.getUsername(), clientsMessage.getPassword())){
+		fmt.Println("Good Login!")
+	}else{
+		fmt.Println("Bad Login!")
+	}
+	databaseG.Close() //TODO remove these closes 
+	client.Close()
+
+
+	//get clients character name
+	// load info from database
+}
+
+func loadCharacterFromDB(characterName string){
+	rows, err := databaseG.Query("select * from Character where CharacterName = ?", characterName)
+	checkError(err)
+	defer rows.Close()
+	
+	var char Character
+
+	if( rows.Next()){
+		err := rows.Scan(&char.Name, ....)
+		checkError(err)
+		if(DBpassword == pw){
+			return true
+		}
+	}
+	
+}
+
 
 func checkError(err error) {
 	if err != nil {
@@ -82,24 +123,6 @@ func isGoodLogin(name string, pw string) bool{
 	}
 	
 	return false
-}
-
-func handleClient(client net.Conn){
-	//encoder := gob.NewEncoder(client)
-	decoder := gob.NewDecoder(client)
-	
-	var clientsMessage ClientMessage
-	decoder.Decode(&clientsMessage)
-
-	fmt.Println("clients message: " + clientsMessage.Value)
-	
-	if(isGoodLogin(clientsMessage.getUsername(), clientsMessage.getPassword())){
-		fmt.Println("Good Login!")
-	}else{
-		fmt.Println("Bad Login!")
-	}
-	databaseG.Close() //TODO remove these closes 
-	client.Close()
 }
 
 func setUpServer() *net.TCPListener{
