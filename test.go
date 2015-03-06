@@ -15,7 +15,8 @@ func roomAndMoveTest(rooms [4]*Room){
 	var input string
 	
 	for {
-		fmt.Println(rooms[currentRoom].Description, "\n")
+		//fmt.Println(rooms[currentRoom].Description, "\n")
+		fmt.Println(rooms[currentRoom].getFormattedOutput())
 		read, err := fmt.Scan(&input)
 		checkError(err)	
 		_ = read
