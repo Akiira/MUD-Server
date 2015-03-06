@@ -1,5 +1,19 @@
 package main
 
+// Enumeration for movement/exit directions
+const (
+	NORTH = 0
+	SOUTH
+	EAST
+	WEST
+	NORTH_EAST
+	NORTH_WEST
+	SOUTH_EAST
+	SOUTH_WEST
+	UP
+	DOWN
+)
+
 type Room struct {
 	Exits [10]int
 	ExitLinksToRooms [10]*Room
