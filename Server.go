@@ -72,19 +72,19 @@ func handleClient(client net.Conn){
 }
 
 func loadCharacterFromDB(characterName string){
-	rows, err := databaseG.Query("select * from Character where CharacterName = ?", characterName)
-	checkError(err)
-	defer rows.Close()
+//	rows, err := databaseG.Query("select * from Character where CharacterName = ?", characterName)
+//	checkError(err)
+//	defer rows.Close()
 	
-	var char Character
+//	var char Character
 
-	if( rows.Next()){
-		err := rows.Scan(&char.Name, ....)
-		checkError(err)
-		if(DBpassword == pw){
-			return true
-		}
-	}
+//	if( rows.Next()){
+//		err := rows.Scan(&char.Name, ....)
+//		checkError(err)
+//		if(DBpassword == pw){
+//			return true
+//		}
+//	}
 	
 }
 

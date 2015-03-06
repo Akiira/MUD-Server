@@ -13,10 +13,10 @@ func (b *Broadcaster) registerNewListener(client net.Conn, char Character) {
 	
 }
 
-func (b *Broadcaster) broadcastToRoom(message String, room int) {
+func (b *Broadcaster) broadcastToRoom(message string, room int) {
 	
 }
 
-func (b *Broadcaster) broadcastToCharacter(message String, characterName string) {
+func (b *Broadcaster) broadcastToCharacter(message string, characterName string) {
 	
 }
