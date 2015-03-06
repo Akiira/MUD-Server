@@ -21,6 +21,14 @@ var eventQueuMutexG sync.Mutex
 
 func main() {
 
+	rooms := LoadRooms()
+
+	fmt.Println("length: ", len(rooms))
+	//fmt.Println(rooms[1].Description)
+	//fmt.Println(rooms[0].ExitLinksToRooms[1].Description)
+
+	roomAndMoveTest(rooms)
+
 	//databaseTest()
 	//GobTest()
 	//LogInTest()
@@ -32,19 +40,19 @@ func main() {
 	
 //	fmt.Println(m["Ragnar"])
 	
-	intializeDatabaseConnection()
+//	intializeDatabaseConnection()
 
-	listener := setUpServer()
+//	listener := setUpServer()
 
 	
-	for{
-		conn, err := listener.Accept()
-		checkError(err)
-		fmt.Println("Connection established")
+//	for{
+//		conn, err := listener.Accept()
+//		checkError(err)
+//		fmt.Println("Connection established")
 	
-		go handleClient(conn)
-		//handleClient(conn)	
-	}
+//		go handleClient(conn)
+//		//handleClient(conn)	
+//	}
 	
 	
 }

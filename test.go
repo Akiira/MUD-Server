@@ -10,6 +10,30 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
+func roomAndMoveTest(rooms [4]*Room){
+	currentRoom := 0
+	var input string
+	
+	for {
+		fmt.Println(rooms[currentRoom].Description, "\n")
+		read, err := fmt.Scan(&input)
+		checkError(err)	
+		_ = read
+		
+		if(input == "exit"){
+			break
+		}
+
+		switch input {
+			case "n", "N" : currentRoom = rooms[currentRoom].Exits[NORTH]
+			case "s", "S" : currentRoom = rooms[currentRoom].Exits[SOUTH]
+			case "w", "W" : currentRoom = rooms[currentRoom].Exits[WEST]
+			case "e", "E" : currentRoom = rooms[currentRoom].Exits[EAST]
+		}
+	}
+	
+}
+
 func LogInWithClientTest() {
 	service := "127.0.0.1:1200"
 	tcpAddr, err := net.ResolveTCPAddr("tcp4", service)
