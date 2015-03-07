@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"strings"
-	"strconv"
+	//"strconv"
 )
 
 // Enumeration for movement/exit directions
@@ -21,6 +21,7 @@ const (
 )
 
 type Room struct {
+	Name string
 	ID int
 	Description string
 	Exits [10]int
@@ -29,7 +30,9 @@ type Room struct {
 }
 
 func newRoomFromXML( roomData RoomXML) *Room {
-	room := Room{ ID: roomData.ID, 
+	room := Room{
+				Name: roomData.Name, 
+				ID: roomData.ID, 
 				Description: roomData.Description, 
 			}
 	for i := 0; i < 10; i++ {
@@ -95,7 +98,8 @@ func (room *Room) getRoomLink(exit int) *Room{
 
 func (room *Room) getFormattedOutput() string{
 	var output string
-	output = "-----------------------------------------\n"
+	output = room.Name + "\n"
+	output += "-------------------------------------------------\n"
 	output += room.Description + "\n"
 	output += "Exits: "
 	for i:= 0; i < 10; i++ {
