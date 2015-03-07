@@ -43,41 +43,6 @@ func newRoomFromXML( roomData RoomXML) *Room {
 	return &room
 }
 
-func newRoom(id string, descr string, exitWithLinks string) *Room{
-	
-	temp := strings.Split(id, "\r\n")
-	id = temp[0]
-	
-	rID, err := strconv.Atoi(id)
-	checkError(err)
-	
-	room := Room{ ID: rID, 
-				Description: descr, 
-			}
-
-	for i := 0; i < 10; i++ {
-		room.Exits[i] = -1
-	}
-
-
-	for index, element := range strings.Split(exitWithLinks, "\r\n"){
-		_ = index
-		dirAndRoom := strings.Split(element, " ")
-		if len(dirAndRoom) != 2 {
-			break
-		}
-
-		dir := convertDirectionToInt(dirAndRoom[0])
-		temp = strings.Split(dirAndRoom[1], "\r\n")
-		roomID, err := strconv.Atoi(temp[0])
-		checkError(err)
-		
-		room.Exits[dir] = roomID
-	}
-
-	return &room
-}
-
 func convertDirectionToInt(direction string) int {
 	
 	switch strings.ToLower(direction) {
