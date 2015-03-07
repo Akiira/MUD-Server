@@ -28,13 +28,29 @@ type Room struct {
 	//Location string	
 }
 
+func newRoomFromXML( roomData RoomXML) *Room {
+	room := Room{ ID: roomData.ID, 
+				Description: roomData.Description, 
+			}
+	for i := 0; i < 10; i++ {
+		room.Exits[i] = -1
+	}
+	
+	for _, roomExit := range roomData.Exits {
+		room.Exits[convertDirectionToInt(roomExit.Direction)] = roomExit.ConnectedRoomID
+	}
+	
+	return &room
+}
+
 func newRoom(id string, descr string, exitWithLinks string) *Room{
 	
 	temp := strings.Split(id, "\r\n")
-
 	id = temp[0]
+	
 	rID, err := strconv.Atoi(id)
 	checkError(err)
+	
 	room := Room{ ID: rID, 
 				Description: descr, 
 			}
@@ -50,8 +66,7 @@ func newRoom(id string, descr string, exitWithLinks string) *Room{
 		if len(dirAndRoom) != 2 {
 			break
 		}
-		fmt.Println("Element: |", element, "| ")
-		fmt.Println("DirAndRoom: ", dirAndRoom)
+
 		dir := convertDirectionToInt(dirAndRoom[0])
 		temp = strings.Split(dirAndRoom[1], "\r\n")
 		roomID, err := strconv.Atoi(temp[0])
@@ -98,10 +113,11 @@ func convertIntToDirection(direction int) string {
 	
 	return ""
 }
+
 func (room *Room) setRoomLink(roomLink [4]*Room){
 	for i := 0; i < 10; i++ {
 		if room.Exits[i] != -1 {
-			//fmt.Println("Add: ", room.Exits[i], ", for room: ", room.ID)
+			fmt.Println("Add: ", room.Exits[i], ", for room: ", room.ID)
 			//fmt.Println("\tAdd: ", roomLink[room.Exits[i]].ID)
 			room.ExitLinksToRooms[i] = roomLink[room.Exits[i]]
 		}
