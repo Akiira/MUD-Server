@@ -21,7 +21,7 @@ var eventQueuMutexG sync.Mutex
 
 func main() {
 
-	rooms := LoadRooms()
+	rooms := loadRooms()
 
 	fmt.Println("length: ", len(rooms))
 	//fmt.Println(rooms[1].Description)
