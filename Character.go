@@ -1,5 +1,9 @@
 package main
 
+import (
+	"math/rand"
+)
+
 type Character struct {
 	Name string
 	RoomIN int
@@ -19,6 +23,10 @@ type Character struct {
 	
 //	Weapon Item
 	//ArmourSet 
+}
+
+func (c *Character) getAttackRoll() int {
+	return rand.Int() % 6
 }
 
 func (c *Character) addItemToInventory(item Item) {
