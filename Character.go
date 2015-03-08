@@ -2,21 +2,22 @@ package main
 
 type Character struct {
 	Name string
-	Strength int
-	Constitution int
-	Dexterity int
-	Wisdom int
-	Charisma int
-	Inteligence int
+	RoomIN int
+//	Strength int
+//	Constitution int
+//	Dexterity int
+//	Wisdom int
+//	Charisma int
+//	Inteligence int
 	
-	Location string
+//	Location string
 	
-	Race string
-	Class string
+//	Race string
+//	Class string
 
-	PersonalInvetory Inventory
+//	PersonalInvetory Inventory
 	
-	Weapon Item
+//	Weapon Item
 	//ArmourSet 
 }
 
