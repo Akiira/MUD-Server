@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"strings"
-	"container/list"
 )
 
 // Enumeration for movement/exit directions
@@ -27,7 +26,7 @@ type Room struct {
 	Exits [10]int
 	ExitLinksToRooms [10]*Room
 	//Location string
-	// agentsInRoom List	
+	CharactersInRoom map[string]bool	
 }
 
 func newRoomFromXML( roomData RoomXML) *Room {
@@ -44,6 +43,7 @@ func newRoomFromXML( roomData RoomXML) *Room {
 		room.Exits[convertDirectionToInt(roomExit.Direction)] = roomExit.ConnectedRoomID
 	}
 	
+	room.CharactersInRoom = make(map[string]bool)
 	return &room
 }
 
@@ -98,11 +98,11 @@ func (room *Room) getRoomLink(exit int) *Room{
 }
 
 func (room *Room) addPCToRoom(charName string) {
-	
+	room.CharactersInRoom[charName] = true;
 }
 
 func (room *Room) removePCFromRoom(charName string) {
-	
+	delete(room.CharactersInRoom, charName)
 }
 
 
