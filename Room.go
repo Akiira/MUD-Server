@@ -26,7 +26,8 @@ type Room struct {
 	Description string
 	Exits [10]int
 	ExitLinksToRooms [10]*Room
-	//Location string	
+	//Location string
+	// agentsInRoom List	
 }
 
 func newRoomFromXML( roomData RoomXML) *Room {
@@ -94,6 +95,19 @@ func (room *Room) setRoomLink(roomLink [4]*Room){
 
 func (room *Room) getRoomLink(exit int) *Room{
 	return room.ExitLinksToRooms[exit]
+}
+
+func (room *Room) addPCToRoom(charName string) {
+	
+}
+
+func (room *Room) removePCFromRoom(charName string) {
+	
+}
+
+
+func (room *Room) populateRoomWithMonsters() {
+	
 }
 
 func (room *Room) getFormattedOutput() string{
