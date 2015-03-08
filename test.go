@@ -10,6 +10,25 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
+func roomAndMoveTest2(){
+	var input string
+	fmt.Println(worldRoomsG[0].getFormattedOutput())
+	for {
+		//fmt.Println(rooms[currentRoom].Description, "\n")
+		
+		read, err := fmt.Scan(&input)
+		checkError(err)	
+		_ = read
+		
+		if(input == "exit"){
+			break
+		}
+		
+		output := executeMove("Ragnar", input)
+		fmt.Println(output, "\n")
+	}
+}
+
 func roomAndMoveTest(rooms [4]*Room){
 	currentRoom := 0
 	var input string
