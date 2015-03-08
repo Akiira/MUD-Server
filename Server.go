@@ -16,18 +16,24 @@ import (
 )
 
 var databaseG *sql.DB //The G means its a global var
-var onlinePlayers map[string]Character
+var onlinePlayers map[string]*Character
 var eventQueuMutexG sync.Mutex
+var worldRoomsG [4]*Room
 
 func main() {
+	onlinePlayers = make(map[string]*Character)
+	onlinePlayers["Ragnar"] = new(Character)
+	foo := onlinePlayers["Ragnar"]
+	foo.Name = "Ragnar"
+	foo.RoomIN = 0
+	worldRoomsG = loadRooms()
 
-	rooms := loadRooms()
-
-	fmt.Println("length: ", len(rooms))
+	fmt.Println("length: ", len(worldRoomsG))
 	//fmt.Println(rooms[1].Description)
 	//fmt.Println(rooms[0].ExitLinksToRooms[1].Description)
-
-	roomAndMoveTest(rooms)
+	
+	roomAndMoveTest2()
+	//roomAndMoveTest(worldRoomsG)
 
 	//databaseTest()
 	//GobTest()
