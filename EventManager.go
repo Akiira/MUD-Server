@@ -25,3 +25,7 @@ func executeMove(charName string, direction string) string {
 		return "No exit in that direction"
 	}
 }
+
+func executeLook(charName string) string {
+	
+}

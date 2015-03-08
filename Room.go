@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"strings"
-	//"strconv"
+	"container/list"
 )
 
 // Enumeration for movement/exit directions
