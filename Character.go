@@ -101,7 +101,6 @@ func (char *Character) makeAttack(targetName string) []FormattedString {
 		room.killOffMonster(targetName)
 	}
 	
-
 	return output
 }
 

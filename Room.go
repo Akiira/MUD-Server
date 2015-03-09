@@ -37,6 +37,7 @@ type Room struct {
 	MonstersInRoom map[string]*Monster
 	
 	//May have a third mapping to friendly NPCs like shopkeepers
+	//NonCharactersInRoom map[string]*NPC
 }
 
 //This is a constructor that creates a room from xml data
