@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"strings"
+	"github.com/daviddengcn/go-colortext"
 )
 
 // Enumeration for movement/exit directions
@@ -26,7 +27,8 @@ type Room struct {
 	Exits [10]int
 	ExitLinksToRooms [10]*Room
 	//Location string
-	CharactersInRoom map[string]bool	
+	CharactersInRoom map[string]bool
+	MonstersInRoom map[string]*Monster
 }
 
 func newRoomFromXML( roomData RoomXML) *Room {
@@ -44,6 +46,7 @@ func newRoomFromXML( roomData RoomXML) *Room {
 	}
 	
 	room.CharactersInRoom = make(map[string]bool)
+	room.MonstersInRoom = make(map[string]*Monster)
 	return &room
 }
 
@@ -105,22 +108,43 @@ func (room *Room) removePCFromRoom(charName string) {
 	delete(room.CharactersInRoom, charName)
 }
 
-
-func (room *Room) populateRoomWithMonsters() {
-	
+func (room *Room) getMonster(monsterName string) *Monster {
+	return room.MonstersInRoom[monsterName]
 }
 
-func (room *Room) getFormattedOutput() string{
+func (room *Room) killOffMonster(monsterName string) {
+	delete(room.MonstersInRoom, monsterName)
+}
+
+func (room *Room) populateRoomWithMonsters() { //TODO remove hardcoding, maybe load from xml file
+	room.MonstersInRoom["Rabbit"] = &Monster{HP: 5, Name: "Rabbit"}
+	room.MonstersInRoom["Fox"] = &Monster{HP: 10, Name: "Fox"}
+	room.MonstersInRoom["Deer"] = &Monster{HP: 7, Name: "Deer"}
+}
+
+func (room *Room) getFormattedOutput() []FormattedString{
 	var output string
-	output = room.Name + "\n"
-	output += "-------------------------------------------------\n"
-	output += room.Description + "\n"
-	output += "Exits: "
+	formattedString := make([]FormattedString, 4, 4)
+	
+	formattedString[0].Color = ct.Green
+	formattedString[0].Value = room.Name 
+	formattedString[1].Color = ct.White;
+	formattedString[1].Value = "-------------------------------------------------\n"
+	formattedString[1].Value += room.Description
+	formattedString[2].Color = ct.Magenta
+
+	output = "Exits: "
 	for i:= 0; i < 10; i++ {
 		if( room.Exits[i] >= 0 ) {
 			output += convertIntToDirection(i) + " "
 		}
 	}
-	
-	return output
+	formattedString[2].Value = output
+	formattedString[3].Color = ct.Red
+	output = ""
+	for key, _ := range room.MonstersInRoom {
+		output += "\n" + key 
+	}
+	formattedString[3].Value = output
+	return formattedString
 }
