@@ -4,27 +4,29 @@ import (
 	"math/rand"
 )
 
+// this should be a stub that hold a connection to a client
+// works like a thread on its own
 type Character struct {
-	Name string
-	RoomIN int
+	Name      string
+	RoomIN    int
 	HitPoints int
-	Defense int
-//	Strength int
-//	Constitution int
-//	Dexterity int
-//	Wisdom int
-//	Charisma int
-//	Inteligence int
-	
-//	Location string
-	
-//	Race string
-//	Class string
+	Defense   int
+	//	Strength int
+	//	Constitution int
+	//	Dexterity int
+	//	Wisdom int
+	//	Charisma int
+	//	Inteligence int
 
-//	PersonalInvetory Inventory
-	
-//	Weapon Item
-	//ArmourSet 
+	//	Location string
+
+	//	Race string
+	//	Class string
+
+	//	PersonalInvetory Inventory
+
+	//	Weapon Item
+	//ArmourSet
 }
 
 func (c *Character) getAttackRoll() int {
@@ -32,21 +34,20 @@ func (c *Character) getAttackRoll() int {
 }
 
 func (c *Character) addItemToInventory(item Item) {
-	
+
 }
 
 func (c *Character) equipItemFromGround(item Item) {
-	
+
 }
 
 func (c *Character) equipItemFromInventory(itemName string) {
-	
+
 }
 
 func (c *Character) moveCharacter(direction string) {
-	
-}
 
+}
 
 func (c *Character) getAttack() int {
 	return -1
