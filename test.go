@@ -11,6 +11,18 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
+func populateTestData(){
+	monsterTemplatesG = make(map[string]*Monster)
+	onlinePlayers = make(map[string]*Character)
+	onlinePlayers["Ragnar"] = new(Character)
+	onlinePlayers["Ragnar"] = newCharacter("Ragnar", 0, 30, 2)
+	onlinePlayers["Ragnar"].addItemToInventory(Item{name: "Brown-Hat", description: "A moldy old hat with holes in it"})
+	onlinePlayers["Ragnar"].addItemToInventory(Item{name: "Walking-Stick", description: "A sturdy walking stick made of oak"})
+	worldRoomsG = loadRooms()
+	loadMonsterData()
+	worldRoomsG[0].populateRoomWithMonsters()
+}
+
 func printFormatedOutput(output []FormattedString) {
 	for _, element := range output {
 		ct.ChangeColor(element.Color, false, ct.Black, false)
