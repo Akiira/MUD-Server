@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<Monsters>
+	<Monster>
+		<Name>Rabbit</Name>
+		<HP>5</HP>
+		<Defense>1</Defense>
+	</Monster>
+	<Monster>
+		<Name>Deer</Name>
+		<HP>10</HP>
+		<Defense>3</Defense>
+	</Monster>
+	<Monster>
+		<Name>Fox</Name>
+		<HP>7</HP>
+		<Defense>4</Defense>
+	</Monster>
+</Monsters>
