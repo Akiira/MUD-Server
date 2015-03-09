@@ -34,7 +34,7 @@ func main() {
 	foo.HitPoints = 30
 	worldRoomsG = loadRooms()
 	loadMonsterData()
-	fmt.Println(monsterTemplatesG["Rabbit"])
+	//fmt.Println(monsterTemplatesG["Rabbit"])
 	worldRoomsG[0].populateRoomWithMonsters()
 //	fmt.Println(worldRoomsG[0].MonstersInRoom["Rabbit"])
 
@@ -43,7 +43,7 @@ func main() {
 	//fmt.Println(rooms[1].Description)
 	//fmt.Println(rooms[0].ExitLinksToRooms[1].Description)
 	
-	//MovementAndCombatTest()
+	MovementAndCombatTest()
 	//combatTest()
 	//roomAndMoveTest2()
 	//roomAndMoveTest(worldRoomsG)
