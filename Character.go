@@ -35,18 +35,35 @@ type Character struct {
 	//	Race string
 	//	Class string
 
-	//	PersonalInvetory Inventory
+	PersonalInvetory Inventory
 
 	//	Weapon Item
 	//ArmourSet
 }
+
+func newCharacter(name string, room int, hp int, def int) *Character {
+	char := new(Character)
+	char.Name = name
+	char.HitPoints = hp
+	char.Defense = def
+	char.PersonalInvetory = *newInventory()
+	
+	return char
+}
+
+//func newCharacterFromCharacter(oldChar Character) *Character {
+//	char := new(Character)
+//	char.Name = oldChar.Name
+//	char.HitPoints = oldChar.HitPoints
+//	char.Defense = oldChar.Defense
+//}
 
 func (c *Character) getAttackRoll() int {
 	return rand.Int() % 6
 }
 
 func (c *Character) addItemToInventory(item Item) {
-
+	c.PersonalInvetory.items[item.name] = item
 }
 
 func (c *Character) equipItemFromGround(item Item) {
