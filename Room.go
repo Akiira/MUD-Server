@@ -24,11 +24,20 @@ type Room struct {
 	Name string
 	ID int
 	Description string
+	
+	// This represents each directions exit and has the room number of the connected
+	// room or -1 if no exit in that direction. This can probaly be combined
+	// with ExitLinksToRooms.
 	Exits [10]int
 	ExitLinksToRooms [10]*Room
-	//Location string
+	
+	//This represents the player characters (PCs) in the room
 	CharactersInRoom map[string]bool
+	
+	//This represents the attackable non-playable characters (NPCs) in the room
 	MonstersInRoom map[string]*Monster
+	
+	//May have a third mapping to friendly NPCs like shopkeepers
 }
 
 func newRoomFromXML( roomData RoomXML) *Room {
@@ -50,7 +59,8 @@ func newRoomFromXML( roomData RoomXML) *Room {
 	return &room
 }
 
-func (room *Room) setRoomLink(roomLink [4]*Room){
+
+func (room *Room) setRoomLink(roomLink []*Room){
 	for i := 0; i < 10; i++ {
 		if room.Exits[i] != -1 {
 			fmt.Println("Add: ", room.Exits[i], ", for room: ", room.ID)
