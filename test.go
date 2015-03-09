@@ -6,13 +6,22 @@ import (
 	"fmt"
 	"log"
 	"net"
-
+	"github.com/daviddengcn/go-colortext"
 	_ "github.com/go-sql-driver/mysql"
 )
 
+func printFormatedOutput(output []FormattedString) {
+	for _, element := range output {
+		ct.ChangeColor(element.Color, false, ct.Black, false)
+		fmt.Println(element.Value)
+	}
+	ct.ResetColor()
+}
+
 func roomAndMoveTest2(){
 	var input string
-	fmt.Println(worldRoomsG[0].getFormattedOutput())
+	//fmt.Println(worldRoomsG[0].getFormattedOutput())
+	printFormatedOutput(worldRoomsG[0].getFormattedOutput())
 	for {
 		//fmt.Println(rooms[currentRoom].Description, "\n")
 		
@@ -25,7 +34,8 @@ func roomAndMoveTest2(){
 		}
 		
 		output := executeMove("Ragnar", input)
-		fmt.Println(output, "\n")
+		//fmt.Println(output, "\n")
+		printFormatedOutput(output)
 	}
 }
 
