@@ -18,7 +18,7 @@ import (
 var databaseG *sql.DB //The G means its a global var
 var onlinePlayers map[string]*Character
 var eventQueuMutexG sync.Mutex
-var worldRoomsG [4]*Room
+var worldRoomsG []*Room
 
 func main() {
 

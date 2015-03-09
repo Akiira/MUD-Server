@@ -30,7 +30,7 @@ type RoomsXML struct {
 	Rooms []RoomXML `xml:"Room"`
 }
 
-func loadRooms() [4]*Room {
+func loadRooms() []*Room {
 	xmlFile, err := os.Open("roomData.xml")
 	checkError(err)
 	defer xmlFile.Close()
@@ -40,7 +40,8 @@ func loadRooms() [4]*Room {
 	var roomsData RoomsXML
     xml.Unmarshal(XMLdata, &roomsData)
 	
-	var rooms [4]*Room
+	//var rooms [4]*Room
+	rooms := make([]*Room, 4, 4)
 
 	for index, roomData := range roomsData.Rooms {
 		rooms[index] = newRoomFromXML(roomData)
