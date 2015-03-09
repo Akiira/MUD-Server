@@ -91,9 +91,9 @@ func (room *Room) killOffMonster(monsterName string) {
 }
 
 func (room *Room) populateRoomWithMonsters() { //TODO remove hardcoding, maybe load from xml file
-	room.MonstersInRoom["Rabbit"] = &Monster{HP: 5, Name: "Rabbit"}
-	room.MonstersInRoom["Fox"] = &Monster{HP: 10, Name: "Fox"}
-	room.MonstersInRoom["Deer"] = &Monster{HP: 7, Name: "Deer"}
+	room.MonstersInRoom["Rabbit"] = newMonsterFromName("Rabbit")
+	room.MonstersInRoom["Fox"] = newMonsterFromName("Deer")
+	room.MonstersInRoom["Deer"] = newMonsterFromName("Fox")
 }
 
 func (room *Room) getFormattedOutput() []FormattedString{
