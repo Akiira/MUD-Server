@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"strings"
 	"github.com/daviddengcn/go-colortext"
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -16,6 +17,23 @@ func printFormatedOutput(output []FormattedString) {
 		fmt.Println(element.Value)
 	}
 	ct.ResetColor()
+}
+
+func combatTest(){
+	var input string
+	var foo string
+	printFormatedOutput(worldRoomsG[0].getFormattedOutput())
+	read, err := fmt.Scanln(&input, &foo)
+	checkError(err)	
+		_ = read
+	//fmt.Println(worldRoomsG[0].getFormattedOutput())	
+	
+	if( strings.HasPrefix(input, "attack") ) {
+		//tmp := strings.Split(input, " ")
+		//fmt.Println(tmp)
+		output := executeStandardAttack("Ragnar", foo)
+		printFormatedOutput(output)
+	}
 }
 
 func roomAndMoveTest2(){
