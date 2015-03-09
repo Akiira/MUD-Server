@@ -32,6 +32,15 @@ func newMonsterFromXML(monsterData MonsterXML) *Monster {
 	return m
 }
 
+func newMonsterFromName(name string) *Monster {
+	m := new(Monster)
+	m.Name = monsterTemplatesG[name].Name
+	m.HP = monsterTemplatesG[name].HP
+	m.Defense = monsterTemplatesG[name].Defense
+	
+	return m
+}
+
 func (m *Monster) getAttackRoll() int {
 	return rand.Int() % 6
 }
