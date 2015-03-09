@@ -35,7 +35,7 @@ func MovementAndCombatTest(){
 			read, err = fmt.Scan(&target)
 			checkError(err)	
 			
-			output = executeStandardAttack("Ragnar", target)
+			output = onlinePlayers["Ragnar"].makeAttack(target)
 		} else { //assume movement
 			output = onlinePlayers["Ragnar"].moveCharacter(input)
 		}
@@ -56,7 +56,7 @@ func combatTest(){
 	if( strings.HasPrefix(input, "attack") ) {
 		//tmp := strings.Split(input, " ")
 		//fmt.Println(tmp)
-		output := executeStandardAttack("Ragnar", foo)
+		output := onlinePlayers["Ragnar"].makeAttack(foo)
 		printFormatedOutput(output)
 	}
 }
