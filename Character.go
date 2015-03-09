@@ -38,7 +38,7 @@ type Character struct {
 	PersonalInvetory Inventory
 
 	//	Weapon Item
-	//ArmourSet
+	ArmourSet map[string]Armour
 }
 
 func newCharacter(name string, room int, hp int, def int) *Character {
@@ -47,19 +47,22 @@ func newCharacter(name string, room int, hp int, def int) *Character {
 	char.HitPoints = hp
 	char.Defense = def
 	char.PersonalInvetory = *newInventory()
-	
+	char.ArmourSet = make(map[string]Armour)
+
 	return char
 }
 
-//func newCharacterFromCharacter(oldChar Character) *Character {
-//	char := new(Character)
-//	char.Name = oldChar.Name
-//	char.HitPoints = oldChar.HitPoints
-//	char.Defense = oldChar.Defense
-//}
-
 func (c *Character) getAttackRoll() int {
 	return rand.Int() % 6
+}
+
+func (c *Character)  wearArmor(location string, armr Armour) {
+	if _, ok := c.ArmourSet[location]; ok  { // already an item present
+		//TODO
+	} else {
+		c.ArmourSet[location] = armr
+		c.Defense += armr.defense
+	}
 }
 
 func (c *Character) addItemToInventory(item Item) {
