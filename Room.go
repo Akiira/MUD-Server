@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"strings"
 	"github.com/daviddengcn/go-colortext"
 )
@@ -40,6 +39,7 @@ type Room struct {
 	//May have a third mapping to friendly NPCs like shopkeepers
 }
 
+//This is a constructor that creates a room from xml data
 func newRoomFromXML( roomData RoomXML) *Room {
 	room := Room{
 				Name: roomData.Name, 
@@ -59,12 +59,11 @@ func newRoomFromXML( roomData RoomXML) *Room {
 	return &room
 }
 
-
+//This function must be called after all rooms are created and is
+// responsible for seting the exit pointers to point at the correct rooms
 func (room *Room) setRoomLink(roomLink []*Room){
 	for i := 0; i < 10; i++ {
 		if room.Exits[i] != -1 {
-			fmt.Println("Add: ", room.Exits[i], ", for room: ", room.ID)
-			//fmt.Println("\tAdd: ", roomLink[room.Exits[i]].ID)
 			room.ExitLinksToRooms[i] = roomLink[room.Exits[i]]
 		}
 	}
