@@ -19,11 +19,13 @@ var databaseG *sql.DB //The G means its a global var
 var onlinePlayers map[string]*Character
 var eventQueuMutexG sync.Mutex
 var worldRoomsG []*Room
+var monsterTemplatesG map[string]*Monster
 
 func main() {
 
 //	ct.ChangeColor(ct.Red, true, ct.White, false)
 //	fmt.Println("Test")
+	monsterTemplatesG = make(map[string]*Monster)
 	onlinePlayers = make(map[string]*Character)
 	onlinePlayers["Ragnar"] = new(Character)
 	foo := onlinePlayers["Ragnar"]
@@ -31,7 +33,8 @@ func main() {
 	foo.RoomIN = 0
 	foo.HitPoints = 30
 	worldRoomsG = loadRooms()
-	
+	loadMonsterData()
+	fmt.Println(monsterTemplatesG["Rabbit"])
 	worldRoomsG[0].populateRoomWithMonsters()
 //	fmt.Println(worldRoomsG[0].MonstersInRoom["Rabbit"])
 
@@ -40,7 +43,7 @@ func main() {
 	//fmt.Println(rooms[1].Description)
 	//fmt.Println(rooms[0].ExitLinksToRooms[1].Description)
 	
-	MovementAndCombatTest()
+	//MovementAndCombatTest()
 	//combatTest()
 	//roomAndMoveTest2()
 	//roomAndMoveTest(worldRoomsG)
