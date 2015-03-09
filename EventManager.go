@@ -33,6 +33,7 @@ func executeMove(charName string, direction string) []FormattedString {
 }
 
 func executeStandardAttack(charName string, targetName string) []FormattedString {
+
 	char := onlinePlayers[charName]
 	target := worldRoomsG[char.RoomIN].getMonster(targetName)
 	output := make([]FormattedString, 2, 2)
