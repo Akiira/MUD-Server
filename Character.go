@@ -2,6 +2,7 @@ package main
 
 import (
 	"math/rand"
+	"github.com/daviddengcn/go-colortext"
 )
 
 type Listener interface {
@@ -56,8 +57,21 @@ func (c *Character) equipItemFromInventory(itemName string) {
 
 }
 
-func (c *Character) moveCharacter(direction string) {
+func (char *Character) moveCharacter(direction string) []FormattedString {
+	room := worldRoomsG[char.RoomIN]
+	dirAsInt := convertDirectionToInt(direction)
 
+	if room.Exits[dirAsInt] >= 0 {
+		room.removePCFromRoom(char.Name)
+		room.ExitLinksToRooms[dirAsInt].addPCToRoom(char.Name)
+		char.RoomIN = room.Exits[dirAsInt]
+		return room.ExitLinksToRooms[dirAsInt].getFormattedOutput()
+	} else {
+		output := make([]FormattedString, 1, 1)
+		output[0].Color = ct.Black
+		output[0].Value = "No exit in that direction"
+		return output
+	}
 }
 
 func (c *Character) getAttack() int {

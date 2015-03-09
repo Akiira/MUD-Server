@@ -18,23 +18,22 @@ type FormattedString struct {
 }
 
 //this method should be moved to the character class (remote stub)
-func executeMove(charName string, direction string) []FormattedString {
-	char := onlinePlayers[charName]
-	room := worldRoomsG[char.RoomIN]
-	dirAsInt := convertDirectionToInt(direction)
+//func executeMove(charName string, direction string) []FormattedString {
+//	room := worldRoomsG[char.RoomIN]
+//	dirAsInt := convertDirectionToInt(direction)
 
-	if room.Exits[dirAsInt] >= 0 {
-		room.removePCFromRoom(charName)
-		room.ExitLinksToRooms[dirAsInt].addPCToRoom(charName)
-		char.RoomIN = room.Exits[dirAsInt]
-		return room.ExitLinksToRooms[dirAsInt].getFormattedOutput()
-	} else {
-		foo := make([]FormattedString, 1, 1)
-		foo[0].Color = ct.Black
-		foo[0].Value = "No exit in that direction"
-		return foo
-	}
-}
+//	if room.Exits[dirAsInt] >= 0 {
+//		room.removePCFromRoom(char.Name)
+//		room.ExitLinksToRooms[dirAsInt].addPCToRoom(char.Name)
+//		char.RoomIN = room.Exits[dirAsInt]
+//		return room.ExitLinksToRooms[dirAsInt].getFormattedOutput()
+//	} else {
+//		foo := make([]FormattedString, 1, 1)
+//		foo[0].Color = ct.Black
+//		foo[0].Value = "No exit in that direction"
+//		return foo
+//	}
+//}
 
 //this method should be moved to the character class (remote stub)
 func executeStandardAttack(charName string, targetName string) []FormattedString {

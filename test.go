@@ -37,7 +37,7 @@ func MovementAndCombatTest(){
 			
 			output = executeStandardAttack("Ragnar", target)
 		} else { //assume movement
-			output = executeMove("Ragnar", input)
+			output = onlinePlayers["Ragnar"].moveCharacter(input)
 		}
 	
 		printFormatedOutput(output)
@@ -76,7 +76,7 @@ func roomAndMoveTest2(){
 			break
 		}
 		
-		output := executeMove("Ragnar", input)
+		output := onlinePlayers["Ragnar"].moveCharacter(input)
 		//fmt.Println(output, "\n")
 		printFormatedOutput(output)
 	}
