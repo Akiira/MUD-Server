@@ -2,5 +2,5 @@
 package main
 
 type ServerMessage struct {
-	Value string
+	Value []FormattedString
 }
