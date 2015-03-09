@@ -4,15 +4,18 @@
 		<Name>Rabbit</Name>
 		<HP>5</HP>
 		<Defense>1</Defense>
+		<Description>A harmless little bunny rabbit</Description>
 	</Monster>
 	<Monster>
 		<Name>Deer</Name>
 		<HP>10</HP>
 		<Defense>3</Defense>
+		<Description>An elegant young buck with golden fur</Description>
 	</Monster>
 	<Monster>
 		<Name>Fox</Name>
 		<HP>7</HP>
 		<Defense>4</Defense>
+		<Description>A quick brown fox with little whiskers</Description>
 	</Monster>
 </Monsters>
