@@ -4,6 +4,7 @@ import "math/rand"
 type Monster struct {
 	HP int
 	Name string
+	Defense int
 }
 
 func (m *Monster) getAttackRoll() int {

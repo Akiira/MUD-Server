@@ -7,6 +7,8 @@ import (
 type Character struct {
 	Name string
 	RoomIN int
+	HitPoints int
+	Defense int
 //	Strength int
 //	Constitution int
 //	Dexterity int
