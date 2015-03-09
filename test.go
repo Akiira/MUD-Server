@@ -36,6 +36,11 @@ func MovementAndCombatTest(){
 			checkError(err)	
 			
 			output = onlinePlayers["Ragnar"].makeAttack(target)
+		} else if (input == "look") {
+			var target string
+			read, err = fmt.Scan(&target)
+			checkError(err)	
+			output = monsterTemplatesG[target].getLookDescription()
 		} else { //assume movement
 			output = onlinePlayers["Ragnar"].moveCharacter(input)
 		}
