@@ -21,14 +21,21 @@ var eventQueuMutexG sync.Mutex
 var worldRoomsG [4]*Room
 
 func main() {
+
+//	ct.ChangeColor(ct.Red, true, ct.White, false)
+//	fmt.Println("Test")
 	onlinePlayers = make(map[string]*Character)
 	onlinePlayers["Ragnar"] = new(Character)
 	foo := onlinePlayers["Ragnar"]
 	foo.Name = "Ragnar"
 	foo.RoomIN = 0
 	worldRoomsG = loadRooms()
+	
+	worldRoomsG[0].populateRoomWithMonsters()
+//	fmt.Println(worldRoomsG[0].MonstersInRoom["Rabbit"])
 
-	fmt.Println("length: ", len(worldRoomsG))
+
+//	fmt.Println("length: ", len(worldRoomsG))
 	//fmt.Println(rooms[1].Description)
 	//fmt.Println(rooms[0].ExitLinksToRooms[1].Description)
 	
