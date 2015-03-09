@@ -87,16 +87,25 @@ func (char *Character) makeAttack(targetName string) []FormattedString {
 	}
 
 	a2 := target.getAttackRoll()
-
-	if a2 >= char.Defense {
-		char.HitPoints -= 1
-		output[1].Value = "\nThe " + targetName + " hit you!"
-	} else {
-		output[1].Value = "\nThe " + targetName + " narrowly misses you!"
+	if ( target.HP > 0 ) {
+		if a2 >= char.Defense {
+			char.HitPoints -= 1
+			output[1].Value = "\nThe " + targetName + " hit you!"
+		} else {
+			output[1].Value = "\nThe " + targetName + " narrowly misses you!"
+		}	
+	} else { //TODO add corpse to Rooms list of items
+			// TODO  reward player exp
+		output[1].Value = "\nThe " + targetName + " drops over dead."
+		room := worldRoomsG[char.RoomIN]
+		room.killOffMonster(targetName)
 	}
+	
 
 	return output
 }
+
+
 
 func (c *Character) getName() string {
 	return c.Name
