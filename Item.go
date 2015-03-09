@@ -3,7 +3,7 @@ package main
 type Item struct {
 	name        string
 	description string
-	itemID      int
+//	itemID      int
 }
 
 func (i *Item) getName() string {
@@ -14,6 +14,6 @@ func (i *Item) getDescription() string {
 	return i.description
 }
 
-func (i *Item) getItemID() int {
-	return i.itemID
-}
+//func (i *Item) getItemID() int {
+//	return i.itemID
+//}
