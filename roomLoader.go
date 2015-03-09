@@ -1,18 +1,14 @@
 // roomLoader
 package main
 
+//TODO Should these be moved to the room class?
+//		or perhaps some special initialization file that 
+//		handles all server start up activities.
+
 import (
-	//"strings"
 	"io/ioutil"
-	//"fmt"
 	"encoding/xml"
 	"os"
-)
-
-const (
-	ROOM_ID = 0
-	ROOM_DESCRIPTION = 1
-	ROOM_EXITS = 2
 )
 
 type ExitXML struct {
