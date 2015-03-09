@@ -143,7 +143,7 @@ func (room *Room) getFormattedOutput() []FormattedString{
 	formattedString[3].Color = ct.Red
 	output = ""
 	for key, _ := range room.MonstersInRoom {
-		output += "\n" + key 
+		output += "\n\t" + key 
 	}
 	formattedString[3].Value = output
 	return formattedString
