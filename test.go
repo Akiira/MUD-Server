@@ -19,6 +19,31 @@ func printFormatedOutput(output []FormattedString) {
 	ct.ResetColor()
 }
 
+func MovementAndCombatTest(){
+	var input string
+	printFormatedOutput(worldRoomsG[0].getFormattedOutput())
+	output := make([]FormattedString, 5, 5)
+	for {		
+		read, err := fmt.Scan(&input)
+		checkError(err)	
+		_ = read
+		
+		if(input == "exit"){
+			break
+		} else if (input == "attack") {
+			var target string
+			read, err = fmt.Scan(&target)
+			checkError(err)	
+			
+			output = executeStandardAttack("Ragnar", target)
+		} else { //assume movement
+			output = executeMove("Ragnar", input)
+		}
+	
+		printFormatedOutput(output)
+	}
+}
+
 func combatTest(){
 	var input string
 	var foo string

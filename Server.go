@@ -40,7 +40,8 @@ func main() {
 	//fmt.Println(rooms[1].Description)
 	//fmt.Println(rooms[0].ExitLinksToRooms[1].Description)
 	
-	combatTest()
+	MovementAndCombatTest()
+	//combatTest()
 	//roomAndMoveTest2()
 	//roomAndMoveTest(worldRoomsG)
 
