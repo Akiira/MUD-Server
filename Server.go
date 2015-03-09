@@ -29,6 +29,7 @@ func main() {
 	foo := onlinePlayers["Ragnar"]
 	foo.Name = "Ragnar"
 	foo.RoomIN = 0
+	foo.HitPoints = 30
 	worldRoomsG = loadRooms()
 	
 	worldRoomsG[0].populateRoomWithMonsters()
@@ -39,7 +40,8 @@ func main() {
 	//fmt.Println(rooms[1].Description)
 	//fmt.Println(rooms[0].ExitLinksToRooms[1].Description)
 	
-	roomAndMoveTest2()
+	combatTest()
+	//roomAndMoveTest2()
 	//roomAndMoveTest(worldRoomsG)
 
 	//databaseTest()
