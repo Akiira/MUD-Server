@@ -26,6 +26,8 @@ type MonstersXML struct {
 	Monsters []MonsterXML `xml:"Monster"`
 }
 
+var monsterTemplatesG map[string]*Monster
+
 func newMonsterFromXML(monsterData MonsterXML) *Monster {
 	m := new(Monster)
 	m.Name = monsterData.Name
