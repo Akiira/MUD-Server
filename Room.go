@@ -50,42 +50,6 @@ func newRoomFromXML( roomData RoomXML) *Room {
 	return &room
 }
 
-func convertDirectionToInt(direction string) int {
-	
-	switch strings.ToLower(direction) {
-		case "n" , "n\r\n" , "n\n" : return NORTH
-		case "s" , "s\r\n" , "s\n" : return SOUTH
-		case "e" , "e\r\n" , "e\n" : return EAST
-		case "w" , "w\r\n" , "w\n" : return WEST
-		case "nw", "nw\r\n", "nw\n": return NORTH_WEST
-		case "ne", "ne\r\n", "ne\n": return NORTH_EAST
-		case "sw", "sw\r\n", "sw\n": return SOUTH_WEST
-		case "se", "se\r\n", "se\n": return SOUTH_EAST
-		case "u" , "u\r\n" , "u\n" : return UP
-		case "d" , "d\r\n" , "d\n" : return DOWN
-	}
-	
-	return -1
-}
-
-func convertIntToDirection(direction int) string {
-	
-	switch direction {
-		case 0 : return "North"
-		case 1 : return "South"
-		case 2 : return "East"
-		case 3 : return "West"
-		case 4 : return "North-West"
-		case 5 : return "North-East"
-		case 6 : return "South-West"
-		case 7 : return "South-East"
-		case 8 : return "Up"
-		case 9 : return "Down"
-	}
-	
-	return ""
-}
-
 func (room *Room) setRoomLink(roomLink [4]*Room){
 	for i := 0; i < 10; i++ {
 		if room.Exits[i] != -1 {
@@ -147,4 +111,40 @@ func (room *Room) getFormattedOutput() []FormattedString{
 	}
 	formattedString[3].Value = output
 	return formattedString
+}
+
+func convertDirectionToInt(direction string) int {
+	
+	switch strings.ToLower(direction) {
+		case "n" , "n\r\n" , "n\n" : return NORTH
+		case "s" , "s\r\n" , "s\n" : return SOUTH
+		case "e" , "e\r\n" , "e\n" : return EAST
+		case "w" , "w\r\n" , "w\n" : return WEST
+		case "nw", "nw\r\n", "nw\n": return NORTH_WEST
+		case "ne", "ne\r\n", "ne\n": return NORTH_EAST
+		case "sw", "sw\r\n", "sw\n": return SOUTH_WEST
+		case "se", "se\r\n", "se\n": return SOUTH_EAST
+		case "u" , "u\r\n" , "u\n" : return UP
+		case "d" , "d\r\n" , "d\n" : return DOWN
+	}
+	
+	return -1
+}
+
+func convertIntToDirection(direction int) string {
+	
+	switch direction {
+		case 0 : return "North"
+		case 1 : return "South"
+		case 2 : return "East"
+		case 3 : return "West"
+		case 4 : return "North-West"
+		case 5 : return "North-East"
+		case 6 : return "South-West"
+		case 7 : return "South-East"
+		case 8 : return "Up"
+		case 9 : return "Down"
+	}
+	
+	return ""
 }
