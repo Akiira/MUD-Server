@@ -56,6 +56,11 @@ func (c *Character) getAttackRoll() int {
 	return rand.Int() % 6
 }
 
+
+//TODO change some of these functions so that they return []FormatterString
+// 		so the client can see the effects.
+
+
 func (c *Character)  wearArmor(location string, armr Armour) {
 	if _, ok := c.ArmourSet[location]; ok  { // already an item present
 		//TODO
@@ -65,16 +70,16 @@ func (c *Character)  wearArmor(location string, armr Armour) {
 	}
 }
 
+func (c *Character)  takeOffArmor(location string) {
+	if _, ok := c.ArmourSet[location]; ok  { // already an item present
+		delete(c.ArmourSet, location)
+	} else {
+		//TODO
+	}
+}
+
 func (c *Character) addItemToInventory(item Item) {
 	c.PersonalInvetory.items[item.name] = item
-}
-
-func (c *Character) equipItemFromGround(item Item) {
-
-}
-
-func (c *Character) equipItemFromInventory(itemName string) {
-
 }
 
 func (char *Character) moveCharacter(direction string) []FormattedString {
