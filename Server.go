@@ -21,12 +21,10 @@ var eventQueuMutexG sync.Mutex
 var worldRoomsG []*Room
 
 
-func main() {
+func main() {	
 	populateTestData()
-	
-	//fmt.Println(onlinePlayers["Ragnar"].PersonalInvetory)
-	printFormatedOutput(onlinePlayers["Ragnar"].PersonalInvetory.getInventoryDescription())
-	//MovementAndCombatTest()
+
+	MovementAndCombatTest()
 	//combatTest()
 	//databaseTest()
 	//GobTest()
