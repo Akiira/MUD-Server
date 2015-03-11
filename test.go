@@ -1,17 +1,18 @@
 // test
 package main
+
 import (
 	//"database/sql"
 	//"encoding/gob"
 	"fmt"
 	//"log"
 	//"net"
-	"strings"
 	"github.com/daviddengcn/go-colortext"
 	_ "github.com/go-sql-driver/mysql"
+	"strings"
 )
 
-func populateTestData(){
+func populateTestData() {
 	monsterTemplatesG = make(map[string]*Monster)
 	onlinePlayers = make(map[string]*Character)
 	onlinePlayers["Ragnar"] = new(Character)
@@ -31,46 +32,52 @@ func printFormatedOutput(output []FormattedString) {
 	ct.ResetColor()
 }
 
-func MovementAndCombatTest(){
+func MovementAndCombatTest() {
 	var input string
 	printFormatedOutput(worldRoomsG[0].getFormattedOutput())
 	output := make([]FormattedString, 5, 5)
-	for {		
+	for {
 		read, err := fmt.Scan(&input)
-		checkError(err)	
+		checkError(err)
 		_ = read
-		
-		if(input == "exit"){
+
+		if input == "exit" {
 			break
-		} else if (input == "attack") {
+		} else if input == "attack" {
 			var target string
 			read, err = fmt.Scan(&target)
-			checkError(err)	
-			
+			checkError(err)
+
 			output = onlinePlayers["Ragnar"].makeAttack(target)
-		} else if (input == "look") {
+		} else if input == "look" {
 			var target string
 			read, err = fmt.Scan(&target)
-			checkError(err)	
-			output = monsterTemplatesG[target].getLookDescription()
+			checkError(err)
+			if target == "room" {
+				output = worldRoomsG[onlinePlayers["Ragnar"].RoomIN].getFormattedOutput()
+			} else {
+				output = monsterTemplatesG[target].getLookDescription()
+			}
+		} else if input == "get" {
+
 		} else { //assume movement
 			output = onlinePlayers["Ragnar"].moveCharacter(input)
 		}
-	
+
 		printFormatedOutput(output)
 	}
 }
 
-func combatTest(){
+func combatTest() {
 	var input string
 	var foo string
 	printFormatedOutput(worldRoomsG[0].getFormattedOutput())
 	read, err := fmt.Scanln(&input, &foo)
-	checkError(err)	
-		_ = read
-	//fmt.Println(worldRoomsG[0].getFormattedOutput())	
-	
-	if( strings.HasPrefix(input, "attack") ) {
+	checkError(err)
+	_ = read
+	//fmt.Println(worldRoomsG[0].getFormattedOutput())
+
+	if strings.HasPrefix(input, "attack") {
 		//tmp := strings.Split(input, " ")
 		//fmt.Println(tmp)
 		output := onlinePlayers["Ragnar"].makeAttack(foo)
@@ -78,50 +85,54 @@ func combatTest(){
 	}
 }
 
-func roomAndMoveTest2(){
+func roomAndMoveTest2() {
 	var input string
 	//fmt.Println(worldRoomsG[0].getFormattedOutput())
 	printFormatedOutput(worldRoomsG[0].getFormattedOutput())
 	for {
 		//fmt.Println(rooms[currentRoom].Description, "\n")
-		
+
 		read, err := fmt.Scan(&input)
-		checkError(err)	
+		checkError(err)
 		_ = read
-		
-		if(input == "exit"){
+
+		if input == "exit" {
 			break
 		}
-		
+
 		output := onlinePlayers["Ragnar"].moveCharacter(input)
 		//fmt.Println(output, "\n")
 		printFormatedOutput(output)
 	}
 }
 
-func roomAndMoveTest(rooms [4]*Room){
+func roomAndMoveTest(rooms [4]*Room) {
 	currentRoom := 0
 	var input string
-	
+
 	for {
 		//fmt.Println(rooms[currentRoom].Description, "\n")
 		fmt.Println(rooms[currentRoom].getFormattedOutput())
 		read, err := fmt.Scan(&input)
-		checkError(err)	
+		checkError(err)
 		_ = read
-		
-		if(input == "exit"){
+
+		if input == "exit" {
 			break
 		}
 
 		switch input {
-			case "n", "N" : currentRoom = rooms[currentRoom].Exits[NORTH]
-			case "s", "S" : currentRoom = rooms[currentRoom].Exits[SOUTH]
-			case "w", "W" : currentRoom = rooms[currentRoom].Exits[WEST]
-			case "e", "E" : currentRoom = rooms[currentRoom].Exits[EAST]
+		case "n", "N":
+			currentRoom = rooms[currentRoom].Exits[NORTH]
+		case "s", "S":
+			currentRoom = rooms[currentRoom].Exits[SOUTH]
+		case "w", "W":
+			currentRoom = rooms[currentRoom].Exits[WEST]
+		case "e", "E":
+			currentRoom = rooms[currentRoom].Exits[EAST]
 		}
 	}
-	
+
 }
 
 //func LogInWithClientTest() {
@@ -142,7 +153,6 @@ func roomAndMoveTest(rooms [4]*Room){
 //	decoder.Decode(&clientsMessage)
 
 //	fmt.Println("clients message: " + clientsMessage.Value)
-	
 
 //	db, err := sql.Open("mysql",
 //		"admin1:admin@tcp(127.0.0.1:3306)/mud-database")
