@@ -9,7 +9,8 @@ import (
 	"database/sql"
 	"encoding/gob"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
+	//_ "github.com/go-sql-driver/mysql"
+	"bufio"
 	"net"
 	"os"
 	"sync"
@@ -18,30 +19,21 @@ import (
 var databaseG *sql.DB //The G means its a global var
 var onlinePlayers map[string]*Character
 var eventQueuMutexG sync.Mutex
-var worldRoomsG []*Room
 
-func main() {	
+var worldRoomsG []*Room
+var eventManagersG [20]*EventManager
+var numEventManagerG int
+
+func main() {
 	populateTestData()
 
 	MovementAndCombatTest()
+
 	//combatTest()
 	//databaseTest()
 	//GobTest()
-	//LogInTest()	
-	
-//	intializeDatabaseConnection()
 
-//	listener := setUpServer()
-
-	
-//	for{
-//		conn, err := listener.Accept()
-//		checkError(err)
-//		fmt.Println("Connection established")
-	
-//		go handleClient(conn)
-//		//handleClient(conn)	
-//	}
+	//LogInTest()
 
 	//	intializeDatabaseConnection()
 
@@ -55,6 +47,65 @@ func main() {
 	//		go handleClient(conn)
 	//		//handleClient(conn)
 	//	}
+
+	//	intializeDatabaseConnection()
+
+	//	listener := setUpServer()
+
+	//	for{
+	//		conn, err := listener.Accept()
+	//		checkError(err)
+	//		fmt.Println("Connection established")
+
+	//		go handleClient(conn)
+	//		//handleClient(conn)
+	//	}
+
+	//Pattanapoom Hand
+	//start model
+
+	eventManagersG[0] = new(EventManager)
+	//might change to init() later
+	(*eventManagersG[0]).numListener = 0
+
+	listener := setUpServer()
+
+	go createDummyMsg()
+
+	for {
+		conn, err := listener.Accept()
+		checkError(err)
+		fmt.Println("Connection established")
+
+		go dummyHandleClient(conn)
+	}
+
+	/*for {
+		time.Sleep(1 * time.Microsecond)
+	}*/
+}
+
+func createDummyMsg() {
+
+	for {
+
+		reader := bufio.NewReader(os.Stdin)
+		fmt.Print("Enter text: ")
+		text, _ := reader.ReadString('\n')
+		(*eventManagersG[0]).dummySentMsg(text)
+
+	}
+}
+
+func dummyHandleClient(myConn net.Conn) {
+
+	//*(eventManagersG[0]).subscribeListener()
+	newChar := new(Character)
+	(*newChar).init(myConn, "name", eventManagersG[0])
+	(eventManagersG[0]).subscribeListener(newChar)
+	go (*newChar).receiveMessage()
+	//character should start routine to get msg from client here then return to main loop in server
+	// however eventmanager, in its own routine, can call method getEventmessage on character instantly without extra routine nor channel
 }
 
 func handleClient(client net.Conn) {
@@ -92,7 +143,6 @@ func loadCharacterFromDB(characterName string) {
 	//			return true
 	//		}
 	//	}
-
 }
 
 func checkError(err error) {
