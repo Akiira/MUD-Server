@@ -1,20 +1,12 @@
 package main
 
 import (
+	//"github.com/daviddengcn/go-colortext"
+	"encoding/gob"
 	"math/rand"
-	"github.com/daviddengcn/go-colortext"
+	"net"
+	"sync"
 )
-
-type Listener interface {
-	//this will send a referebce to its own queue ti the eventmanager
-	//so eventmanager can put broadcast msg into this object queue
-	subscribeEventManager(EventManagerId int) bool
-}
-
-type Reporter interface {
-	//this might probably just put msg onto a queue of eventmanager
-	reportToEventManager(eventMsg ClientMessage) bool
-}
 
 // this should be a stub that hold a connection to a client
 // works like a thread on its own
@@ -23,6 +15,13 @@ type Character struct {
 	RoomIN    int
 	HitPoints int
 	Defense   int
+	CurrentEM *EventManager
+	myConn    net.Conn
+	myEncoder *gob.Encoder
+	myDecoder *gob.Decoder
+	net_lock  sync.Mutex
+	//messageQueue [100]ClientMessage
+
 	//	Strength int
 	//	Constitution int
 	//	Dexterity int
@@ -41,10 +40,51 @@ type Character struct {
 	//ArmourSet
 }
 
+func (c *Character) init(conn net.Conn, name string, em *EventManager) {
+
+	c.Name = name
+	c.setCurrentEventManager(em)
+	c.myEncoder = gob.NewEncoder(conn)
+	c.myDecoder = gob.NewDecoder(conn)
+
+}
+
+func (c *Character) setCurrentEventManager(em *EventManager) {
+	c.CurrentEM = em
+}
+
+func (c *Character) getEventMessage(msg ClientMessage) {
+	//fmt.Print("I, ", (*c).Name, " receive msg : ")
+	//fmt.Println(msg.Value)
+
+	message := ClientMessage{Command: 1, Value: msg.Value}
+	//c.net_lock.Lock()
+	c.myEncoder.Encode(message)
+	//c.net_lock.Unlock()
+
+}
+
+func (c *Character) receiveMessage() {
+
+	var serversResponse ClientMessage
+	for {
+		c.net_lock.Lock()
+		err := c.myDecoder.Decode(&serversResponse)
+		c.net_lock.Unlock()
+		checkError(err)
+		//fmt.Println("message received")
+		//fmt.Println(serversResponse.Value)
+		if err == nil {
+			c.CurrentEM.receiveMessage(serversResponse)
+		}
+	}
+}
+
 func (c *Character) getAttackRoll() int {
 	return rand.Int() % 6
 }
 
+/*
 func (c *Character) addItemToInventory(item Item) {
 
 }
@@ -56,7 +96,6 @@ func (c *Character) equipItemFromGround(item Item) {
 func (c *Character) equipItemFromInventory(itemName string) {
 
 }
-
 func (char *Character) moveCharacter(direction string) []FormattedString {
 	room := worldRoomsG[char.RoomIN]
 	dirAsInt := convertDirectionToInt(direction)
@@ -81,3 +120,4 @@ func (c *Character) getAttack() int {
 func (c *Character) getName() string {
 	return c.Name
 }
+*/

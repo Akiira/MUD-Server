@@ -9,7 +9,8 @@ import (
 	"database/sql"
 	"encoding/gob"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
+	//_ "github.com/go-sql-driver/mysql"
+	"bufio"
 	"net"
 	"os"
 	"sync"
@@ -18,29 +19,35 @@ import (
 var databaseG *sql.DB //The G means its a global var
 var onlinePlayers map[string]*Character
 var eventQueuMutexG sync.Mutex
-var worldRoomsG []*Room
+
+//var worldRoomsG []*Room
+var eventManagersG [20]*EventManager
+var numEventManagerG int
 
 func main() {
 
-//	ct.ChangeColor(ct.Red, true, ct.White, false)
-//	fmt.Println("Test")
-	onlinePlayers = make(map[string]*Character)
-	onlinePlayers["Ragnar"] = new(Character)
-	foo := onlinePlayers["Ragnar"]
-	foo.Name = "Ragnar"
-	foo.RoomIN = 0
-	foo.HitPoints = 30
-	worldRoomsG = loadRooms()
-	
-	worldRoomsG[0].populateRoomWithMonsters()
-//	fmt.Println(worldRoomsG[0].MonstersInRoom["Rabbit"])
+	//	ct.ChangeColor(ct.Red, true, ct.White, false)
+	//	fmt.Println("Test")
 
+	/*
+		onlinePlayers = make(map[string]*Character)
+		onlinePlayers["Ragnar"] = new(Character)
+		foo := onlinePlayers["Ragnar"]
+		foo.Name = "Ragnar"
+		foo.RoomIN = 0
+		foo.HitPoints = 30
+		worldRoomsG = loadRooms()
 
-//	fmt.Println("length: ", len(worldRoomsG))
+		worldRoomsG[0].populateRoomWithMonsters()
+	*/
+
+	//	fmt.Println(worldRoomsG[0].MonstersInRoom["Rabbit"])
+
+	//	fmt.Println("length: ", len(worldRoomsG))
 	//fmt.Println(rooms[1].Description)
 	//fmt.Println(rooms[0].ExitLinksToRooms[1].Description)
-	
-	MovementAndCombatTest()
+
+	//MovementAndCombatTest()
 	//combatTest()
 	//roomAndMoveTest2()
 	//roomAndMoveTest(worldRoomsG)
@@ -48,70 +55,111 @@ func main() {
 	//databaseTest()
 	//GobTest()
 	//LogInTest()
-	
-//	var m map[string]Character
-//	m = make(map[string]Character)
-	
-//	m["Ragnar"] = Character{ name: "Ragnar"}
-	
-//	fmt.Println(m["Ragnar"])
-	
-//	intializeDatabaseConnection()
 
-//	listener := setUpServer()
+	//	var m map[string]Character
+	//	m = make(map[string]Character)
 
-	
-//	for{
-//		conn, err := listener.Accept()
-//		checkError(err)
-//		fmt.Println("Connection established")
-	
-//		go handleClient(conn)
-//		//handleClient(conn)	
-//	}
-	
-	
+	//	m["Ragnar"] = Character{ name: "Ragnar"}
+
+	//	fmt.Println(m["Ragnar"])
+
+	//	intializeDatabaseConnection()
+
+	//listener := setUpServer()
+
+	//	for{
+	//		conn, err := listener.Accept()
+	//		checkError(err)
+	//		fmt.Println("Connection established")
+
+	//		go handleClient(conn)
+	//		//handleClient(conn)
+	//	}
+
+	//Pattanapoom Hand
+	//start model
+
+	eventManagersG[0] = new(EventManager)
+	//might change to init() later
+	(*eventManagersG[0]).numListener = 0
+
+	listener := setUpServer()
+
+	go createDummyMsg()
+
+	for {
+		conn, err := listener.Accept()
+		checkError(err)
+		fmt.Println("Connection established")
+
+		go dummyHandleClient(conn)
+	}
+
+	/*for {
+		time.Sleep(1 * time.Microsecond)
+	}*/
 }
 
-func handleClient(client net.Conn){
+func createDummyMsg() {
+
+	for {
+
+		reader := bufio.NewReader(os.Stdin)
+		fmt.Print("Enter text: ")
+		text, _ := reader.ReadString('\n')
+		(*eventManagersG[0]).dummySentMsg(text)
+
+	}
+}
+
+func dummyHandleClient(myConn net.Conn) {
+
+	//*(eventManagersG[0]).subscribeListener()
+	newChar := new(Character)
+	(*newChar).init(myConn, "name", eventManagersG[0])
+	(eventManagersG[0]).subscribeListener(newChar)
+	go (*newChar).receiveMessage()
+	//character should start routine to get msg from client here then return to main loop in server
+	// however eventmanager, in its own routine, can call method getEventmessage on character instantly without extra routine nor channel
+}
+
+func handleClient(client net.Conn) {
 	//encoder := gob.NewEncoder(client)
 	decoder := gob.NewDecoder(client)
-	
+
 	var clientsMessage ClientMessage
 	decoder.Decode(&clientsMessage)
 
 	fmt.Println("clients message: " + clientsMessage.Value)
-	
-	if(isGoodLogin(clientsMessage.getUsername(), clientsMessage.getPassword())){
+
+	if isGoodLogin(clientsMessage.getUsername(), clientsMessage.getPassword()) {
 		fmt.Println("Good Login!")
-	}else{
+	} else {
 		fmt.Println("Bad Login!")
 	}
-	databaseG.Close() //TODO remove these closes 
+	databaseG.Close() //TODO remove these closes
 	client.Close()
-
 
 	//get clients character name
 	// load info from database
 }
 
-func loadCharacterFromDB(characterName string){
-//	rows, err := databaseG.Query("select * from Character where CharacterName = ?", characterName)
-//	checkError(err)
-//	defer rows.Close()
-	
-//	var char Character
+func loadCharacterFromDB(characterName string) {
+	//	rows, err := databaseG.Query("select * from Character where CharacterName = ?", characterName)
+	//	checkError(err)
+	//	defer rows.Close()
 
-//	if( rows.Next()){
-//		err := rows.Scan(&char.Name, ....)
-//		checkError(err)
-//		if(DBpassword == pw){
-//			return true
-//		}
-//	}
-	
+	//	var char Character
+
+	//	if( rows.Next()){
+	//		err := rows.Scan(&char.Name, ....)
+	//		checkError(err)
+	//		if(DBpassword == pw){
+	//			return true
+	//		}
+	//	}
+
 }
-
 
 func checkError(err error) {
 	if err != nil {
@@ -120,7 +168,7 @@ func checkError(err error) {
 	}
 }
 
-func intializeDatabaseConnection(){
+func intializeDatabaseConnection() {
 	var err error
 	databaseG, err = sql.Open("mysql",
 		"admin1:admin@tcp(127.0.0.1:3306)/mud-database")
@@ -130,26 +178,26 @@ func intializeDatabaseConnection(){
 	checkError(err)
 }
 
-func isGoodLogin(name string, pw string) bool{
+func isGoodLogin(name string, pw string) bool {
 	rows, err := databaseG.Query("select Password from Login where CharacterNameLI = ?", name)
-	
+
 	checkError(err)
 	defer rows.Close()
-	
+
 	var DBpassword string
-	
-	if( rows.Next()){
+
+	if rows.Next() {
 		err := rows.Scan(&DBpassword)
 		checkError(err)
-		if(DBpassword == pw){
+		if DBpassword == pw {
 			return true
 		}
 	}
-	
+
 	return false
 }
 
-func setUpServer() *net.TCPListener{
+func setUpServer() *net.TCPListener {
 	service := "127.0.0.1:1200"
 	tcpAddr, err := net.ResolveTCPAddr("tcp4", service)
 	checkError(err)
