@@ -2,7 +2,7 @@
 package main
 
 import (
-//"github.com/daviddengcn/go-colortext"
+	"github.com/daviddengcn/go-colortext"
 )
 
 type Listener interface {
@@ -24,7 +24,7 @@ type EventManager struct {
 }
 
 type FormattedString struct {
-	//Color ct.Color
+	Color ct.Color
 	Value string
 }
 

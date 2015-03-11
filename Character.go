@@ -1,8 +1,8 @@
 package main
 
 import (
-	//"github.com/daviddengcn/go-colortext"
 	"encoding/gob"
+	"github.com/daviddengcn/go-colortext"
 	"math/rand"
 	"net"
 	"sync"
