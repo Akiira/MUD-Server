@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<Character>
+	<Name>"Ragnar"</Name>
+	<RoomIN>0</RoomIN>
+	<HitPoints>30</HitPoints>
+	<Defense>2</Defense>
+</Character>

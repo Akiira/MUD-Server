@@ -4,7 +4,8 @@ package main
 //TODO Should these be moved to the room class?
 //		or perhaps some special initialization file that 
 //		handles all server start up activities.
-
+//		In c++ or java the room loader function would be a static
+//		function in a class but go doesnt have static functions
 import (
 	"io/ioutil"
 	"encoding/xml"

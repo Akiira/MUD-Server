@@ -23,9 +23,7 @@ var eventQueuMutexG sync.Mutex
 
 //might be easier to read from file and take command from console to update list by read from file again
 //can shutdown by command from console
-
-//var worldRoomsG []*Room
-var eventManagersG [20]*EventManager
+var worldRoomsG []*Room
 var numEventManagerG int
 
 func main() {
@@ -47,74 +45,27 @@ func main() {
 			log.Fatal(err)
 		}
 	*/
-	//	ct.ChangeColor(ct.Red, true, ct.White, false)
-	//	fmt.Println("Test")
 
-	/*
-		onlinePlayers = make(map[string]*Character)
-		onlinePlayers["Ragnar"] = new(Character)
-		foo := onlinePlayers["Ragnar"]
-		foo.Name = "Ragnar"
-		foo.RoomIN = 0
-		foo.HitPoints = 30
-		worldRoomsG = loadRooms()
-
-		worldRoomsG[0].populateRoomWithMonsters()
-	*/
-
-	//	fmt.Println(worldRoomsG[0].MonstersInRoom["Rabbit"])
-
-	//	fmt.Println("length: ", len(worldRoomsG))
-	//fmt.Println(rooms[1].Description)
-	//fmt.Println(rooms[0].ExitLinksToRooms[1].Description)
-
-	//MovementAndCombatTest()
-	//combatTest()
-	//roomAndMoveTest2()
-	//roomAndMoveTest(worldRoomsG)
-
-	//databaseTest()
-	//GobTest()
-	//LogInTest()
-
-	//	var m map[string]Character
-	//	m = make(map[string]Character)
-
-	//	m["Ragnar"] = Character{ name: "Ragnar"}
-
-	//	fmt.Println(m["Ragnar"])
-
-	//	intializeDatabaseConnection()
-
-	//listener := setUpServer()
-
-	//	for{
-	//		conn, err := listener.Accept()
-	//		checkError(err)
-	//		fmt.Println("Connection established")
-
-	//		go handleClient(conn)
-	//		//handleClient(conn)
-	//	}
+	populateTestData()
 
 	//Pattanapoom Hand
 	//start model
 
-	eventManagersG[0] = new(EventManager)
-	//might change to init() later
-	(*eventManagersG[0]).numListener = 0
+	//	eventManagersG[0] = new(EventManager)
+	//	//might change to init() later
+	//	(*eventManagersG[0]).numListener = 0
 
-	listener := setUpServer()
+	//	listener := setUpServer()
 
-	go createDummyMsg()
+	//	go createDummyMsg()
 
-	for {
-		conn, err := listener.Accept()
-		checkError(err)
-		fmt.Println("Connection established")
+	//	for {
+	//		conn, err := listener.Accept()
+	//		checkError(err)
+	//		fmt.Println("Connection established")
 
-		go dummyHandleClient(conn)
-	}
+	//		go dummyHandleClient(conn)
+	//	}
 
 	/*for {
 		time.Sleep(1 * time.Microsecond)
@@ -179,7 +130,6 @@ func loadCharacterFromDB(characterName string) {
 	//			return true
 	//		}
 	//	}
-
 }
 
 func checkError(err error) {

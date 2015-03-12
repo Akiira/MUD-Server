@@ -2,7 +2,7 @@
 package main
 
 import (
-	//"github.com/daviddengcn/go-colortext"
+	"github.com/daviddengcn/go-colortext"
 	"sync"
 )
 
@@ -26,27 +26,9 @@ type EventManager struct {
 }
 
 type FormattedString struct {
-	//Color ct.Color
+	Color ct.Color
 	Value string
 }
-
-//this method should be moved to the character class (remote stub)
-//func executeMove(charName string, direction string) []FormattedString {
-//	room := worldRoomsG[char.RoomIN]
-//	dirAsInt := convertDirectionToInt(direction)
-
-//	if room.Exits[dirAsInt] >= 0 {
-//		room.removePCFromRoom(char.Name)
-//		room.ExitLinksToRooms[dirAsInt].addPCToRoom(char.Name)
-//		char.RoomIN = room.Exits[dirAsInt]
-//		return room.ExitLinksToRooms[dirAsInt].getFormattedOutput()
-//	} else {
-//		foo := make([]FormattedString, 1, 1)
-//		foo[0].Color = ct.Black
-//		foo[0].Value = "No exit in that direction"
-//		return foo
-//	}
-//}
 
 func (em *EventManager) dummySentMsg(msg string) {
 
@@ -90,35 +72,3 @@ func (em *EventManager) receiveMessage(msg ClientMessage) {
 
 	em.dummySentMsg(msg.Value)
 }
-
-/*
-//this method should be moved to the character class (remote stub)
-func executeStandardAttack(charName string, targetName string) []FormattedString {
-
-	char := onlinePlayers[charName]
-	target := worldRoomsG[char.RoomIN].getMonster(targetName)
-	output := make([]FormattedString, 2, 2)
-
-	a1 := char.getAttack()
-	if a1 >= target.Defense {
-		target.HP -= 2
-		output[0].Value = "\nYou hit the " + targetName + "!"
-	} else {
-		output[0].Value = "\nYou missed the " + targetName + "!"
-	}
-
-	a2 := target.getAttackRoll()
-
-	if a2 >= char.Defense {
-		char.HitPoints -= 1
-		output[1].Value = "\nThe " + targetName + " hit you!"
-	} else {
-		output[1].Value = "\nThe " + targetName + " narrowly misses you!"
-	}
-
-	return output
-}
-*/
-//func executeLook(charName string) string {
-
-//}

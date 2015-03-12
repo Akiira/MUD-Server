@@ -1,10 +1,14 @@
 package main
 
 import (
-	"io"
-	//"github.com/daviddengcn/go-colortext"
+	"encoding/gob"
+	"encoding/xml"
+	"github.com/daviddengcn/go-colortext"
+	"io/ioutil"
 	"math/rand"
 	"net"
+	"os"
+	"sync"
 )
 
 // this should be a stub that hold a connection to a client
@@ -29,10 +33,21 @@ type Character struct {
 	//	Race string
 	//	Class string
 
-	//	PersonalInvetory Inventory
+	PersonalInvetory Inventory
 
 	//	Weapon Item
-	//ArmourSet
+	ArmourSet map[string]Armour
+}
+
+func newCharacter(name string, room int, hp int, def int) *Character {
+	char := new(Character)
+	char.Name = name
+	char.HitPoints = hp
+	char.Defense = def
+	char.PersonalInvetory = *newInventory()
+	char.ArmourSet = make(map[string]Armour)
+
+	return char
 }
 
 func (c *Character) init(conn net.Conn, name string, em *EventManager) {
@@ -77,17 +92,28 @@ func (c *Character) getAttackRoll() int {
 	return rand.Int() % 6
 }
 
-/*
+//TODO change some of these functions so that they return []FormatterString
+// 		so the client can see the effects.
+
+func (c *Character) wearArmor(location string, armr Armour) {
+	if _, ok := c.ArmourSet[location]; ok { // already an item present
+		//TODO
+	} else {
+		c.ArmourSet[location] = armr
+		c.Defense += armr.defense
+	}
+}
+
+func (c *Character) takeOffArmor(location string) {
+	if _, ok := c.ArmourSet[location]; ok { // already an item present
+		delete(c.ArmourSet, location)
+	} else {
+		//TODO
+	}
+}
+
 func (c *Character) addItemToInventory(item Item) {
-
-}
-
-func (c *Character) equipItemFromGround(item Item) {
-
-}
-
-func (c *Character) equipItemFromInventory(itemName string) {
-
+	c.PersonalInvetory.items[item.name] = item
 }
 func (char *Character) moveCharacter(direction string) []FormattedString {
 	room := worldRoomsG[char.RoomIN]
@@ -106,11 +132,55 @@ func (char *Character) moveCharacter(direction string) []FormattedString {
 	}
 }
 
-func (c *Character) getAttack() int {
-	return -1
+func (char *Character) makeAttack(targetName string) []FormattedString {
+	target := worldRoomsG[char.RoomIN].getMonster(targetName)
+	output := make([]FormattedString, 2, 2)
+
+	a1 := char.getAttackRoll()
+	if a1 >= target.Defense {
+		target.HP -= 2
+		output[0].Value = "\nYou hit the " + targetName + "!"
+	} else {
+		output[0].Value = "\nYou missed the " + targetName + "!"
+	}
+
+	a2 := target.getAttackRoll()
+	if target.HP > 0 {
+		if a2 >= char.Defense {
+			char.HitPoints -= 1
+			output[1].Value = "\nThe " + targetName + " hit you!"
+		} else {
+			output[1].Value = "\nThe " + targetName + " narrowly misses you!"
+		}
+	} else { //TODO add corpse to Rooms list of items
+		// TODO  reward player exp
+		output[1].Value = "\nThe " + targetName + " drops over dead."
+		room := worldRoomsG[char.RoomIN]
+		room.killOffMonster(targetName)
+	}
+
+	return output
 }
 
-func (c *Character) getName() string {
-	return c.Name
+type CharacterXML struct {
+	XMLName xml.Name `xml:"Character"`
+	Name    string   `xml:"Name"`
+	RoomIN  int      `xml:"RoomIN"`
+	HP      int      `xml:"HitPoints"`
+	Defense int      `xml:"Defense"`
 }
-*/
+
+func loadCharacterData(charName string) {
+	//TODO remove hard coding
+	xmlFile, err := os.Open("C:\\Go\\src\\MUD-Server\\Characters\\" + charName + ".xml")
+	checkError(err)
+	defer xmlFile.Close()
+
+	XMLdata, _ := ioutil.ReadAll(xmlFile)
+
+	var charData CharacterXML
+	xml.Unmarshal(XMLdata, &charData)
+
+	char := newCharacter(charData.Name, charData.RoomIN, charData.HP, charData.Defense)
+	onlinePlayers[charName] = char
+}
