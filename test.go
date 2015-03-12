@@ -15,8 +15,7 @@ import (
 func populateTestData() {
 	monsterTemplatesG = make(map[string]*Monster)
 	onlinePlayers = make(map[string]*Character)
-	onlinePlayers["Ragnar"] = new(Character)
-	onlinePlayers["Ragnar"] = newCharacter("Ragnar", 0, 30, 2)
+	loadCharacterData("Ragnar")
 	onlinePlayers["Ragnar"].addItemToInventory(Item{name: "Brown-Hat", description: "A moldy old hat with holes in it"})
 	onlinePlayers["Ragnar"].addItemToInventory(Item{name: "Walking-Stick", description: "A sturdy walking stick made of oak"})
 	worldRoomsG = loadRooms()
