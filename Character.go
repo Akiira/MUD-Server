@@ -2,9 +2,12 @@ package main
 
 import (
 	"encoding/gob"
+	"encoding/xml"
 	"github.com/daviddengcn/go-colortext"
+	"io/ioutil"
 	"math/rand"
 	"net"
+	"os"
 	"sync"
 )
 
@@ -165,6 +168,25 @@ func (char *Character) makeAttack(targetName string) []FormattedString {
 	return output
 }
 
-func (c *Character) getName() string {
-	return c.Name
+type CharacterXML struct {
+	XMLName xml.Name `xml:"Character"`
+	Name    string   `xml:"Name"`
+	RoomIN  int      `xml:"RoomIN"`
+	HP      int      `xml:"HitPoints"`
+	Defense int      `xml:"Defense"`
+}
+
+func loadCharacterData(charName string) {
+	//TODO remove hard coding
+	xmlFile, err := os.Open("C:\\Go\\src\\MUD-Server\\Characters\\" + charName + ".xml")
+	checkError(err)
+	defer xmlFile.Close()
+
+	XMLdata, _ := ioutil.ReadAll(xmlFile)
+
+	var charData CharacterXML
+	xml.Unmarshal(XMLdata, &charData)
+
+	char := newCharacter(charData.Name, charData.RoomIN, charData.HP, charData.Defense)
+	onlinePlayers[charName] = char
 }
