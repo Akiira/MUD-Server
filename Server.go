@@ -27,7 +27,7 @@ var numEventManagerG int
 func main() {
 	populateTestData()
 
-	MovementAndCombatTest()
+	//MovementAndCombatTest()
 
 	//combatTest()
 	//databaseTest()
@@ -64,21 +64,21 @@ func main() {
 	//Pattanapoom Hand
 	//start model
 
-	eventManagersG[0] = new(EventManager)
-	//might change to init() later
-	(*eventManagersG[0]).numListener = 0
+	//	eventManagersG[0] = new(EventManager)
+	//	//might change to init() later
+	//	(*eventManagersG[0]).numListener = 0
 
-	listener := setUpServer()
+	//	listener := setUpServer()
 
-	go createDummyMsg()
+	//	go createDummyMsg()
 
-	for {
-		conn, err := listener.Accept()
-		checkError(err)
-		fmt.Println("Connection established")
+	//	for {
+	//		conn, err := listener.Accept()
+	//		checkError(err)
+	//		fmt.Println("Connection established")
 
-		go dummyHandleClient(conn)
-	}
+	//		go dummyHandleClient(conn)
+	//	}
 
 	/*for {
 		time.Sleep(1 * time.Microsecond)
