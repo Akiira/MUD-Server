@@ -1,26 +1,21 @@
 package main
 
 import (
+	"io"
 	//"github.com/daviddengcn/go-colortext"
-	"encoding/gob"
 	"math/rand"
 	"net"
-	"sync"
 )
 
 // this should be a stub that hold a connection to a client
 // works like a thread on its own
 type Character struct {
-	Name      string
-	RoomIN    int
-	HitPoints int
-	Defense   int
-	CurrentEM *EventManager
-	myConn    net.Conn
-	myEncoder *gob.Encoder
-	myDecoder *gob.Decoder
-	net_lock  sync.Mutex
-	//messageQueue [100]ClientMessage
+	Name         string
+	RoomIN       int
+	HitPoints    int
+	Defense      int
+	CurrentEM    *EventManager
+	myClientConn *ClientConnection
 
 	//	Strength int
 	//	Constitution int
@@ -44,38 +39,36 @@ func (c *Character) init(conn net.Conn, name string, em *EventManager) {
 
 	c.Name = name
 	c.setCurrentEventManager(em)
-	c.myEncoder = gob.NewEncoder(conn)
-	c.myDecoder = gob.NewDecoder(conn)
+	c.myClientConn = new(ClientConnection)
+	c.myClientConn.setConnection(conn)
 
 }
 
 func (c *Character) setCurrentEventManager(em *EventManager) {
 	c.CurrentEM = em
+
 }
 
-func (c *Character) getEventMessage(msg ClientMessage) {
+func (c *Character) getEventMessage(msg ServerMessage) {
 	//fmt.Print("I, ", (*c).Name, " receive msg : ")
 	//fmt.Println(msg.Value)
-
-	message := ClientMessage{Command: 1, Value: msg.Value}
-	//c.net_lock.Lock()
-	c.myEncoder.Encode(message)
-	//c.net_lock.Unlock()
+	c.myClientConn.sendMsgToClient(msg)
 
 }
 
 func (c *Character) receiveMessage() {
 
-	var serversResponse ClientMessage
+	go c.routineReceiveMsg()
+}
+
+func (c *Character) routineReceiveMsg() {
+
 	for {
-		c.net_lock.Lock()
-		err := c.myDecoder.Decode(&serversResponse)
-		c.net_lock.Unlock()
-		checkError(err)
-		//fmt.Println("message received")
-		//fmt.Println(serversResponse.Value)
-		if err == nil {
-			c.CurrentEM.receiveMessage(serversResponse)
+		err := c.myClientConn.receiveMsgFromClient(c.CurrentEM)
+		if err == io.EOF {
+			//need to unsubscribe and let this character be devour by garbage collecter
+			c.CurrentEM.unsubscribeListener(c)
+			break
 		}
 	}
 }
