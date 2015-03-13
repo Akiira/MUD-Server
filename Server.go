@@ -11,6 +11,7 @@ import (
 	"fmt"
 	//_ "github.com/go-sql-driver/mysql"
 	"bufio"
+	//"log"
 	"net"
 	"os"
 	"sync"
@@ -20,46 +21,32 @@ var databaseG *sql.DB //The G means its a global var
 var onlinePlayers map[string]*Character
 var eventQueuMutexG sync.Mutex
 
+//might be easier to read from file and take command from console to update list by read from file again
+//can shutdown by command from console
 var worldRoomsG []*Room
-var eventManagersG [20]*EventManager
 var numEventManagerG int
 
 func main() {
+
+	//this should be the one that read list of servers, including central server
+	/*
+		file, err := os.Open("serverList.txt")
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer file.Close()
+
+		scanner := bufio.NewScanner(file)
+		for scanner.Scan() {
+			fmt.Println(scanner.Text())
+		}
+
+		if err := scanner.Err(); err != nil {
+			log.Fatal(err)
+		}
+	*/
+
 	populateTestData()
-
-	//MovementAndCombatTest()
-
-	//combatTest()
-	//databaseTest()
-	//GobTest()
-
-	//LogInTest()
-
-	//	intializeDatabaseConnection()
-
-	//	listener := setUpServer()
-
-	//	for{
-	//		conn, err := listener.Accept()
-	//		checkError(err)
-	//		fmt.Println("Connection established")
-
-	//		go handleClient(conn)
-	//		//handleClient(conn)
-	//	}
-
-	//	intializeDatabaseConnection()
-
-	//	listener := setUpServer()
-
-	//	for{
-	//		conn, err := listener.Accept()
-	//		checkError(err)
-	//		fmt.Println("Connection established")
-
-	//		go handleClient(conn)
-	//		//handleClient(conn)
-	//	}
 
 	//Pattanapoom Hand
 	//start model

@@ -3,12 +3,13 @@ package main
 
 import (
 	"github.com/daviddengcn/go-colortext"
+	"sync"
 )
 
 type Listener interface {
 	//set its current eventmanager
 	setCurrentEventManager(em *EventManager)
-	getEventMessage(msg ClientMessage)
+	getEventMessage(msg ServerMessage)
 }
 
 //event manager should only receive event from either monster / player and echo to all that monster / player in the room
@@ -21,6 +22,7 @@ type EventManager struct {
 	myBroadcaster Broadcaster
 	myListener    [100]Listener
 	numListener   int
+	queue_lock    sync.Mutex
 }
 
 type FormattedString struct {
@@ -31,7 +33,7 @@ type FormattedString struct {
 func (em *EventManager) dummySentMsg(msg string) {
 
 	//for num := 0; ; num++ {
-	var newMsg ClientMessage
+	var newMsg ServerMessage
 	newMsg.Value = msg
 
 	for i := 0; i < em.numListener; i++ {
@@ -44,11 +46,29 @@ func (em *EventManager) dummySentMsg(msg string) {
 }
 
 func (em *EventManager) subscribeListener(newListener Listener) {
+
+	em.queue_lock.Lock()
 	em.myListener[em.numListener] = newListener
 	em.numListener++
+	em.queue_lock.Unlock()
+}
+
+func (em *EventManager) unsubscribeListener(prevListener Listener) {
+
+	em.queue_lock.Lock()
+	for i := 0; i < em.numListener; i++ {
+		if em.myListener[i] == prevListener {
+			em.myListener[i] = em.myListener[em.numListener-1]
+			em.myListener[em.numListener-1] = nil
+			em.numListener--
+			break
+		}
+	}
+	em.queue_lock.Unlock()
+
 }
 
 func (em *EventManager) receiveMessage(msg ClientMessage) {
 
-	(*em).dummySentMsg(msg.Value)
+	em.dummySentMsg(msg.Value)
 }

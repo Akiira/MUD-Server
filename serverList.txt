@@ -1,0 +1,3 @@
+central central 104.39.7.113 1300
+world world1 104.39.7.113 1200
+
