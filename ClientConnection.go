@@ -15,6 +15,7 @@ type ClientConnection struct {
 	net_lock  sync.Mutex
 }
 
+//CliecntConnection constructor
 func newClientConnection(conn net.Conn) *ClientConnection {
 	cc := new(ClientConnection)
 	cc.myConn = conn
@@ -37,6 +38,7 @@ func (cc *ClientConnection) receiveMsgFromClient(em *EventManager) error {
 	err := cc.myDecoder.Decode(&clientResponse)
 	cc.net_lock.Unlock()
 	//checkError(err)
+
 	if err == nil {
 		em.receiveMessage(clientResponse)
 	}
@@ -46,12 +48,9 @@ func (cc *ClientConnection) receiveMsgFromClient(em *EventManager) error {
 }
 
 func (cc *ClientConnection) sendMsgToClient(msg ServerMessage) {
-	//fmt.Println(cc.myEncoder)
+
 	//cc.net_lock.Lock()
 	err := cc.myEncoder.Encode(msg)
-	if err != nil {
-		//fmt.Printf("I detect error at send")
-		//fmt.Println(err)
-	}
+	checkError(err)
 	//cc.net_lock.Unlock()
 }

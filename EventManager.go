@@ -32,7 +32,6 @@ type FormattedString struct {
 
 func (em *EventManager) dummySentMsg(msg string) {
 
-	//for num := 0; ; num++ {
 	var newMsg ServerMessage
 	tmp := make([]FormattedString, 1, 1)
 	tmp[0].Color = ct.Black
@@ -43,10 +42,6 @@ func (em *EventManager) dummySentMsg(msg string) {
 	for i := 0; i < em.numListener; i++ {
 		go em.myListener[i].getEventMessage(newMsg)
 	}
-
-	//	time.Sleep(1 * time.Second)
-	//}
-
 }
 
 func (em *EventManager) subscribeListener(newListener Listener) {
