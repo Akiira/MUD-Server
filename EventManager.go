@@ -34,7 +34,11 @@ func (em *EventManager) dummySentMsg(msg string) {
 
 	//for num := 0; ; num++ {
 	var newMsg ServerMessage
-	newMsg.Value = msg
+	tmp := make([]FormattedString, 1, 1)
+	tmp[0].Color = ct.Black
+	tmp[0].Value = msg
+
+	newMsg.Value = tmp
 
 	for i := 0; i < em.numListener; i++ {
 		go em.myListener[i].getEventMessage(newMsg)
