@@ -15,6 +15,15 @@ type ClientConnection struct {
 	net_lock  sync.Mutex
 }
 
+func newClientConnection(conn net.Conn) *ClientConnection {
+	cc := new(ClientConnection)
+	cc.myConn = conn
+	cc.myEncoder = gob.NewEncoder(conn)
+	cc.myDecoder = gob.NewDecoder(conn)
+
+	return cc
+}
+
 func (cc *ClientConnection) setConnection(conn net.Conn) {
 	cc.myConn = conn
 	cc.myEncoder = gob.NewEncoder(conn)
