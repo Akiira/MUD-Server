@@ -39,7 +39,7 @@ type Room struct {
 	//May have a third mapping to friendly NPCs like shopkeepers
 	//NonCharactersInRoom map[string]*NPC
 
-	ItemsInRoom map[string]Item
+	ItemsInRoom map[string]*Item
 }
 
 //This is a constructor that creates a room from xml data
@@ -59,6 +59,7 @@ func newRoomFromXML(roomData RoomXML) *Room {
 
 	room.CharactersInRoom = make(map[string]bool)
 	room.MonstersInRoom = make(map[string]*Monster)
+	room.ItemsInRoom = make(map[string]*Item)
 	return &room
 }
 
@@ -90,6 +91,7 @@ func (room *Room) getMonster(monsterName string) *Monster {
 
 func (room *Room) killOffMonster(monsterName string) {
 	delete(room.MonstersInRoom, monsterName)
+	room.ItemsInRoom[monsterName] = &Item{name: monsterName + " corpse", description: "A freshly kill " + monsterName + " corpse."}
 }
 
 func (room *Room) populateRoomWithMonsters() { //TODO remove hardcoding, maybe load from xml file
@@ -100,7 +102,7 @@ func (room *Room) populateRoomWithMonsters() { //TODO remove hardcoding, maybe l
 
 func (room *Room) getFormattedOutput() []FormattedString {
 	var output string
-	formattedString := make([]FormattedString, 4, 4)
+	formattedString := make([]FormattedString, 5, 5)
 
 	formattedString[0].Color = ct.Green
 	formattedString[0].Value = room.Name
@@ -116,12 +118,19 @@ func (room *Room) getFormattedOutput() []FormattedString {
 		}
 	}
 	formattedString[2].Value = output
-	formattedString[3].Color = ct.Red
+
+	output = ""
+	formattedString[3].Color = ct.Yellow
+	for _, itemPtr := range room.ItemsInRoom {
+		output += "\n\t" + itemPtr.description
+	}
+	formattedString[3].Value = output
+	formattedString[4].Color = ct.Red
 	output = ""
 	for key, _ := range room.MonstersInRoom {
 		output += "\n\t" + key
 	}
-	formattedString[3].Value = output
+	formattedString[4].Value = output
 	return formattedString
 }
 
