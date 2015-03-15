@@ -1,14 +1,13 @@
 package main
 
 import (
-	"encoding/gob"
 	"encoding/xml"
 	"github.com/daviddengcn/go-colortext"
+	"io"
 	"io/ioutil"
 	"math/rand"
 	"net"
 	"os"
-	"sync"
 )
 
 // this should be a stub that hold a connection to a client

@@ -19,14 +19,15 @@ import (
 
 var databaseG *sql.DB //The G means its a global var
 var onlinePlayers map[string]*Character
-var eventQueuMutexG sync.Mutex
-
-//might be easier to read from file and take command from console to update list by read from file again
-//can shutdown by command from console
 var worldRoomsG []*Room
+
+var eventQueuMutexG sync.Mutex
 var numEventManagerG int
+var eventManagersG []*EventManager
 
 func main() {
+	populateTestData()
+	MovementAndCombatTest()
 
 	//this should be the one that read list of servers, including central server
 	/*
@@ -45,8 +46,6 @@ func main() {
 			log.Fatal(err)
 		}
 	*/
-
-	populateTestData()
 
 	//Pattanapoom Hand
 	//start model
