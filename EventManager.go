@@ -2,6 +2,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/daviddengcn/go-colortext"
 	"sync"
 )
@@ -9,7 +10,7 @@ import (
 type Listener interface {
 	//set its current eventmanager
 	setCurrentEventManager(em *EventManager)
-	getEventMessage(msg ServerMessage)
+	sendMsgToClient(msg ServerMessage)
 }
 
 //event manager should only receive event from either monster / player and echo to all that monster / player in the room
@@ -34,8 +35,10 @@ func (em *EventManager) dummySentMsg(msg string) {
 
 	newMsg.Value = tmp
 
+	fmt.Println("Number of listeners: ", em.numListener)
+
 	for i := 0; i < em.numListener; i++ {
-		go em.myListener[i].getEventMessage(newMsg)
+		go em.myListener[i].sendMsgToClient(newMsg)
 	}
 }
 
@@ -81,7 +84,7 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 
 	switch {
 	case cmd == "look":
-		output = worldRoomsG[roomID].getFormattedOutput()
+		output = worldRoomsG[roomID].getRoomDescription()
 	case cmd == "get":
 		output = worldRoomsG[roomID].getItem(cc.character, event.Value)
 	case cmd == "move":
