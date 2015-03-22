@@ -48,6 +48,12 @@ func newCharacter(name string, room int, hp int, def int) *Character {
 
 	return char
 }
+func newCharacterFromName(name string) *Character {
+
+	loadCharacterData(name)
+
+	return onlinePlayers[name]
+}
 
 func (c *Character) init(conn net.Conn, name string, em *EventManager) {
 
