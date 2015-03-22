@@ -30,7 +30,7 @@ func (em *EventManager) dummySentMsg(msg string) {
 
 	var newMsg ServerMessage
 	tmp := make([]FormattedString, 1, 1)
-	tmp[0].Color = ct.Black
+	tmp[0].Color = ct.Blue
 	tmp[0].Value = msg
 
 	newMsg.Value = tmp
@@ -89,9 +89,19 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 		output = worldRoomsG[roomID].getItem(cc.character, event.Value)
 	case cmd == "move":
 		output = cc.character.moveCharacter(event.Value)
+	case cmd == "say":
+		output = make([]FormattedString, 1, 1)
+		output[0].Color = ct.Black
+		output[0].Value = ""
+		em.dummySentMsg("Hello everyone in this one room!")
+		//TODO error message in exe  non combat move
 		//	case true :
 		//		output = errorMessage
 	}
 
-	cc.sendMsgToClient(ServerMessage{Value: output})
+	fmt.Println("Sending message: ", output)
+
+	if output[0].Value != "" {
+		cc.sendMsgToClient(ServerMessage{Value: output})
+	}
 }
