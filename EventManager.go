@@ -64,26 +64,31 @@ func (em *EventManager) unsubscribeListener(prevListener Listener) {
 
 func (em *EventManager) receiveMessage(msg ClientMessage) {
 	em.dummySentMsg(msg.Value)
-	//	command := msg.Command
+}
 
-	//	if command == "exit" {
-	//		break
-	//	} else if command == "attack" {
-	//		target := msg.Value
-	//		output = onlinePlayers["Ragnar"].makeAttack(target) //TODO remove hard coded character names
-	//	} else if command == "look" {
+// The client connection class what should receive the clients message;
+//	it can then parse it and determine what event to add here.
+//	Then the event manager will call the appropiate room or character functions
+func (em *EventManager) addEvent() {
 
-	//		target := msg.Value
-	//		if target == "room" {
-	//			output = worldRoomsG[onlinePlayers["Ragnar"].RoomIN].getFormattedOutput()
-	//		} else {
-	//			output = monsterTemplatesG[target].getLookDescription()
-	//		}
-	//	} else if command == "get" {
+}
 
-	//	} else { //assume movement
-	//		output = onlinePlayers["Ragnar"].moveCharacter(command)
-	//	}
+func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *ClientMessage) {
+	var output []FormattedString
+	_ = output
+	cmd := event.Command
+	roomID := cc.character.RoomIN
 
-	//	printFormatedOutput(output)
+	switch {
+	case cmd == "look":
+		output = worldRoomsG[roomID].getFormattedOutput()
+	case cmd == "get":
+		output = worldRoomsG[roomID].getItem(cc.character, event.Value)
+	case cmd == "move":
+		output = cc.character.moveCharacter(event.Value)
+		//	case true :
+		//		output = errorMessage
+	}
+
+	cc.sendMsgToClient(ServerMessage{Value: output})
 }
