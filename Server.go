@@ -96,7 +96,7 @@ func HandleClient(myConn net.Conn) {
 	_ = clientConnection
 
 	(eventManagersG[0]).subscribeListener(clientConnection)
-	go clientConnection.receiveMsgFromClient()
+	clientConnection.receiveMsgFromClient()
 }
 
 //func dummyHandleClient(myConn net.Conn) {

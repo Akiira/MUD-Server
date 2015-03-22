@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/gob"
+	"fmt"
 	_ "fmt"
 	//"io"
 	"net"
@@ -44,10 +45,7 @@ func (cc *ClientConnection) receiveMsgFromClient() {
 	var clientResponse ClientMessage
 
 	for {
-		cc.net_lock.Lock()
 		err := cc.myDecoder.Decode(&clientResponse)
-		cc.net_lock.Unlock()
-
 		checkError(err)
 
 		if err == nil {
@@ -63,11 +61,10 @@ func (cc *ClientConnection) sendMsgToClient(msg ServerMessage) {
 
 	cc.net_lock.Lock()
 	err := cc.myEncoder.Encode(msg)
-	checkError(err)
 	cc.net_lock.Unlock()
+	checkError(err)
 }
 
 func (cc *ClientConnection) setCurrentEventManager(em *EventManager) {
 	cc.CurrentEM = em
-
 }
