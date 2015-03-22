@@ -105,7 +105,7 @@ func (room *Room) populateRoomWithMonsters() { //TODO remove hardcoding, maybe l
 	room.MonstersInRoom["Deer"] = newMonsterFromName("Fox")
 }
 
-func (room *Room) getFormattedOutput() []FormattedString {
+func (room *Room) getRoomDescription() []FormattedString {
 	var output string
 	formattedString := make([]FormattedString, 5, 5)
 

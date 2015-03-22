@@ -34,7 +34,7 @@ func printFormatedOutput(output []FormattedString) {
 
 func MovementAndCombatTest() {
 	var input string
-	printFormatedOutput(worldRoomsG[0].getFormattedOutput())
+	printFormatedOutput(worldRoomsG[0].getRoomDescription())
 	output := make([]FormattedString, 5, 5)
 	for {
 		read, err := fmt.Scan(&input)
@@ -54,7 +54,7 @@ func MovementAndCombatTest() {
 			read, err = fmt.Scan(&target)
 			checkError(err)
 			if target == "room" {
-				output = worldRoomsG[onlinePlayers["Ragnar"].RoomIN].getFormattedOutput()
+				output = worldRoomsG[onlinePlayers["Ragnar"].RoomIN].getRoomDescription()
 			} else {
 				output = monsterTemplatesG[target].getLookDescription()
 			}
@@ -71,7 +71,7 @@ func MovementAndCombatTest() {
 func combatTest() {
 	var input string
 	var foo string
-	printFormatedOutput(worldRoomsG[0].getFormattedOutput())
+	printFormatedOutput(worldRoomsG[0].getRoomDescription())
 	read, err := fmt.Scanln(&input, &foo)
 	checkError(err)
 	_ = read
@@ -88,7 +88,7 @@ func combatTest() {
 func roomAndMoveTest2() {
 	var input string
 	//fmt.Println(worldRoomsG[0].getFormattedOutput())
-	printFormatedOutput(worldRoomsG[0].getFormattedOutput())
+	printFormatedOutput(worldRoomsG[0].getRoomDescription())
 	for {
 		//fmt.Println(rooms[currentRoom].Description, "\n")
 
@@ -112,7 +112,7 @@ func roomAndMoveTest(rooms [4]*Room) {
 
 	for {
 		//fmt.Println(rooms[currentRoom].Description, "\n")
-		fmt.Println(rooms[currentRoom].getFormattedOutput())
+		fmt.Println(rooms[currentRoom].getRoomDescription())
 		read, err := fmt.Scan(&input)
 		checkError(err)
 		_ = read
