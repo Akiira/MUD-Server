@@ -38,7 +38,7 @@ func (em *EventManager) dummySentMsg(msg string) {
 	fmt.Println("Number of listeners: ", em.numListener)
 
 	for i := 0; i < em.numListener; i++ {
-		go em.myListener[i].sendMsgToClient(newMsg)
+		em.myListener[i].sendMsgToClient(newMsg)
 	}
 }
 
@@ -47,6 +47,7 @@ func (em *EventManager) subscribeListener(newListener Listener) {
 	em.queue_lock.Lock()
 	em.myListener[em.numListener] = newListener
 	em.numListener++
+	fmt.Println("Num: ", em.numListener)
 	em.queue_lock.Unlock()
 }
 
