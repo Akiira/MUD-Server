@@ -7,12 +7,11 @@ import (
 
 //this is suppose to be an event
 type ClientMessage struct {
-	Command int
+	Command string
 	Value   string
-	locate  Location
 }
 
-func ClientMessageConstructor(cmd int, val string) ClientMessage {
+func ClientMessageConstructor(cmd string, val string) ClientMessage {
 	return ClientMessage{Command: cmd, Value: val}
 }
 
