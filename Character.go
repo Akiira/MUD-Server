@@ -3,10 +3,10 @@ package main
 import (
 	"encoding/xml"
 	"github.com/daviddengcn/go-colortext"
-	"io"
+	_ "io"
 	"io/ioutil"
 	"math/rand"
-	"net"
+	_ "net"
 	"os"
 )
 
@@ -57,17 +57,17 @@ func newCharacterFromName(name string) *Character {
 	return onlinePlayers[name]
 }
 
-func (c *Character) init(conn net.Conn, name string, em *EventManager) {
+//func (c *Character) init(conn net.Conn, name string, em *EventManager) {
 
-	c.Name = name
-	c.setCurrentEventManager(em)
-	c.myClientConn = newClientConnection(conn)
-}
+//	c.Name = name
+//	c.setCurrentEventManager(em)
+//	c.myClientConn = newClientConnection(conn)
+//}
 
-func (c *Character) setCurrentEventManager(em *EventManager) {
-	c.CurrentEM = em
+//func (c *Character) setCurrentEventManager(em *EventManager) {
+//	c.CurrentEM = em
 
-}
+//}
 
 func (c *Character) getEventMessage(msg ServerMessage) {
 	//fmt.Print("I, ", (*c).Name, " receive msg : ")
@@ -76,22 +76,22 @@ func (c *Character) getEventMessage(msg ServerMessage) {
 
 }
 
-func (c *Character) receiveMessage() {
+//func (c *Character) receiveMessage() {
 
-	go c.routineReceiveMsg()
-}
+//	go c.routineReceiveMsg()
+//}
 
-func (c *Character) routineReceiveMsg() {
+//func (c *Character) routineReceiveMsg() {
 
-	for {
-		err := c.myClientConn.receiveMsgFromClient(c.CurrentEM)
-		if err == io.EOF {
-			//need to unsubscribe and let this character be devour by garbage collecter
-			c.CurrentEM.unsubscribeListener(c)
-			break
-		}
-	}
-}
+//	for {
+//		err := c.myClientConn.receiveMsgFromClient(c.CurrentEM)
+//		if err == io.EOF {
+//			//need to unsubscribe and let this character be devour by garbage collecter
+//			c.CurrentEM.unsubscribeListener(c)
+//			break
+//		}
+//	}
+//}
 
 func (c *Character) getAttackRoll() int {
 	return rand.Int() % 6
