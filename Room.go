@@ -86,7 +86,7 @@ func (room *Room) removePCFromRoom(charName string) {
 }
 
 func (room *Room) getItem(char *Character, itemName string) []FormattedString {
-	//TODO
+	//TODO getItem function in room class
 	return nil
 }
 
