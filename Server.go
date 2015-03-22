@@ -11,11 +11,17 @@ import (
 	"fmt"
 	//_ "github.com/go-sql-driver/mysql"
 	"bufio"
+	"github.com/daviddengcn/go-colortext"
 	//"log"
 	"net"
 	"os"
 	"sync"
 )
+
+type FormattedString struct {
+	Color ct.Color
+	Value string
+}
 
 var databaseG *sql.DB //The G means its a global var
 var onlinePlayers map[string]*Character
@@ -23,11 +29,12 @@ var worldRoomsG []*Room
 
 var eventQueuMutexG sync.Mutex
 var numEventManagerG int
-var eventManagersG []*EventManager
+var eventManagersG [20]*EventManager
 
 func main() {
-	populateTestData()
-	MovementAndCombatTest()
+
+	//populateTestData()
+	//MovementAndCombatTest()
 
 	//this should be the one that read list of servers, including central server
 	/*
@@ -50,21 +57,21 @@ func main() {
 	//Pattanapoom Hand
 	//start model
 
-	//	eventManagersG[0] = new(EventManager)
-	//	//might change to init() later
-	//	(*eventManagersG[0]).numListener = 0
+	eventManagersG[0] = new(EventManager)
+	//might change to init() later
+	(*eventManagersG[0]).numListener = 0
 
-	//	listener := setUpServer()
+	listener := setUpServer()
 
-	//	go createDummyMsg()
+	go createDummyMsg()
 
-	//	for {
-	//		conn, err := listener.Accept()
-	//		checkError(err)
-	//		fmt.Println("Connection established")
+	for {
+		conn, err := listener.Accept()
+		checkError(err)
+		fmt.Println("Connection established")
 
-	//		go dummyHandleClient(conn)
-	//	}
+		go dummyHandleClient(conn)
+	}
 
 	/*for {
 		time.Sleep(1 * time.Microsecond)
@@ -74,18 +81,29 @@ func main() {
 func createDummyMsg() {
 
 	for {
-
 		reader := bufio.NewReader(os.Stdin)
 		fmt.Print("Enter text: ")
 		text, _ := reader.ReadString('\n')
 		(*eventManagersG[0]).dummySentMsg(text)
-
 	}
+}
+
+func HandleClient(myConn net.Conn) {
+
+	//*(eventManagersG[0]).subscribeListener()
+
+	clientConnection := newClientConnection(myConn)
+	_ = clientConnection
+	newChar := new(Character)
+	(*newChar).init(myConn, "name", eventManagersG[0])
+	(eventManagersG[0]).subscribeListener(newChar)
+	go (*newChar).receiveMessage()
 }
 
 func dummyHandleClient(myConn net.Conn) {
 
 	//*(eventManagersG[0]).subscribeListener()
+
 	newChar := new(Character)
 	(*newChar).init(myConn, "name", eventManagersG[0])
 	(eventManagersG[0]).subscribeListener(newChar)
@@ -113,22 +131,6 @@ func handleClient(client net.Conn) {
 
 	//get clients character name
 	// load info from database
-}
-
-func loadCharacterFromDB(characterName string) {
-	//	rows, err := databaseG.Query("select * from Character where CharacterName = ?", characterName)
-	//	checkError(err)
-	//	defer rows.Close()
-
-	//	var char Character
-
-	//	if( rows.Next()){
-	//		err := rows.Scan(&char.Name, ....)
-	//		checkError(err)
-	//		if(DBpassword == pw){
-	//			return true
-	//		}
-	//	}
 }
 
 func checkError(err error) {

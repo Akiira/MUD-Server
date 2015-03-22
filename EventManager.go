@@ -25,11 +25,6 @@ type EventManager struct {
 	queue_lock    sync.Mutex
 }
 
-type FormattedString struct {
-	Color ct.Color
-	Value string
-}
-
 func (em *EventManager) dummySentMsg(msg string) {
 
 	var newMsg ServerMessage
@@ -68,6 +63,27 @@ func (em *EventManager) unsubscribeListener(prevListener Listener) {
 }
 
 func (em *EventManager) receiveMessage(msg ClientMessage) {
-
 	em.dummySentMsg(msg.Value)
+	//	command := msg.Command
+
+	//	if command == "exit" {
+	//		break
+	//	} else if command == "attack" {
+	//		target := msg.Value
+	//		output = onlinePlayers["Ragnar"].makeAttack(target) //TODO remove hard coded character names
+	//	} else if command == "look" {
+
+	//		target := msg.Value
+	//		if target == "room" {
+	//			output = worldRoomsG[onlinePlayers["Ragnar"].RoomIN].getFormattedOutput()
+	//		} else {
+	//			output = monsterTemplatesG[target].getLookDescription()
+	//		}
+	//	} else if command == "get" {
+
+	//	} else { //assume movement
+	//		output = onlinePlayers["Ragnar"].moveCharacter(command)
+	//	}
+
+	//	printFormatedOutput(output)
 }
