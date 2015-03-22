@@ -13,7 +13,7 @@ type ClientConnection struct {
 	myEncoder *gob.Encoder
 	myDecoder *gob.Decoder
 	net_lock  sync.Mutex
-	character Character
+	character *Character
 }
 
 //CliecntConnection constructor
@@ -28,15 +28,9 @@ func newClientConnection(conn net.Conn) *ClientConnection {
 	err := cc.myDecoder.Decode(&clientResponse)
 	checkError(err)
 
-	cc.character = newCharacter(clientResponse.Value)
+	cc.character = newCharacterFromName(clientResponse.Value)
 
 	return cc
-}
-
-func (cc *ClientConnection) setConnection(conn net.Conn) {
-	cc.myConn = conn
-	cc.myEncoder = gob.NewEncoder(conn)
-	cc.myDecoder = gob.NewDecoder(conn)
 }
 
 func (cc *ClientConnection) receiveMsgFromClient(em *EventManager) error {
