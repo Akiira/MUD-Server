@@ -2,8 +2,7 @@ package main
 
 import (
 	"encoding/gob"
-	"fmt"
-	//"fmt"
+	_ "fmt"
 	//"io"
 	"net"
 	"sync"
