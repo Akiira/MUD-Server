@@ -47,7 +47,6 @@ func newCharacter(name string, room int, hp int, def int) *Character {
 	char.ArmourSet = make(map[string]Armour)
 
 	worldRoomsG[room].addPCToRoom(name)
-	onlinePlayers[name] = char
 
 	return char
 }
