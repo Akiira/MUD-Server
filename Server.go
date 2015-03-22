@@ -33,7 +33,7 @@ var eventManagersG [20]*EventManager
 
 func main() {
 
-	//populateTestData()
+	populateTestData()
 	//MovementAndCombatTest()
 
 	//this should be the one that read list of servers, including central server
@@ -70,7 +70,7 @@ func main() {
 		checkError(err)
 		fmt.Println("Connection established")
 
-		go dummyHandleClient(conn)
+		go HandleClient(conn)
 	}
 
 	/*for {
@@ -92,25 +92,24 @@ func HandleClient(myConn net.Conn) {
 
 	//*(eventManagersG[0]).subscribeListener()
 
-	clientConnection := newClientConnection(myConn)
+	clientConnection := newClientConnection(myConn, eventManagersG[0])
 	_ = clientConnection
-	newChar := new(Character)
-	(*newChar).init(myConn, "name", eventManagersG[0])
-	(eventManagersG[0]).subscribeListener(newChar)
-	go (*newChar).receiveMessage()
+
+	(eventManagersG[0]).subscribeListener(clientConnection)
+	go clientConnection.receiveMsgFromClient()
 }
 
-func dummyHandleClient(myConn net.Conn) {
+//func dummyHandleClient(myConn net.Conn) {
 
-	//*(eventManagersG[0]).subscribeListener()
+//	//*(eventManagersG[0]).subscribeListener()
 
-	newChar := new(Character)
-	(*newChar).init(myConn, "name", eventManagersG[0])
-	(eventManagersG[0]).subscribeListener(newChar)
-	go (*newChar).receiveMessage()
-	//character should start routine to get msg from client here then return to main loop in server
-	// however eventmanager, in its own routine, can call method getEventmessage on character instantly without extra routine nor channel
-}
+//	newChar := new(Character)
+//	(*newChar).init(myConn, "name", eventManagersG[0])
+//	(eventManagersG[0]).subscribeListener(newChar)
+//	go (*newChar).receiveMessage()
+//	//character should start routine to get msg from client here then return to main loop in server
+//	// however eventmanager, in its own routine, can call method getEventmessage on character instantly without extra routine nor channel
+//}
 
 func handleClient(client net.Conn) {
 	//encoder := gob.NewEncoder(client)
