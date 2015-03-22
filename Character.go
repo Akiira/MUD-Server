@@ -46,6 +46,9 @@ func newCharacter(name string, room int, hp int, def int) *Character {
 	char.PersonalInvetory = *newInventory()
 	char.ArmourSet = make(map[string]Armour)
 
+	worldRoomsG[room].addPCToRoom(name)
+	onlinePlayers[name] = char
+
 	return char
 }
 func newCharacterFromName(name string) *Character {
@@ -59,9 +62,7 @@ func (c *Character) init(conn net.Conn, name string, em *EventManager) {
 
 	c.Name = name
 	c.setCurrentEventManager(em)
-	c.myClientConn = new(ClientConnection)
-	c.myClientConn.setConnection(conn)
-
+	c.myClientConn = newClientConnection(conn)
 }
 
 func (c *Character) setCurrentEventManager(em *EventManager) {
