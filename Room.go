@@ -85,6 +85,11 @@ func (room *Room) removePCFromRoom(charName string) {
 	delete(room.CharactersInRoom, charName)
 }
 
+func (room *Room) getItem(char *Character, itemName string) []FormattedString {
+	//TODO
+	return nil
+}
+
 func (room *Room) getMonster(monsterName string) *Monster {
 	return room.MonstersInRoom[monsterName]
 }
