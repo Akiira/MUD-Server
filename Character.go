@@ -128,7 +128,7 @@ func (char *Character) moveCharacter(direction string) []FormattedString {
 		room.removePCFromRoom(char.Name)
 		room.ExitLinksToRooms[dirAsInt].addPCToRoom(char.Name)
 		char.RoomIN = room.Exits[dirAsInt]
-		return room.ExitLinksToRooms[dirAsInt].getFormattedOutput()
+		return room.ExitLinksToRooms[dirAsInt].getRoomDescription()
 	} else {
 		output := make([]FormattedString, 1, 1)
 		output[0].Color = ct.Black
