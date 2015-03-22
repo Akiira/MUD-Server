@@ -22,7 +22,7 @@ type ClientConnection struct {
 func newClientConnection(conn net.Conn, em *EventManager) *ClientConnection {
 	cc := new(ClientConnection)
 	cc.myConn = conn
-	fmt.Println("Connection: ", conn)
+
 	cc.myEncoder = gob.NewEncoder(conn)
 	cc.myDecoder = gob.NewDecoder(conn)
 
@@ -43,32 +43,29 @@ func newClientConnection(conn net.Conn, em *EventManager) *ClientConnection {
 
 func (cc *ClientConnection) receiveMsgFromClient() {
 	var clientResponse ClientMessage
-	fmt.Println("About to begin read loop in receiveMsgFromClient")
+
 	for {
 		cc.net_lock.Lock()
-		fmt.Println("Aquired lock in receiveMsgFromClient")
 		err := cc.myDecoder.Decode(&clientResponse)
 		cc.net_lock.Unlock()
-		fmt.Println("Released lock in receiveMsgFromClient")
-		//checkError(err)
+
+		checkError(err)
 
 		if err == nil {
-			fmt.Println("Received message from client: ", clientResponse)
-			cc.CurrentEM.receiveMessage(clientResponse)
+			//cc.CurrentEM.receiveMessage(clientResponse)
+			cc.CurrentEM.executeNonCombatEvent(cc, &clientResponse)
 		} else {
 			break
 		}
 	}
-
-	fmt.Println("After read loop in receiveMsgFromClient")
 }
 
 func (cc *ClientConnection) sendMsgToClient(msg ServerMessage) {
 
-	//cc.net_lock.Lock()
+	cc.net_lock.Lock()
 	err := cc.myEncoder.Encode(msg)
 	checkError(err)
-	//cc.net_lock.Unlock()
+	cc.net_lock.Unlock()
 }
 
 func (cc *ClientConnection) setCurrentEventManager(em *EventManager) {
