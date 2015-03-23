@@ -69,26 +69,15 @@ func createDummyMsg() {
 
 func HandleClient(myConn net.Conn) {
 
-	//*(eventManagersG[0]).subscribeListener()
-
 	clientConnection := newClientConnection(myConn, eventManagersG[0])
 	_ = clientConnection
+	eventManagersG[0].subscribeListener(clientConnection)
 
-	(eventManagersG[0]).subscribeListener(clientConnection)
+	//TODO this should actually only be called once at the servers start up
+	go eventManagersG[0].waitForTick()
+
 	clientConnection.receiveMsgFromClient()
 }
-
-//func dummyHandleClient(myConn net.Conn) {
-
-//	//*(eventManagersG[0]).subscribeListener()
-
-//	newChar := new(Character)
-//	(*newChar).init(myConn, "name", eventManagersG[0])
-//	(eventManagersG[0]).subscribeListener(newChar)
-//	go (*newChar).receiveMessage()
-//	//character should start routine to get msg from client here then return to main loop in server
-//	// however eventmanager, in its own routine, can call method getEventmessage on character instantly without extra routine nor channel
-//}
 
 func handleClient(client net.Conn) {
 	//encoder := gob.NewEncoder(client)
