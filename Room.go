@@ -86,8 +86,17 @@ func (room *Room) removePCFromRoom(charName string) {
 }
 
 func (room *Room) getItem(char *Character, itemName string) []FormattedString {
-	//TODO getItem function in room class
-	return nil
+
+	item := room.ItemsInRoom[itemName]
+	char.addItemToInventory(item)
+
+	delete(room.ItemsInRoom[itemName])
+	output := make([]FormattedString, 1, 1)
+
+	output[0].Color = ct.White
+	output[0].Value = "You succesfully picked up the item and added it to your invenctory"
+
+	return output
 }
 
 func (room *Room) getMonster(monsterName string) *Monster {
