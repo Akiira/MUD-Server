@@ -17,17 +17,16 @@ type Character struct {
 	RoomIN       int
 	HitPoints    int
 	Defense      int
-	CurrentEM    *EventManager
+	level        int
+	experience   int
 	myClientConn *ClientConnection
 
-	//	Strength int
-	//	Constitution int
-	//	Dexterity int
-	//	Wisdom int
-	//	Charisma int
-	//	Inteligence int
-
-	//	Location string
+	Strength     int
+	Constitution int
+	Dexterity    int
+	Wisdom       int
+	Charisma     int
+	Inteligence  int
 
 	//	Race string
 	//	Class string
@@ -35,7 +34,7 @@ type Character struct {
 	PersonalInvetory Inventory
 
 	//	Weapon Item
-	ArmourSet map[string]Armour
+	equippedArmour ArmourSet
 }
 
 func newCharacter(name string, room int, hp int, def int) *Character {
@@ -44,7 +43,7 @@ func newCharacter(name string, room int, hp int, def int) *Character {
 	char.HitPoints = hp
 	char.Defense = def
 	char.PersonalInvetory = *newInventory()
-	char.ArmourSet = make(map[string]Armour)
+	char.equippedArmour = newArmourSet()
 
 	worldRoomsG[room].addPCToRoom(name)
 
@@ -101,17 +100,16 @@ func (c *Character) getAttackRoll() int {
 // 		so the client can see the effects.
 
 func (c *Character) wearArmor(location string, armr Armour) {
-	if _, ok := c.ArmourSet[location]; ok { // already an item present
+	if c.equippedArmour.isArmourEquippedAtLocation(location) { // already an item present
 		//TODO
 	} else {
-		c.ArmourSet[location] = armr
-		c.Defense += armr.defense
+		c.equippedArmour.equipArmour(location, armr)
 	}
 }
 
 func (c *Character) takeOffArmor(location string) {
-	if _, ok := c.ArmourSet[location]; ok { // already an item present
-		delete(c.ArmourSet, location)
+	if c.equippedArmour.isArmourEquippedAtLocation(location) { // already an item present
+		c.equippedArmour.takeOffArmourByLocation(location)
 	} else {
 		//TODO
 	}
@@ -157,7 +155,7 @@ func (char *Character) makeAttack(targetName string) []FormattedString {
 		} else {
 			output[1].Value = "\nThe " + targetName + " narrowly misses you!"
 		}
-	} else { //TODO add corpse to Rooms list of items
+	} else {
 		// TODO  reward player exp
 		output[1].Value = "\nThe " + targetName + " drops over dead."
 		room := worldRoomsG[char.RoomIN]
