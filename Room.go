@@ -88,9 +88,9 @@ func (room *Room) removePCFromRoom(charName string) {
 func (room *Room) getItem(char *Character, itemName string) []FormattedString {
 
 	item := room.ItemsInRoom[itemName]
-	char.addItemToInventory(item)
+	char.addItemToInventory(*item)
 
-	delete(room.ItemsInRoom[itemName])
+	delete(room.ItemsInRoom, itemName)
 	output := make([]FormattedString, 1, 1)
 
 	output[0].Color = ct.White
