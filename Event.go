@@ -30,24 +30,3 @@ func newEvent(playerORMonster bool, agent Agenter, action string, value string, 
 	event.client = cc
 	return *event
 }
-
-//func newEvent2(agent bool, agent *Character, action string, value string) Event {
-//	event := new(Event)
-//	event.playerORMonster = agent
-//	event.nameOfAgent = agent.Name
-//	event.action = action
-//	event.valueOrTarget = value
-//	event.character = agent
-//	event.monster = nil
-//	return *event
-//}
-//func newEvent3(agent bool, agent *Monster, action string, value string) Event {
-//	event := new(Event)
-//	event.playerORMonster = agent
-//	event.nameOfAgent = agent.Name
-//	event.action = action
-//	event.valueOrTarget = value
-//	event.character = nil
-//	event.monster = agent
-//	return *event
-//}
