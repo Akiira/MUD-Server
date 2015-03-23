@@ -21,7 +21,7 @@ type Monster struct {
 
 type target struct {
 	aggro        int
-	attackTarget *Character
+	attackTarget *ClientConnection
 }
 
 var monsterTemplatesG map[string]*Monster
@@ -55,26 +55,23 @@ func (m *Monster) fightPlayers() {
 		}
 
 		//Find target with highest aggro
-		var attackTarget *Character
+		var attackTarget *ClientConnection
 		maxAggro := 0
 		for _, targ := range m.targets {
 			if targ.aggro > maxAggro {
 				attackTarget = targ.attackTarget
 			}
-
 		}
-		event := newEvent(MONSTER, m, "attack", attackTarget.Name, nil)
+
+		event := newEvent(MONSTER, m, "attack", attackTarget.character.Name, attackTarget)
 		m.em.addEvent(event)
 	}
 }
 
 //TODO implement monsters combat functions
-func (m *Monster) attackPlayer(charName string) {
-
-}
 
 func (m *Monster) getAttackRoll() int {
-	return rand.Int() % 6
+	return rand.Int() % 20
 }
 
 func (m *Monster) takeDamage(amount int, typeOfDamge int) []FormattedString {
