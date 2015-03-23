@@ -36,27 +36,6 @@ func main() {
 	populateTestData()
 	//MovementAndCombatTest()
 
-	//this should be the one that read list of servers, including central server
-	/*
-		file, err := os.Open("serverList.txt")
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer file.Close()
-
-		scanner := bufio.NewScanner(file)
-		for scanner.Scan() {
-			fmt.Println(scanner.Text())
-		}
-
-		if err := scanner.Err(); err != nil {
-			log.Fatal(err)
-		}
-	*/
-
-	//Pattanapoom Hand
-	//start model
-
 	eventManagersG[0] = new(EventManager)
 	//might change to init() later
 	(*eventManagersG[0]).numListener = 0
@@ -176,4 +155,27 @@ func setUpServer() *net.TCPListener {
 	listener, err := net.ListenTCP("tcp", tcpAddr)
 	checkError(err)
 	return listener
+}
+
+func readServerList() {
+	//this should be the one that read list of servers, including central server
+	/*
+		file, err := os.Open("serverList.txt")
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer file.Close()
+
+		scanner := bufio.NewScanner(file)
+		for scanner.Scan() {
+			fmt.Println(scanner.Text())
+		}
+
+		if err := scanner.Err(); err != nil {
+			log.Fatal(err)
+		}
+	*/
+
+	//Pattanapoom Hand
+	//start model
 }
