@@ -48,8 +48,6 @@ func (cc *ClientConnection) receiveMsgFromClient() {
 		checkError(err)
 
 		if err == nil {
-			//cc.CurrentEM.receiveMessage(clientResponse)
-
 			if clientResponse.combatAction {
 				event = newEvent(PLAYER, cc.character.Name, clientResponse.Command, clientResponse.Value)
 				cc.CurrentEM.addEvent(event)
