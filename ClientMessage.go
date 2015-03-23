@@ -7,8 +7,9 @@ import (
 
 //this is suppose to be an event
 type ClientMessage struct {
-	Command string
-	Value   string
+	combatAction bool
+	Command      string
+	Value        string
 }
 
 func ClientMessageConstructor(cmd string, val string) ClientMessage {
