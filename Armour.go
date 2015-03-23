@@ -71,3 +71,8 @@ func (as *ArmourSet) getListOfArmourWorn() []FormattedString {
 
 	return output
 }
+
+func (as *ArmourSet) isArmourEquippedAtLocation(loc string) bool {
+	_, present := as.equipedArmour[loc]
+	return present
+}
