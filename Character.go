@@ -56,41 +56,12 @@ func newCharacterFromName(name string) *Character {
 	return onlinePlayers[name]
 }
 
-//func (c *Character) init(conn net.Conn, name string, em *EventManager) {
-
-//	c.Name = name
-//	c.setCurrentEventManager(em)
-//	c.myClientConn = newClientConnection(conn)
-//}
-
-//func (c *Character) setCurrentEventManager(em *EventManager) {
-//	c.CurrentEM = em
-
-//}
-
 func (c *Character) getEventMessage(msg ServerMessage) {
 	//fmt.Print("I, ", (*c).Name, " receive msg : ")
 	//fmt.Println(msg.Value)
 	c.myClientConn.sendMsgToClient(msg)
 
 }
-
-//func (c *Character) receiveMessage() {
-
-//	go c.routineReceiveMsg()
-//}
-
-//func (c *Character) routineReceiveMsg() {
-
-//	for {
-//		err := c.myClientConn.receiveMsgFromClient(c.CurrentEM)
-//		if err == io.EOF {
-//			//need to unsubscribe and let this character be devour by garbage collecter
-//			c.CurrentEM.unsubscribeListener(c)
-//			break
-//		}
-//	}
-//}
 
 func (c *Character) getAttackRoll() int {
 	return rand.Int() % 6
