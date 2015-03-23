@@ -13,13 +13,12 @@ import (
 // this should be a stub that hold a connection to a client
 // works like a thread on its own
 type Character struct {
-	Name         string
-	RoomIN       int
-	HitPoints    int
-	Defense      int
-	level        int
-	experience   int
-	myClientConn *ClientConnection
+	Name       string
+	RoomIN     int
+	HitPoints  int
+	Defense    int
+	level      int
+	experience int
 
 	Strength     int
 	Constitution int
@@ -33,8 +32,10 @@ type Character struct {
 
 	PersonalInvetory Inventory
 
-	//	Weapon Item
+	equipedWeapon  Weapon
 	equippedArmour ArmourSet
+
+	myClientConn *ClientConnection
 }
 
 func newCharacter(name string, room int, hp int, def int) *Character {
@@ -54,13 +55,6 @@ func newCharacterFromName(name string) *Character {
 	loadCharacterData(name)
 
 	return onlinePlayers[name]
-}
-
-func (c *Character) getEventMessage(msg ServerMessage) {
-	//fmt.Print("I, ", (*c).Name, " receive msg : ")
-	//fmt.Println(msg.Value)
-	c.myClientConn.sendMsgToClient(msg)
-
 }
 
 func (c *Character) getAttackRoll() int {
