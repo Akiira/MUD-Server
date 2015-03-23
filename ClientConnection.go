@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/gob"
-	"fmt"
 	_ "fmt"
 	//"io"
 	"net"
@@ -50,7 +49,14 @@ func (cc *ClientConnection) receiveMsgFromClient() {
 
 		if err == nil {
 			//cc.CurrentEM.receiveMessage(clientResponse)
-			cc.CurrentEM.executeNonCombatEvent(cc, &clientResponse)
+
+			if clientResponse.combatAction {
+				event = newEvent(PLAYER, cc.character.Name, clientResponse.Command, clientResponse.Value)
+				cc.CurrentEM.addEvent(event)
+			} else {
+				cc.CurrentEM.executeNonCombatEvent(cc, &clientResponse)
+			}
+
 		} else {
 			break
 		}
