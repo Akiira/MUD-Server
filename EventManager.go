@@ -9,7 +9,6 @@ import (
 )
 
 type Listener interface {
-	//set its current eventmanager
 	setCurrentEventManager(em *EventManager)
 	sendMsgToClient(msg ServerMessage)
 }
@@ -18,9 +17,6 @@ type Listener interface {
 // then those player / monster will decide by themselve to get hit or not
 // with this concept of oop it should let us handle both eventmanager and play easily
 type EventManager struct {
-	//a Q of events
-	//a timer
-	//messageQueue  [100]ClientMessage
 	myBroadcaster Broadcaster
 	myListener    [100]Listener
 	numListener   int
@@ -128,11 +124,9 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 	case cmd == "move":
 		output = cc.character.moveCharacter(event.Value)
 	case cmd == "say":
-		output = make([]FormattedString, 1, 1)
-		output[0].Color = ct.Black
-		output[0].Value = ""
-		em.dummySentMsg("Hello everyone in this one room!")
-		//TODO error message in exe  non combat move
+		str := cc.character.Name + " says \"" + event.Value + "\""
+		em.dummySentMsg(str)
+
 		//	case true :
 		//		output = errorMessage
 	}
