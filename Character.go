@@ -3,10 +3,8 @@ package main
 import (
 	"encoding/xml"
 	"github.com/daviddengcn/go-colortext"
-	_ "io"
 	"io/ioutil"
 	"math/rand"
-	_ "net"
 	"os"
 )
 
