@@ -7,47 +7,47 @@ const (
 
 type Event struct { //TODO use an Agent interface to avoid two pointers
 	playerORMonster bool
-	nameOfAgent     string
 	action          string
-	valueOrTarget   string
-	character       *Character
-	monster         *Monster
+	valueOrTarget   string //TODO consider changing this to an Ageneter as well
+	agent           Agenter
+	client          *ClientConnection
 }
-
 
 //TODO fix these functions to use only *Agent rahter then charName, *Character or *Monster
-func newEventFromMessage(msg ClientMessage, charName string) Event {
-	return newEvent(PLAYER, charName, msg.Command, msg.Value)
-}
-func newEventFromMessage2(msg ClientMessage, char *Character) Event {
-	return newEvent(PLAYER, charName, msg.Command, msg.Value, character: char, monster: nil)
+//func newEventFromMessage(msg ClientMessage, charName string) Event {
+//	return newEvent(PLAYER, charName, msg.Command, msg.Value)
+//}
+func newEventFromMessage(msg ClientMessage, agent Agenter, cc *ClientConnection) Event {
+	return newEvent(PLAYER, agent, msg.Command, msg.Value, cc)
 }
 
-func newEvent(agent bool, nameOfAgent string, action string, value string) Event {
+func newEvent(playerORMonster bool, agent Agenter, action string, value string, cc *ClientConnection) Event {
 	event := new(Event)
-	event.playerORMonster = agent
-	event.nameOfAgent = nameOfAgent
+	event.playerORMonster = playerORMonster
+	event.agent = agent
 	event.action = action
 	event.valueOrTarget = value
+	event.client = cc
 	return *event
 }
-func newEvent2(agent bool, agent *Character, action string, value string) Event {
-	event := new(Event)
-	event.playerORMonster = agent
-	event.nameOfAgent = agent.Name
-	event.action = action
-	event.valueOrTarget = value
-	event.character = agent
-	event.monster = nil
-	return *event
-}
-func newEvent3(agent bool, agent *Monster, action string, value string) Event {
-	event := new(Event)
-	event.playerORMonster = agent
-	event.nameOfAgent = agent.Name
-	event.action = action
-	event.valueOrTarget = value
-	event.character = nil
-	event.monster = agent
-	return *event
-}
+
+//func newEvent2(agent bool, agent *Character, action string, value string) Event {
+//	event := new(Event)
+//	event.playerORMonster = agent
+//	event.nameOfAgent = agent.Name
+//	event.action = action
+//	event.valueOrTarget = value
+//	event.character = agent
+//	event.monster = nil
+//	return *event
+//}
+//func newEvent3(agent bool, agent *Monster, action string, value string) Event {
+//	event := new(Event)
+//	event.playerORMonster = agent
+//	event.nameOfAgent = agent.Name
+//	event.action = action
+//	event.valueOrTarget = value
+//	event.character = nil
+//	event.monster = agent
+//	return *event
+//}
