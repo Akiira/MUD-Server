@@ -107,7 +107,6 @@ func (char *Character) makeAttack(targetName string) []FormattedString {
 		output[0].Value = "\nYou missed the " + targetName + "!"
 	}
 
-	a2 := target.getAttackRoll()
 	if target.HP <= 0 {
 		// TODO  reward player exp
 		output[1].Value = "\nThe " + targetName + " drops over dead."
