@@ -41,10 +41,8 @@ func newClientConnection(conn net.Conn, em *EventManager) *ClientConnection {
 }
 
 func (cc *ClientConnection) receiveMsgFromClient() {
-	var clientResponse ClientMessage
-
 	for {
-		clientResponse.CombatAction = false //not sure why but this needs reset each time
+		var clientResponse ClientMessage
 		err := cc.myDecoder.Decode(&clientResponse)
 		checkError(err)
 
