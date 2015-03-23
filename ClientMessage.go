@@ -7,7 +7,7 @@ import (
 
 //this is suppose to be an event
 type ClientMessage struct {
-	combatAction bool
+	CombatAction bool
 	Command      string
 	Value        string
 }
