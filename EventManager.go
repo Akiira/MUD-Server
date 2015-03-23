@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/daviddengcn/go-colortext"
 	"sync"
+	"time"
 )
 
 type Listener interface {
@@ -24,6 +25,7 @@ type EventManager struct {
 	myListener    [100]Listener
 	numListener   int
 	queue_lock    sync.Mutex
+	eventQue      []Event
 }
 
 func (em *EventManager) dummySentMsg(msg string) {
@@ -73,13 +75,48 @@ func (em *EventManager) receiveMessage(msg ClientMessage) {
 // The client connection class what should receive the clients message;
 //	it can then parse it and determine what event to add here.
 //	Then the event manager will call the appropiate room or character functions
-func (em *EventManager) addEvent() {
+func (em *EventManager) addEvent(event Event) {
+	em.queue_lock.Lock()
+	em.eventQue = append(em.eventQue, event)
+	em.queue_lock.Unlock()
+}
 
+func (em *EventManager) waitForTick() {
+	for {
+		time.Sleep(time.Second * 2)
+		go em.executeCombatRound()
+	}
+}
+
+func (em *EventManager) executeCombatRound() {
+	fmt.Println("Here2: ")
+	var output []FormattedString
+	_ = output
+	for _, event := range em.eventQue {
+		//TODO execute each event
+		_ = event
+
+		//TODO sort events by initiative stat before executing them
+		action := event.action
+		switch {
+		case action == "attack":
+			output = event.agent.makeAttack(event.valueOrTarget)
+		}
+		fmt.Println("Here1: ", output)
+		if event.client != nil {
+			fmt.Println("Here3: ", output)
+			var servMsg ServerMessage
+			servMsg.Value = output
+			event.client.sendMsgToClient(servMsg)
+		}
+	}
+
+	em.eventQue = em.eventQue[0:0]
 }
 
 func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *ClientMessage) {
 	var output []FormattedString
-	_ = output
+
 	cmd := event.Command
 	roomID := cc.character.RoomIN
 
@@ -102,7 +139,7 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 
 	fmt.Println("Sending message: ", output)
 
-	if output[0].Value != "" {
+	if len(output) > 0 {
 		cc.sendMsgToClient(ServerMessage{Value: output})
 	}
 }
