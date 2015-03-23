@@ -9,7 +9,7 @@ import (
 	//"net"
 	"github.com/daviddengcn/go-colortext"
 	_ "github.com/go-sql-driver/mysql"
-	"strings"
+	_ "strings"
 )
 
 func populateTestData() {
