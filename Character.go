@@ -55,10 +55,6 @@ func newCharacterFromName(name string) *Character {
 	return onlinePlayers[name]
 }
 
-func (c *Character) getAttackRoll() int {
-	return rand.Int() % 6
-}
-
 //TODO change some of these functions so that they return []FormatterString
 // 		so the client can see the effects.
 
@@ -99,6 +95,7 @@ func (char *Character) moveCharacter(direction string) []FormattedString {
 }
 
 func (char *Character) makeAttack(targetName string) []FormattedString {
+	//TODO try to change this so it doesnt need global variable
 	target := worldRoomsG[char.RoomIN].getMonster(targetName)
 	output := make([]FormattedString, 2, 2)
 
@@ -126,6 +123,19 @@ func (char *Character) makeAttack(targetName string) []FormattedString {
 	}
 
 	return output
+}
+
+func (c *Character) takeDamage(amount int, typeOfDamge int) []FormattedString {
+	//TODO implement this
+	return nil
+}
+
+func (c *Character) getAttackRoll() int {
+	return rand.Int() % 6
+}
+
+func (c *Character) getDefense() int {
+	return c.Defense
 }
 
 type CharacterXML struct {
