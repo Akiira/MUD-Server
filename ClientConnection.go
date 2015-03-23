@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/gob"
-	_ "fmt"
+	"fmt"
 	//"io"
 	"net"
 	"sync"
@@ -44,12 +44,14 @@ func (cc *ClientConnection) receiveMsgFromClient() {
 	var clientResponse ClientMessage
 
 	for {
+		clientResponse.CombatAction = false //not sure why but this needs reset each time
 		err := cc.myDecoder.Decode(&clientResponse)
 		checkError(err)
 
 		if err == nil {
-			if clientResponse.combatAction {
-				event = newEvent(PLAYER, cc.character.Name, clientResponse.Command, clientResponse.Value)
+			fmt.Println("Message read: ", clientResponse)
+			if clientResponse.CombatAction {
+				event := newEventFromMessage(clientResponse, cc.character, cc)
 				cc.CurrentEM.addEvent(event)
 			} else {
 				cc.CurrentEM.executeNonCombatEvent(cc, &clientResponse)
