@@ -101,8 +101,6 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 	var output []FormattedString
 
 	cmd := event.Command
-	roomID := cc.character.RoomIN
-
 	switch {
 	case cmd == "look":
 		output = em.room.getRoomDescription()
