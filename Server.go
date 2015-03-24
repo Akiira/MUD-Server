@@ -21,7 +21,7 @@ var databaseG *sql.DB //The G means its a global var
 var onlinePlayers map[string]*Character
 var worldRoomsG []*Room
 
-var eventQueuMutexG sync.Mutex
+var eventQueueMutexG sync.Mutex
 var numEventManagerG int
 var eventManagersG []*EventManager
 

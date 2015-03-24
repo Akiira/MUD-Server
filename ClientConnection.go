@@ -9,6 +9,7 @@ import (
 )
 
 type ClientConnection struct {
+	authen    bool
 	myConn    net.Conn
 	myEncoder *gob.Encoder
 	myDecoder *gob.Decoder
@@ -18,6 +19,7 @@ type ClientConnection struct {
 //CliecntConnection constructor
 func newClientConnection(conn net.Conn) *ClientConnection {
 	cc := new(ClientConnection)
+	cc.authen = true //need to be changed to false as default later
 	cc.myConn = conn
 	cc.myEncoder = gob.NewEncoder(conn)
 	cc.myDecoder = gob.NewDecoder(conn)
@@ -40,7 +42,13 @@ func (cc *ClientConnection) receiveMsgFromClient(em *EventManager) error {
 	//checkError(err)
 
 	if err == nil {
-		em.receiveMessage(clientResponse)
+		if(cc.authen){
+			em.receiveMessage(clientResponse)	
+		}
+		else{
+			//some logic to check for login or token
+		}
+		
 	}
 
 	return err
