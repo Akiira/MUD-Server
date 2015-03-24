@@ -37,8 +37,6 @@ func main() {
 	//MovementAndCombatTest()
 
 	eventManagersG[0] = new(EventManager)
-	//might change to init() later
-	(*eventManagersG[0]).numListener = 0
 
 	listener := setUpServer()
 
