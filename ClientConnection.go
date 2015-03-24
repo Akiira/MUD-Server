@@ -69,6 +69,9 @@ func (cc *ClientConnection) sendMsgToClient(msg ServerMessage) {
 	checkError(err)
 }
 
+func (cc *ClientConnection) getCharactersName() string {
+	return cc.character.Name
+}
 func (cc *ClientConnection) setCurrentEventManager(em *EventManager) {
 	cc.CurrentEM = em
 }
