@@ -85,6 +85,20 @@ func (room *Room) removePCFromRoom(charName string) {
 	delete(room.CharactersInRoom, charName)
 }
 
+func (room *Room) getItem(char *Character, itemName string) []FormattedString {
+
+	item := room.ItemsInRoom[itemName]
+	char.addItemToInventory(*item)
+
+	delete(room.ItemsInRoom, itemName)
+	output := make([]FormattedString, 1, 1)
+
+	output[0].Color = ct.White
+	output[0].Value = "You succesfully picked up the item and added it to your invenctory"
+
+	return output
+}
+
 func (room *Room) getMonster(monsterName string) *Monster {
 	return room.MonstersInRoom[monsterName]
 }
@@ -100,7 +114,7 @@ func (room *Room) populateRoomWithMonsters() { //TODO remove hardcoding, maybe l
 	room.MonstersInRoom["Deer"] = newMonsterFromName("Fox")
 }
 
-func (room *Room) getFormattedOutput() []FormattedString {
+func (room *Room) getRoomDescription() []FormattedString {
 	var output string
 	formattedString := make([]FormattedString, 5, 5)
 

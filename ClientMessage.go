@@ -1,4 +1,3 @@
-// ClientMessage
 package main
 
 import (
@@ -23,11 +22,12 @@ const CommandJoinWorld = 21 // will change the room occur the same time with lea
 
 //this is suppose to be an event
 type ClientMessage struct {
-	Command int
-	Value   string
+	CombatAction bool
+	Command      string
+	Value        string
 }
 
-func ClientMessageConstructor(cmd int, val string) ClientMessage {
+func ClientMessageConstructor(cmd string, val string) ClientMessage {
 	return ClientMessage{Command: cmd, Value: val}
 }
 

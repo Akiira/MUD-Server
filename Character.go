@@ -3,39 +3,37 @@ package main
 import (
 	"encoding/xml"
 	"github.com/daviddengcn/go-colortext"
-	"io"
 	"io/ioutil"
 	"math/rand"
-	"net"
 	"os"
 )
 
 // this should be a stub that hold a connection to a client
 // works like a thread on its own
 type Character struct {
-	Name         string
-	RoomIN       int
-	HitPoints    int
-	Defense      int
-	CurrentEM    *EventManager
-	myClientConn *ClientConnection
+	Name       string
+	RoomIN     int
+	HitPoints  int
+	Defense    int
+	level      int
+	experience int
 
-	//	Strength int
-	//	Constitution int
-	//	Dexterity int
-	//	Wisdom int
-	//	Charisma int
-	//	Inteligence int
-
-	//	Location string
+	Strength     int
+	Constitution int
+	Dexterity    int
+	Wisdom       int
+	Charisma     int
+	Inteligence  int
 
 	//	Race string
 	//	Class string
 
 	PersonalInvetory Inventory
 
-	//	Weapon Item
-	ArmourSet map[string]Armour
+	equipedWeapon  Weapon
+	equippedArmour ArmourSet
+
+	myClientConn *ClientConnection
 }
 
 func newCharacter(name string, room int, hp int, def int) *Character {
@@ -44,68 +42,33 @@ func newCharacter(name string, room int, hp int, def int) *Character {
 	char.HitPoints = hp
 	char.Defense = def
 	char.PersonalInvetory = *newInventory()
-	char.ArmourSet = make(map[string]Armour)
+	char.equippedArmour = newArmourSet()
+
+	worldRoomsG[room].addPCToRoom(name)
 
 	return char
 }
+func newCharacterFromName(name string) *Character {
 
-func (c *Character) init(conn net.Conn, name string, em *EventManager) {
+	loadCharacterData(name)
 
-	c.Name = name
-	c.setCurrentEventManager(em)
-	c.myClientConn = new(ClientConnection)
-	c.myClientConn.setConnection(conn)
-
-}
-
-func (c *Character) setCurrentEventManager(em *EventManager) {
-	c.CurrentEM = em
-
-}
-
-func (c *Character) getEventMessage(msg ServerMessage) {
-	//fmt.Print("I, ", (*c).Name, " receive msg : ")
-	//fmt.Println(msg.Value)
-	c.myClientConn.sendMsgToClient(msg)
-
-}
-
-func (c *Character) receiveMessage() {
-
-	go c.routineReceiveMsg()
-}
-
-func (c *Character) routineReceiveMsg() {
-
-	for {
-		err := c.myClientConn.receiveMsgFromClient(c.CurrentEM)
-		if err == io.EOF {
-			//need to unsubscribe and let this character be devour by garbage collecter
-			c.CurrentEM.unsubscribeListener(c)
-			break
-		}
-	}
-}
-
-func (c *Character) getAttackRoll() int {
-	return rand.Int() % 6
+	return onlinePlayers[name]
 }
 
 //TODO change some of these functions so that they return []FormatterString
 // 		so the client can see the effects.
 
 func (c *Character) wearArmor(location string, armr Armour) {
-	if _, ok := c.ArmourSet[location]; ok { // already an item present
+	if c.equippedArmour.isArmourEquippedAtLocation(location) { // already an item present
 		//TODO
 	} else {
-		c.ArmourSet[location] = armr
-		c.Defense += armr.defense
+		c.equippedArmour.equipArmour(location, armr)
 	}
 }
 
 func (c *Character) takeOffArmor(location string) {
-	if _, ok := c.ArmourSet[location]; ok { // already an item present
-		delete(c.ArmourSet, location)
+	if c.equippedArmour.isArmourEquippedAtLocation(location) { // already an item present
+		c.equippedArmour.takeOffArmourByLocation(location)
 	} else {
 		//TODO
 	}
@@ -122,7 +85,7 @@ func (char *Character) moveCharacter(direction string) []FormattedString {
 		room.removePCFromRoom(char.Name)
 		room.ExitLinksToRooms[dirAsInt].addPCToRoom(char.Name)
 		char.RoomIN = room.Exits[dirAsInt]
-		return room.ExitLinksToRooms[dirAsInt].getFormattedOutput()
+		return room.ExitLinksToRooms[dirAsInt].getRoomDescription()
 	} else {
 		output := make([]FormattedString, 1, 1)
 		output[0].Color = ct.Black
@@ -132,6 +95,7 @@ func (char *Character) moveCharacter(direction string) []FormattedString {
 }
 
 func (char *Character) makeAttack(targetName string) []FormattedString {
+	//TODO try to change this so it doesnt need global variable
 	target := worldRoomsG[char.RoomIN].getMonster(targetName)
 	output := make([]FormattedString, 2, 2)
 
@@ -143,15 +107,7 @@ func (char *Character) makeAttack(targetName string) []FormattedString {
 		output[0].Value = "\nYou missed the " + targetName + "!"
 	}
 
-	a2 := target.getAttackRoll()
-	if target.HP > 0 {
-		if a2 >= char.Defense {
-			char.HitPoints -= 1
-			output[1].Value = "\nThe " + targetName + " hit you!"
-		} else {
-			output[1].Value = "\nThe " + targetName + " narrowly misses you!"
-		}
-	} else { //TODO add corpse to Rooms list of items
+	if target.HP <= 0 {
 		// TODO  reward player exp
 		output[1].Value = "\nThe " + targetName + " drops over dead."
 		room := worldRoomsG[char.RoomIN]
@@ -159,6 +115,19 @@ func (char *Character) makeAttack(targetName string) []FormattedString {
 	}
 
 	return output
+}
+
+func (c *Character) takeDamage(amount int, typeOfDamge int) []FormattedString {
+	//TODO implement this
+	return nil
+}
+
+func (c *Character) getAttackRoll() int {
+	return rand.Int() % 6
+}
+
+func (c *Character) getDefense() int {
+	return c.Defense
 }
 
 type CharacterXML struct {

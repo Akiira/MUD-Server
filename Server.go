@@ -11,11 +11,17 @@ import (
 	"fmt"
 	//_ "github.com/go-sql-driver/mysql"
 	"bufio"
+	"github.com/daviddengcn/go-colortext"
 	//"log"
 	"net"
 	"os"
 	"sync"
 )
+
+type FormattedString struct {
+	Color ct.Color
+	Value string
+}
 
 var databaseG *sql.DB //The G means its a global var
 var onlinePlayers map[string]*Character
@@ -23,48 +29,26 @@ var worldRoomsG []*Room
 
 var eventQueueMutexG sync.Mutex
 var numEventManagerG int
-var eventManagersG []*EventManager
+var eventManagersG [20]*EventManager
 
 func main() {
+
 	populateTestData()
-	MovementAndCombatTest()
+	//MovementAndCombatTest()
 
-	//this should be the one that read list of servers, including central server
-	/*
-		file, err := os.Open("serverList.txt")
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer file.Close()
+	eventManagersG[0] = newEventManagerForRoom(worldRoomsG[0])
 
-		scanner := bufio.NewScanner(file)
-		for scanner.Scan() {
-			fmt.Println(scanner.Text())
-		}
+	listener := setUpServer()
 
-		if err := scanner.Err(); err != nil {
-			log.Fatal(err)
-		}
-	*/
+	go createDummyMsg()
 
-	//Pattanapoom Hand
-	//start model
+	for {
+		conn, err := listener.Accept()
+		checkError(err)
+		fmt.Println("Connection established")
 
-	//	eventManagersG[0] = new(EventManager)
-	//	//might change to init() later
-	//	(*eventManagersG[0]).numListener = 0
-
-	//	listener := setUpServer()
-
-	//	go createDummyMsg()
-
-	//	for {
-	//		conn, err := listener.Accept()
-	//		checkError(err)
-	//		fmt.Println("Connection established")
-
-	//		go dummyHandleClient(conn)
-	//	}
+		go HandleClient(conn)
+	}
 
 	/*for {
 		time.Sleep(1 * time.Microsecond)
@@ -74,24 +58,23 @@ func main() {
 func createDummyMsg() {
 
 	for {
-
 		reader := bufio.NewReader(os.Stdin)
 		fmt.Print("Enter text: ")
 		text, _ := reader.ReadString('\n')
-		(*eventManagersG[0]).dummySentMsg(text)
-
+		(*eventManagersG[0]).sendMessageToRoom(text)
 	}
 }
 
-func dummyHandleClient(myConn net.Conn) {
+func HandleClient(myConn net.Conn) {
 
-	//*(eventManagersG[0]).subscribeListener()
-	newChar := new(Character)
-	(*newChar).init(myConn, "name", eventManagersG[0])
-	(eventManagersG[0]).subscribeListener(newChar)
-	go (*newChar).receiveMessage()
-	//character should start routine to get msg from client here then return to main loop in server
-	// however eventmanager, in its own routine, can call method getEventmessage on character instantly without extra routine nor channel
+	clientConnection := newClientConnection(myConn, eventManagersG[0])
+	_ = clientConnection
+	eventManagersG[0].subscribeListener(clientConnection)
+
+	//TODO this should actually only be called once at the servers start up
+	go eventManagersG[0].waitForTick()
+
+	clientConnection.receiveMsgFromClient()
 }
 
 func handleClient(client net.Conn) {
@@ -113,22 +96,6 @@ func handleClient(client net.Conn) {
 
 	//get clients character name
 	// load info from database
-}
-
-func loadCharacterFromDB(characterName string) {
-	//	rows, err := databaseG.Query("select * from Character where CharacterName = ?", characterName)
-	//	checkError(err)
-	//	defer rows.Close()
-
-	//	var char Character
-
-	//	if( rows.Next()){
-	//		err := rows.Scan(&char.Name, ....)
-	//		checkError(err)
-	//		if(DBpassword == pw){
-	//			return true
-	//		}
-	//	}
 }
 
 func checkError(err error) {
@@ -175,4 +142,27 @@ func setUpServer() *net.TCPListener {
 	listener, err := net.ListenTCP("tcp", tcpAddr)
 	checkError(err)
 	return listener
+}
+
+func readServerList() {
+	//this should be the one that read list of servers, including central server
+	/*
+		file, err := os.Open("serverList.txt")
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer file.Close()
+
+		scanner := bufio.NewScanner(file)
+		for scanner.Scan() {
+			fmt.Println(scanner.Text())
+		}
+
+		if err := scanner.Err(); err != nil {
+			log.Fatal(err)
+		}
+	*/
+
+	//Pattanapoom Hand
+	//start model
 }
