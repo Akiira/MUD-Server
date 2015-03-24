@@ -11,17 +11,16 @@ import (
 type Listener interface {
 	setCurrentEventManager(em *EventManager)
 	sendMsgToClient(msg ServerMessage)
+	getCharactersName() string
 }
 
 //event manager should only receive event from either monster / player and echo to all that monster / player in the room
 // then those player / monster will decide by themselve to get hit or not
 // with this concept of oop it should let us handle both eventmanager and play easily
 type EventManager struct {
-	myBroadcaster Broadcaster
-	myListener    [100]Listener
-	numListener   int
-	queue_lock    sync.Mutex
-	eventQue      []Event
+	listeners  map[string]Listener
+	queue_lock sync.Mutex
+	eventQue   []Event
 }
 
 func (em *EventManager) dummySentMsg(msg string) {
@@ -33,33 +32,22 @@ func (em *EventManager) dummySentMsg(msg string) {
 
 	newMsg.Value = tmp
 
-	fmt.Println("Number of listeners: ", em.numListener)
-
-	for i := 0; i < em.numListener; i++ {
-		em.myListener[i].sendMsgToClient(newMsg)
+	for _, listener := range em.listeners {
+		listener.sendMsgToClient(newMsg)
 	}
 }
 
 func (em *EventManager) subscribeListener(newListener Listener) {
 
 	em.queue_lock.Lock()
-	em.myListener[em.numListener] = newListener
-	em.numListener++
-	fmt.Println("Num: ", em.numListener)
+	em.listeners[newListener.getCharactersName()] = newListener
 	em.queue_lock.Unlock()
 }
 
 func (em *EventManager) unsubscribeListener(prevListener Listener) {
 
 	em.queue_lock.Lock()
-	for i := 0; i < em.numListener; i++ {
-		if em.myListener[i] == prevListener {
-			em.myListener[i] = em.myListener[em.numListener-1]
-			em.myListener[em.numListener-1] = nil
-			em.numListener--
-			break
-		}
-	}
+	delete(em.listeners, prevListener.getCharactersName())
 	em.queue_lock.Unlock()
 
 }
@@ -87,11 +75,8 @@ func (em *EventManager) waitForTick() {
 func (em *EventManager) executeCombatRound() {
 	fmt.Println("Here2: ")
 	var output []FormattedString
-	_ = output
-	for _, event := range em.eventQue {
-		//TODO execute each event
-		_ = event
 
+	for _, event := range em.eventQue {
 		//TODO sort events by initiative stat before executing them
 		action := event.action
 		switch {
@@ -126,12 +111,7 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 	case cmd == "say":
 		str := cc.character.Name + " says \"" + event.Value + "\""
 		em.dummySentMsg(str)
-
-		//	case true :
-		//		output = errorMessage
 	}
-
-	fmt.Println("Sending message: ", output)
 
 	if len(output) > 0 {
 		cc.sendMsgToClient(ServerMessage{Value: output})
