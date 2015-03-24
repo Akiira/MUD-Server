@@ -15,9 +15,11 @@ type Monster struct {
 	HP          int
 	Defense     int
 	description string
-	targets     map[string]target //TODO add to constructor
+	targets     map[string]*target
 	em          EventManager
 }
+
+//TODO add mutex around targets field
 
 type target struct {
 	aggro        int
@@ -32,6 +34,7 @@ func newMonsterFromXML(monsterData MonsterXML) *Monster {
 	m.HP = monsterData.HP
 	m.Defense = monsterData.Defense
 	m.description = monsterData.Description
+	m.targets = make(map[string]*target)
 
 	return m
 }
@@ -42,6 +45,7 @@ func newMonsterFromName(name string) *Monster {
 	m.HP = monsterTemplatesG[name].HP
 	m.Defense = monsterTemplatesG[name].Defense
 	m.description = monsterTemplatesG[name].description
+	m.targets = make(map[string]*target)
 
 	return m
 }
@@ -69,6 +73,22 @@ func (m *Monster) fightPlayers() {
 }
 
 //TODO implement monsters combat functions
+
+func (m *Monster) addNewTarget(targetCC *ClientConnection, agro int) {
+
+	_, exist := m.targets[targetCC.character.Name]
+
+	if exist {
+		m.targets[targetCC.character.Name].aggro += agro
+	} else {
+		targ := target{aggro: agro, attackTarget: targetCC}
+		m.targets[targetCC.character.Name] = &targ
+
+		if len(m.targets) == 1 {
+			go m.fightPlayers()
+		}
+	}
+}
 
 func (m *Monster) getAttackRoll() int {
 	return rand.Int() % 20
