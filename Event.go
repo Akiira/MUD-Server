@@ -5,7 +5,7 @@ const (
 	MONSTER = false
 )
 
-type Event struct { //TODO use an Agent interface to avoid two pointers
+type Event struct {
 	playerORMonster bool
 	action          string
 	valueOrTarget   string //TODO consider changing this to an Ageneter as well
@@ -13,10 +13,6 @@ type Event struct { //TODO use an Agent interface to avoid two pointers
 	client          *ClientConnection
 }
 
-//TODO fix these functions to use only *Agent rahter then charName, *Character or *Monster
-//func newEventFromMessage(msg ClientMessage, charName string) Event {
-//	return newEvent(PLAYER, charName, msg.Command, msg.Value)
-//}
 func newEventFromMessage(msg ClientMessage, agent Agenter, cc *ClientConnection) Event {
 	return newEvent(PLAYER, agent, msg.Command, msg.Value, cc)
 }
