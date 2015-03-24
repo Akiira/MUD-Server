@@ -17,12 +17,14 @@ type EventManager struct {
 	listeners  map[string]Listener
 	queue_lock sync.Mutex
 	eventQue   []Event
+	room       *Room
 }
 
-func newEventManager() *EventManager {
+func newEventManagerForRoom(room *Room) *EventManager {
 	em := new(EventManager)
 	em.listeners = make(map[string]Listener)
 	em.eventQue = make([]Event, 0, 10)
+	em.room = room
 
 	return em
 }

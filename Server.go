@@ -36,7 +36,7 @@ func main() {
 	populateTestData()
 	//MovementAndCombatTest()
 
-	eventManagersG[0] = newEventManager()
+	eventManagersG[0] = newEventManagerForRoom(worldRoomsG[0])
 
 	listener := setUpServer()
 
