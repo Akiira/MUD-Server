@@ -14,16 +14,13 @@ type Listener interface {
 	getCharactersName() string
 }
 
-//event manager should only receive event from either monster / player and echo to all that monster / player in the room
-// then those player / monster will decide by themselve to get hit or not
-// with this concept of oop it should let us handle both eventmanager and play easily
 type EventManager struct {
 	listeners  map[string]Listener
 	queue_lock sync.Mutex
 	eventQue   []Event
 }
 
-func (em *EventManager) dummySentMsg(msg string) {
+func (em *EventManager) sendMessageToRoom(msg string) {
 	var newMsg ServerMessage
 	tmp := make([]FormattedString, 1, 1)
 
@@ -51,7 +48,7 @@ func (em *EventManager) unsubscribeListener(prevListener Listener) {
 }
 
 func (em *EventManager) receiveMessage(msg ClientMessage) {
-	em.dummySentMsg(msg.Value)
+	em.sendMessageToRoom(msg.Value)
 }
 
 // The client connection class what should receive the clients message;
@@ -108,7 +105,7 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 		output = cc.character.moveCharacter(event.Value)
 	case cmd == "say":
 		str := cc.character.Name + " says \"" + event.Value + "\""
-		em.dummySentMsg(str)
+		em.sendMessageToRoom(str)
 	}
 
 	if len(output) > 0 {

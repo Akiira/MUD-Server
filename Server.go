@@ -61,7 +61,7 @@ func createDummyMsg() {
 		reader := bufio.NewReader(os.Stdin)
 		fmt.Print("Enter text: ")
 		text, _ := reader.ReadString('\n')
-		(*eventManagersG[0]).dummySentMsg(text)
+		(*eventManagersG[0]).sendMessageToRoom(text)
 	}
 }
 
