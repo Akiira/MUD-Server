@@ -105,9 +105,9 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 
 	switch {
 	case cmd == "look":
-		output = worldRoomsG[roomID].getRoomDescription()
+		output = em.room.getRoomDescription()
 	case cmd == "get":
-		output = worldRoomsG[roomID].getItem(cc.character, event.Value)
+		output = em.room.getItem(cc.character, event.Value)
 	case cmd == "move":
 		output = cc.character.moveCharacter(event.Value)
 	case cmd == "say":
