@@ -24,12 +24,10 @@ type EventManager struct {
 }
 
 func (em *EventManager) dummySentMsg(msg string) {
-
 	var newMsg ServerMessage
 	tmp := make([]FormattedString, 1, 1)
-	tmp[0].Color = ct.Blue
-	tmp[0].Value = msg
 
+	tmp[0] = FormattedString{Color: ct.Blue, Value: msg}
 	newMsg.Value = tmp
 
 	for _, listener := range em.listeners {
