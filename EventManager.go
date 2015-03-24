@@ -2,7 +2,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/daviddengcn/go-colortext"
 	"sync"
 	"time"
@@ -18,6 +17,14 @@ type EventManager struct {
 	listeners  map[string]Listener
 	queue_lock sync.Mutex
 	eventQue   []Event
+}
+
+func newEventManager() *EventManager {
+	em := new(EventManager)
+	em.listeners = make(map[string]Listener)
+	em.eventQue = make([]Event, 0, 10)
+
+	return em
 }
 
 func (em *EventManager) sendMessageToRoom(msg string) {
@@ -68,7 +75,6 @@ func (em *EventManager) waitForTick() {
 }
 
 func (em *EventManager) executeCombatRound() {
-	fmt.Println("Here2: ")
 	var output []FormattedString
 
 	for _, event := range em.eventQue {
@@ -78,9 +84,8 @@ func (em *EventManager) executeCombatRound() {
 		case action == "attack":
 			output = event.agent.makeAttack(event.valueOrTarget)
 		}
-		fmt.Println("Here1: ", output)
+
 		if event.client != nil {
-			fmt.Println("Here3: ", output)
 			var servMsg ServerMessage
 			servMsg.Value = output
 			event.client.sendMsgToClient(servMsg)

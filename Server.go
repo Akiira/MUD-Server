@@ -36,7 +36,7 @@ func main() {
 	populateTestData()
 	//MovementAndCombatTest()
 
-	eventManagersG[0] = new(EventManager)
+	eventManagersG[0] = newEventManager()
 
 	listener := setUpServer()
 
