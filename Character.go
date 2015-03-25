@@ -44,7 +44,7 @@ func newCharacter(name string, room int, hp int, def int) *Character {
 	char.PersonalInvetory = *newInventory()
 	char.equippedArmour = newArmourSet()
 
-	worldRoomsG[room].addPCToRoom(name)
+	worldRoomsG[room].addPCToRoom(char)
 
 	return char
 }
@@ -77,13 +77,14 @@ func (c *Character) takeOffArmor(location string) {
 func (c *Character) addItemToInventory(item Item) {
 	c.PersonalInvetory.items[item.name] = item
 }
+
 func (char *Character) moveCharacter(direction string) []FormattedString {
 	room := worldRoomsG[char.RoomIN]
 	dirAsInt := convertDirectionToInt(direction)
 
 	if room.Exits[dirAsInt] >= 0 {
 		room.removePCFromRoom(char.Name)
-		room.ExitLinksToRooms[dirAsInt].addPCToRoom(char.Name)
+		room.ExitLinksToRooms[dirAsInt].addPCToRoom(char)
 		char.RoomIN = room.Exits[dirAsInt]
 		return room.ExitLinksToRooms[dirAsInt].getRoomDescription()
 	} else {
