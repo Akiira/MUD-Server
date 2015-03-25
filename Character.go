@@ -70,10 +70,12 @@ func (c *Character) addItemToInventory(item Item) {
 	c.PersonalInvetory.items[item.name] = item
 }
 
-//func (char *Character) moveCharacter(direction string, source *Room, destination *Room)
+//func (char *Character) moveCharacter(direction string, source *Room, destination *Room) []FormattedString
 
 func (char *Character) moveCharacter(direction string) []FormattedString {
-	room := worldRoomsG[char.RoomIN]
+	//TODO this is just a temporary fix
+	room := char.myClientConn.CurrentEM.worldRooms[char.RoomIN]
+
 	dirAsInt := convertDirectionToInt(direction)
 
 	if room.Exits[dirAsInt] >= 0 {
@@ -93,8 +95,9 @@ func (char *Character) moveCharacter(direction string) []FormattedString {
 //func (char *Character) makeAttack(target *Agenter) []FormattedString
 
 func (char *Character) makeAttack(targetName string) []FormattedString {
-	//TODO try to change this so it doesnt need global variable
-	target := worldRoomsG[char.RoomIN].getMonster(targetName)
+	//TODO again just a temporary fix
+	target := char.myClientConn.CurrentEM.worldRooms[char.RoomIN].getMonster(targetName)
+
 	output := make([]FormattedString, 2, 2)
 
 	a1 := char.getAttackRoll()
@@ -108,7 +111,7 @@ func (char *Character) makeAttack(targetName string) []FormattedString {
 	if target.HP <= 0 {
 		// TODO  reward player exp
 		output[1].Value = "\nThe " + targetName + " drops over dead."
-		room := worldRoomsG[char.RoomIN]
+		room := char.myClientConn.CurrentEM.worldRooms[char.RoomIN]
 		room.killOffMonster(targetName)
 	}
 
