@@ -70,9 +70,6 @@ func (em *EventManager) receiveMessage(msg ClientMessage) {
 	em.sendMessageToRoom(msg.Value)
 }
 
-// The client connection class what should receive the clients message;
-//	it can then parse it and determine what event to add here.
-//	Then the event manager will call the appropiate room or character functions
 func (em *EventManager) addEvent(event Event) {
 	em.queue_lock.Lock()
 	em.eventQue = append(em.eventQue, event)
