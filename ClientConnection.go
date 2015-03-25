@@ -30,12 +30,11 @@ func newClientConnection(conn net.Conn, em *EventManager) *ClientConnection {
 	err := cc.myDecoder.Decode(&clientResponse)
 	checkError(err) //TODO replace check errors with somthing that doesnt crash server
 
-	cc.character = newCharacterFromName(clientResponse.Value)
+	cc.character = getCharacterFromFile(clientResponse.Value)
+	//em.addCharacterToRoom(cc.character, cc.character.RoomIN)
 	cc.CurrentEM = em
 
-	startingRoomDescription := worldRoomsG[cc.character.RoomIN].getRoomDescription()
-	err = cc.myEncoder.Encode(ServerMessage{Value: startingRoomDescription})
-	checkError(err)
+	em.executeNonCombatEvent(cc, ClientMessage{Command: "look", Value: "room"})
 
 	return cc
 }
