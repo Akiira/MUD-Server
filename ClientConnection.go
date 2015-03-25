@@ -34,7 +34,7 @@ func newClientConnection(conn net.Conn, em *EventManager) *ClientConnection {
 	//em.addCharacterToRoom(cc.character, cc.character.RoomIN)
 	cc.CurrentEM = em
 
-	em.executeNonCombatEvent(cc, ClientMessage{Command: "look", Value: "room"})
+	em.executeNonCombatEvent(cc, &ClientMessage{Command: "look", Value: "room"})
 
 	return cc
 }
