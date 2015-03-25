@@ -31,7 +31,7 @@ type Room struct {
 	ExitLinksToRooms [10]*Room
 
 	//This represents the player characters (PCs) in the room
-	CharactersInRoom map[string]bool
+	CharactersInRoom map[string]*Character
 
 	//This represents the attackable non-playable characters (NPCs) in the room
 	MonstersInRoom map[string]*Monster
@@ -57,7 +57,7 @@ func newRoomFromXML(roomData RoomXML) *Room {
 		room.Exits[convertDirectionToInt(roomExit.Direction)] = roomExit.ConnectedRoomID
 	}
 
-	room.CharactersInRoom = make(map[string]bool)
+	room.CharactersInRoom = make(map[string]*Character)
 	room.MonstersInRoom = make(map[string]*Monster)
 	room.ItemsInRoom = make(map[string]*Item)
 	return &room
@@ -77,8 +77,8 @@ func (room *Room) getRoomLink(exit int) *Room {
 	return room.ExitLinksToRooms[exit]
 }
 
-func (room *Room) addPCToRoom(charName string) {
-	room.CharactersInRoom[charName] = true
+func (room *Room) addPCToRoom(char *Character) {
+	room.CharactersInRoom[char.Name] = char
 }
 
 func (room *Room) removePCFromRoom(charName string) {
