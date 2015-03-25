@@ -44,15 +44,7 @@ func newCharacter(name string, room int, hp int, def int) *Character {
 	char.PersonalInvetory = *newInventory()
 	char.equippedArmour = newArmourSet()
 
-	worldRoomsG[room].addPCToRoom(char)
-
 	return char
-}
-func newCharacterFromName(name string) *Character {
-
-	loadCharacterData(name)
-
-	return onlinePlayers[name]
 }
 
 //TODO change some of these functions so that they return []FormatterString
@@ -78,6 +70,8 @@ func (c *Character) addItemToInventory(item Item) {
 	c.PersonalInvetory.items[item.name] = item
 }
 
+//func (char *Character) moveCharacter(direction string, source *Room, destination *Room)
+
 func (char *Character) moveCharacter(direction string) []FormattedString {
 	room := worldRoomsG[char.RoomIN]
 	dirAsInt := convertDirectionToInt(direction)
@@ -94,6 +88,9 @@ func (char *Character) moveCharacter(direction string) []FormattedString {
 		return output
 	}
 }
+
+//TODO
+//func (char *Character) makeAttack(target *Agenter) []FormattedString
 
 func (char *Character) makeAttack(targetName string) []FormattedString {
 	//TODO try to change this so it doesnt need global variable
@@ -124,7 +121,7 @@ func (c *Character) takeDamage(amount int, typeOfDamge int) []FormattedString {
 }
 
 func (c *Character) getAttackRoll() int {
-	return rand.Int() % 6
+	return rand.Int() % 20
 }
 
 func (c *Character) getDefense() int {
@@ -139,7 +136,7 @@ type CharacterXML struct {
 	Defense int      `xml:"Defense"`
 }
 
-func loadCharacterData(charName string) {
+func getCharacterFromFile(charName string) *Character {
 	//TODO remove hard coding
 	xmlFile, err := os.Open("C:\\Go\\src\\MUD-Server\\Characters\\" + charName + ".xml")
 	checkError(err)
@@ -151,5 +148,6 @@ func loadCharacterData(charName string) {
 	xml.Unmarshal(XMLdata, &charData)
 
 	char := newCharacter(charData.Name, charData.RoomIN, charData.HP, charData.Defense)
-	onlinePlayers[charName] = char
+
+	return char
 }
