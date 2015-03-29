@@ -54,16 +54,15 @@ func HandleLoginClient(myConn net.Conn) {
 
 		if err == nil {
 
-			if clientResponse.MsgType == CommandLogin {
+			if clientResponse.CommandType == CommandLogin {
 				value := clientResponse.Value
 				data := strings.Fields(value)
 				username := data[0]
 				password := data[1]
 
-				fielName := username + ".xml"
+				fielName := "./Characters/" + username + ".xml"
 
 				if _, err := os.Stat(fielName); err == nil {
-					fmt.Printf("file exists; processing...")
 
 					xmlFile, err := os.Open(fielName)
 					checkError(err)
@@ -75,7 +74,6 @@ func HandleLoginClient(myConn net.Conn) {
 					var charData CharacterXML
 					XMLdata, _ := ioutil.ReadAll(xmlFile)
 					xml.Unmarshal(XMLdata, &charData)
-
 					if password == charData.Password {
 
 						//find the world's addr for character to respawn
@@ -105,9 +103,14 @@ func HandleLoginClient(myConn net.Conn) {
 					} else {
 						var svMsg ServerMessage
 						svMsg.MsgType = ErrorAuthorizationFail
-						svMsg.MsgDetail = "error fail to authorization"
+						svMsg.MsgDetail = "error password is not correct"
 						gob.NewEncoder(myConn).Encode(svMsg)
 					}
+				} else {
+					var svMsg ServerMessage
+					svMsg.MsgType = ErrorAuthorizationFail
+					svMsg.MsgDetail = "error cannot find user data"
+					gob.NewEncoder(myConn).Encode(svMsg)
 				}
 
 			} else {

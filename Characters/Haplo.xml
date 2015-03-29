@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <Character>
-	<Password>"password"</Password>
+	<Password>password</Password>
 	<Name>"Haplo"</Name>
 	<RoomIN>0</RoomIN>
 	<HitPoints>30</HitPoints>
