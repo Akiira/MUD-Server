@@ -2,15 +2,13 @@ package main
 
 import (
 	"encoding/xml"
-	"fmt"
+	//"fmt"
 	"github.com/daviddengcn/go-colortext"
 	"io/ioutil"
 	"math/rand"
 	"os"
 )
 
-// this should be a stub that hold a connection to a client
-// works like a thread on its own
 type Character struct {
 	Name   string
 	RoomIN int
@@ -134,42 +132,42 @@ func (c *Character) getDefense() int {
 	return c.Defense
 }
 
-func (c *Character) getStatsPage() []FormattedString {
-	stats := make([]FormattedString, 10, 20)
+//func (c *Character) getStatsPage() []FormattedString {
+//	stats := make([]FormattedString, 10, 20)
 
-	stats[0].Color = ct.Green
-	stats[0].Value = "Character Page for " + c.Name + "-------------------------------------------------\n"
+//	stats[0].Color = ct.Green
+//	stats[0].Value = "Character Page for " + c.Name + "-------------------------------------------------\n"
 
-	stats[1].Value = "LEVEL:"
-	stats[2].Value = fmt.Sprintf("%2d %8s", c.level, "")
-	stats[3].Value = "RACE :"
-	stats[4].Value = fmt.Sprintf("%8s\n", "Human") //TODO
-	stats[5].Value = "AGE  :"
-	stats[6].Value = fmt.Sprintf("%4d %6s", 123, "") //TODO
-	stats[7].Value = "CLASS:"
-	stats[8].Value = fmt.Sprintf("%8s\n", "Ranger") //TODO
-	stats[9].Value = "STR  :"
-	stats[10].Value = fmt.Sprintf("%2d %8s", c.Strength, "")
-	stats[11].Value = "HitRoll:"
-	stats[12].Value = fmt.Sprintf("%8s\n", "66") //TODO
-	stats[13].Value = "INT  :"
-	stats[14].Value = fmt.Sprintf("%2d %8s", c.Inteligence, "")
-	stats[15].Value = "DmgRoll:"
-	stats[16].Value = fmt.Sprintf("%8s\n", "66") //TODO
-	stats[17].Value = "WIS  :"
-	stats[18].Value = fmt.Sprintf("%2d %8s", c.Strength, "")
-	stats[19].Value = "Alignment:"
-	stats[20].Value = fmt.Sprintf("%8s\n", "Paragon") //TODO
-	stats[21].Value = "DEX  :"
-	stats[22].Value = fmt.Sprintf("%2d %8s", c.Wisdom, "")
-	stats[23].Value = "Armour:"
-	stats[24].Value = fmt.Sprintf("%8s\n", "-500") //TODO
-	stats[25].Value = "CON  :"
-	stats[26].Value = fmt.Sprintf("%2d %8s", c.Constitution, "")
+//	stats[1].Value = "LEVEL:"
+//	stats[2].Value = fmt.Sprintf("%2d %8s", c.level, "")
+//	stats[3].Value = "RACE :"
+//	stats[4].Value = fmt.Sprintf("%8s\n", "Human") //TODO
+//	stats[5].Value = "AGE  :"
+//	stats[6].Value = fmt.Sprintf("%4d %6s", 123, "") //TODO
+//	stats[7].Value = "CLASS:"
+//	stats[8].Value = fmt.Sprintf("%8s\n", "Ranger") //TODO
+//	stats[9].Value = "STR  :"
+//	stats[10].Value = fmt.Sprintf("%2d %8s", c.Strength, "")
+//	stats[11].Value = "HitRoll:"
+//	stats[12].Value = fmt.Sprintf("%8s\n", "66") //TODO
+//	stats[13].Value = "INT  :"
+//	stats[14].Value = fmt.Sprintf("%2d %8s", c.Inteligence, "")
+//	stats[15].Value = "DmgRoll:"
+//	stats[16].Value = fmt.Sprintf("%8s\n", "66") //TODO
+//	stats[17].Value = "WIS  :"
+//	stats[18].Value = fmt.Sprintf("%2d %8s", c.Strength, "")
+//	stats[19].Value = "Alignment:"
+//	stats[20].Value = fmt.Sprintf("%8s\n", "Paragon") //TODO
+//	stats[21].Value = "DEX  :"
+//	stats[22].Value = fmt.Sprintf("%2d %8s", c.Wisdom, "")
+//	stats[23].Value = "Armour:"
+//	stats[24].Value = fmt.Sprintf("%8s\n", "-500") //TODO
+//	stats[25].Value = "CON  :"
+//	stats[26].Value = fmt.Sprintf("%2d %8s", c.Constitution, "")
 
-	stats[1].Value = "CHA  :"
-	stats[2].Value = fmt.Sprintf("%2d %8s", c.Charisma, "")
-}
+//	stats[1].Value = "CHA  :"
+//	stats[2].Value = fmt.Sprintf("%2d %8s", c.Charisma, "")
+//}
 
 type CharacterXML struct {
 	XMLName      xml.Name `xml:"Character"`
