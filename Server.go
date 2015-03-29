@@ -27,10 +27,12 @@ var databaseG *sql.DB //The G means its a global var
 var eventManager *EventManager
 
 func main() {
-
 	//populateTestData()
 	//MovementAndCombatTest()
+	runServer()
+}
 
+func runServer() {
 	eventManager = newEventManager()
 
 	listener := setUpServer()
