@@ -172,11 +172,13 @@ func (c *Character) getStatsPage() []FormattedString {
 }
 
 type CharacterXML struct {
-	XMLName xml.Name `xml:"Character"`
-	Name    string   `xml:"Name"`
-	RoomIN  int      `xml:"RoomIN"`
-	HP      int      `xml:"HitPoints"`
-	Defense int      `xml:"Defense"`
+	XMLName      xml.Name `xml:"Character"`
+	Name         string   `xml:"Name"`
+	RoomIN       int      `xml:"RoomIN"`
+	HP           int      `xml:"HitPoints"`
+	Defense      int      `xml:"Defense"`
+	Password     string   `xml:"Password"`
+	CurrentWorld string   `xml:"CurrentWorld"`
 }
 
 func getCharacterFromFile(charName string) *Character {

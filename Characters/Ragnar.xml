@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <Character>
+	<Password>"password"</Password>
 	<Name>"Ragnar"</Name>
 	<RoomIN>0</RoomIN>
 	<HitPoints>30</HitPoints>

@@ -1,3 +1,2 @@
-central central 104.39.7.113 1300
-world world1 104.39.7.113 1200
-
+central 127.0.0.1:1200
+world1 127.0.0.1:1300

@@ -8,7 +8,7 @@ import (
 	//"log"
 	//"net"
 	"github.com/daviddengcn/go-colortext"
-	_ "github.com/go-sql-driver/mysql"
+	// "github.com/go-sql-driver/mysql"
 	_ "strings"
 )
 

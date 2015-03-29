@@ -1,7 +1,9 @@
 <?xml version="1.0"?>
 <Character>
+	<Password>"password"</Password>
 	<Name>"Haplo"</Name>
 	<RoomIN>0</RoomIN>
 	<HitPoints>30</HitPoints>
 	<Defense>2</Defense>
+	<CurrentWorld>world1</CurrentWorld>
 </Character>

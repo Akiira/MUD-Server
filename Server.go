@@ -11,19 +11,12 @@ import (
 	"fmt"
 	//_ "github.com/go-sql-driver/mysql"
 	"bufio"
-	"github.com/daviddengcn/go-colortext"
 	//"log"
 	"net"
 	"os"
 )
 
-type FormattedString struct {
-	Color ct.Color
-	Value string
-}
-
 var databaseG *sql.DB //The G means its a global var
-
 var eventManager *EventManager
 
 func main() {
@@ -90,13 +83,6 @@ func handleClient(client net.Conn) {
 	// load info from database
 }
 
-func checkError(err error) {
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "Fatal error: %s", err.Error())
-		os.Exit(1)
-	}
-}
-
 func intializeDatabaseConnection() {
 	var err error
 	databaseG, err = sql.Open("mysql",
@@ -124,37 +110,4 @@ func isGoodLogin(name string, pw string) bool {
 	}
 
 	return false
-}
-
-func setUpServer() *net.TCPListener {
-	service := "127.0.0.1:1200"
-	tcpAddr, err := net.ResolveTCPAddr("tcp4", service)
-	checkError(err)
-
-	listener, err := net.ListenTCP("tcp", tcpAddr)
-	checkError(err)
-	return listener
-}
-
-func readServerList() {
-	//this should be the one that read list of servers, including central server
-	/*
-		file, err := os.Open("serverList.txt")
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer file.Close()
-
-		scanner := bufio.NewScanner(file)
-		for scanner.Scan() {
-			fmt.Println(scanner.Text())
-		}
-
-		if err := scanner.Err(); err != nil {
-			log.Fatal(err)
-		}
-	*/
-
-	//Pattanapoom Hand
-	//start model
 }
