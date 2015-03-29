@@ -5,7 +5,9 @@ import (
 	"encoding/gob"
 	"encoding/xml"
 	"fmt"
+	"io/ioutil"
 	"log"
+	"net"
 	"os"
 	"strings"
 )
@@ -31,12 +33,12 @@ func main() {
 		checkError(err)
 		fmt.Println("Connection established")
 
-		go HandleClient(conn)
+		go HandleLoginClient(conn)
 	}
 
 }
 
-func HandleClient(myConn net.Conn) {
+func HandleLoginClient(myConn net.Conn) {
 
 	//waiting for login msg
 	//then validate and send connection for world server back
@@ -74,54 +76,51 @@ func HandleClient(myConn net.Conn) {
 					XMLdata, _ := ioutil.ReadAll(xmlFile)
 					xml.Unmarshal(XMLdata, &charData)
 
-					//find the world's addr for character to respawn
-					lookupWorld := charData.CurrentWorld
-					found := false
-					var addr string
-					for i := 0; i < serverNum; i++ {
-						if worldsName[i] == lookupWorld {
-							found = true
-							addr = worldAddrs[i]
-							break
-						}
-					}
+					if password == charData.Password {
 
-					if found {
-						//send world addr back to client
+						//find the world's addr for character to respawn
+						lookupWorld := charData.CurrentWorld
+						found := false
+						var addr string
+						for i := 0; i < serverNum; i++ {
+							if serverNames[i] == lookupWorld {
+								found = true
+								addr = serverAddrs[i]
+								break
+							}
+						}
+
+						if found {
+							//send world addr back to client
+							var svMsg ServerMessage
+							svMsg.MsgType = CommandRedirectServer
+							svMsg.MsgDetail = addr
+							gob.NewEncoder(myConn).Encode(svMsg)
+						} else {
+							var svMsg ServerMessage
+							svMsg.MsgType = ErrorWorldIsNotFound
+							svMsg.MsgDetail = "error world is not found"
+							gob.NewEncoder(myConn).Encode(svMsg)
+						}
+					} else {
 						var svMsg ServerMessage
-						svMsg.MsgType = CommandRedirectServer
-						svMsg.Value = addr
-						gob.NewDecoder(myConn).Encode(svMsg)
-					}
-					else {
-						var svMsg ServerMessage
-						svMsg.MsgType = ErrorWorldIsNotFound
-						svMsg.Value = "error world is not found"
-						gob.NewDecoder(myConn).Encode(svMsg)		
+						svMsg.MsgType = ErrorAuthorizationFail
+						svMsg.MsgDetail = "error fail to authorization"
+						gob.NewEncoder(myConn).Encode(svMsg)
 					}
 				}
 
 			} else {
 				var svMsg ServerMessage
 				svMsg.MsgType = ErrorUnexpectedCommand
-				svMsg.Value = "error unexpected command"
-				gob.NewDecoder(myConn).Encode(svMsg)
+				svMsg.MsgDetail = "error unexpected command"
+				gob.NewEncoder(myConn).Encode(svMsg)
 			}
 
 		} else {
 			break
 		}
 	}
-}
-
-func setUpServer() *net.TCPListener {
-	service := "127.0.0.1:1200"
-	tcpAddr, err := net.ResolveTCPAddr("tcp4", service)
-	checkError(err)
-
-	listener, err := net.ListenTCP("tcp", tcpAddr)
-	checkError(err)
-	return listener
 }
 
 func readServerList() {
