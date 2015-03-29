@@ -10,10 +10,7 @@ import (
 	"encoding/gob"
 	"fmt"
 	//_ "github.com/go-sql-driver/mysql"
-	"bufio"
-	//"log"
 	"net"
-	"os"
 )
 
 var databaseG *sql.DB //The G means its a global var
@@ -30,24 +27,12 @@ func runServer() {
 
 	listener := setUpServer()
 
-	go createDummyMsg()
-
 	for {
 		conn, err := listener.Accept()
 		checkError(err)
 		fmt.Println("Connection established")
 
 		go HandleClient(conn)
-	}
-}
-
-func createDummyMsg() {
-
-	for {
-		reader := bufio.NewReader(os.Stdin)
-		fmt.Print("Enter text: ")
-		text, _ := reader.ReadString('\n')
-		eventManager.sendMessageToRoom(text)
 	}
 }
 
