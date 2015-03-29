@@ -16,7 +16,8 @@ var serverNames [10]string
 var serverAddrs [10]string
 var serverNum int
 
-func main() {
+func loginServer() {
+	//func main() {
 
 	//files, _ := ioutil.ReadDir("./")
 
