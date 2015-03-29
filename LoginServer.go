@@ -56,10 +56,8 @@ func HandleLoginClient(myConn net.Conn) {
 		if err == nil {
 
 			if clientResponse.MsgType == CommandLogin {
-				value := clientResponse.Value
-				data := strings.Fields(value)
-				username := data[0]
-				password := data[1]
+				username := clientResponse.getUsername()
+				password := clientResponse.getPassword()
 
 				fielName := username + ".xml"
 
