@@ -36,6 +36,18 @@ type FormattedString struct {
 	Value string
 }
 
+func newFormattedStringSplice(color ct.Color, msg string) []FormattedString {
+	fs := make([]FormattedString, 1, 1)
+	fs = append(fs, FormattedString{Color: color, Value: msg})
+	return fs
+}
+
+func addMessageToSplice(splice []FormattedString, color ct.Color, msg string) []FormattedString {
+	temp := FormattedString{Color: color, Value: msg}
+
+	return append(splice, temp)
+}
+
 func setUpServer() *net.TCPListener {
 	service := "127.0.0.1:1200"
 	tcpAddr, err := net.ResolveTCPAddr("tcp4", service)
