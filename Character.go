@@ -44,15 +44,7 @@ func newCharacter(name string, room int, hp int, def int) *Character {
 	char.PersonalInvetory = *newInventory()
 	char.equippedArmour = newArmourSet()
 
-	worldRoomsG[room].addPCToRoom(name)
-
 	return char
-}
-func newCharacterFromName(name string) *Character {
-
-	loadCharacterData(name)
-
-	return onlinePlayers[name]
 }
 
 //TODO change some of these functions so that they return []FormatterString
@@ -77,13 +69,18 @@ func (c *Character) takeOffArmor(location string) {
 func (c *Character) addItemToInventory(item Item) {
 	c.PersonalInvetory.items[item.name] = item
 }
+
+//func (char *Character) moveCharacter(direction string, source *Room, destination *Room) []FormattedString
+
 func (char *Character) moveCharacter(direction string) []FormattedString {
-	room := worldRoomsG[char.RoomIN]
+	//TODO this is just a temporary fix
+	room := char.myClientConn.CurrentEM.worldRooms[char.RoomIN]
+
 	dirAsInt := convertDirectionToInt(direction)
 
 	if room.Exits[dirAsInt] >= 0 {
 		room.removePCFromRoom(char.Name)
-		room.ExitLinksToRooms[dirAsInt].addPCToRoom(char.Name)
+		room.ExitLinksToRooms[dirAsInt].addPCToRoom(char)
 		char.RoomIN = room.Exits[dirAsInt]
 		return room.ExitLinksToRooms[dirAsInt].getRoomDescription()
 	} else {
@@ -94,9 +91,13 @@ func (char *Character) moveCharacter(direction string) []FormattedString {
 	}
 }
 
+//TODO
+//func (char *Character) makeAttack(target *Agenter) []FormattedString
+
 func (char *Character) makeAttack(targetName string) []FormattedString {
-	//TODO try to change this so it doesnt need global variable
-	target := worldRoomsG[char.RoomIN].getMonster(targetName)
+	//TODO again just a temporary fix
+	target := char.myClientConn.CurrentEM.worldRooms[char.RoomIN].getMonster(targetName)
+
 	output := make([]FormattedString, 2, 2)
 
 	a1 := char.getAttackRoll()
@@ -110,7 +111,7 @@ func (char *Character) makeAttack(targetName string) []FormattedString {
 	if target.HP <= 0 {
 		// TODO  reward player exp
 		output[1].Value = "\nThe " + targetName + " drops over dead."
-		room := worldRoomsG[char.RoomIN]
+		room := char.myClientConn.CurrentEM.worldRooms[char.RoomIN]
 		room.killOffMonster(targetName)
 	}
 
@@ -123,7 +124,7 @@ func (c *Character) takeDamage(amount int, typeOfDamge int) []FormattedString {
 }
 
 func (c *Character) getAttackRoll() int {
-	return rand.Int() % 6
+	return rand.Int() % 20
 }
 
 func (c *Character) getDefense() int {
@@ -131,14 +132,16 @@ func (c *Character) getDefense() int {
 }
 
 type CharacterXML struct {
-	XMLName xml.Name `xml:"Character"`
-	Name    string   `xml:"Name"`
-	RoomIN  int      `xml:"RoomIN"`
-	HP      int      `xml:"HitPoints"`
-	Defense int      `xml:"Defense"`
+	XMLName      xml.Name `xml:"Character"`
+	Name         string   `xml:"Name"`
+	RoomIN       int      `xml:"RoomIN"`
+	HP           int      `xml:"HitPoints"`
+	Defense      int      `xml:"Defense"`
+	Password     string   `xml:"Password"`
+	CurrentWorld string   `xml:"CurrentWorld"`
 }
 
-func loadCharacterData(charName string) {
+func getCharacterFromFile(charName string) *Character {
 	//TODO remove hard coding
 	xmlFile, err := os.Open("C:\\Go\\src\\MUD-Server\\Characters\\" + charName + ".xml")
 	checkError(err)
@@ -150,5 +153,6 @@ func loadCharacterData(charName string) {
 	xml.Unmarshal(XMLdata, &charData)
 
 	char := newCharacter(charData.Name, charData.RoomIN, charData.HP, charData.Defense)
-	onlinePlayers[charName] = char
+
+	return char
 }

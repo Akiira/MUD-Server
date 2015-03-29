@@ -15,7 +15,6 @@ import (
 	//"log"
 	"net"
 	"os"
-	"sync"
 )
 
 type FormattedString struct {
@@ -24,19 +23,14 @@ type FormattedString struct {
 }
 
 var databaseG *sql.DB //The G means its a global var
-var onlinePlayers map[string]*Character
-var worldRoomsG []*Room
-
-var eventQueueMutexG sync.Mutex
-var numEventManagerG int
-var eventManagersG [20]*EventManager
+var eventManager *EventManager
 
 func main() {
 
-	populateTestData()
+	//populateTestData()
 	//MovementAndCombatTest()
 
-	eventManagersG[0] = newEventManagerForRoom(worldRoomsG[0])
+	eventManager = newEventManager()
 
 	listener := setUpServer()
 
@@ -49,10 +43,6 @@ func main() {
 
 		go HandleClient(conn)
 	}
-
-	/*for {
-		time.Sleep(1 * time.Microsecond)
-	}*/
 }
 
 func createDummyMsg() {
@@ -61,18 +51,17 @@ func createDummyMsg() {
 		reader := bufio.NewReader(os.Stdin)
 		fmt.Print("Enter text: ")
 		text, _ := reader.ReadString('\n')
-		(*eventManagersG[0]).sendMessageToRoom(text)
+		eventManager.sendMessageToRoom(text)
 	}
 }
 
 func HandleClient(myConn net.Conn) {
 
-	clientConnection := newClientConnection(myConn, eventManagersG[0])
+	clientConnection := newClientConnection(myConn, eventManager)
 	_ = clientConnection
-	eventManagersG[0].subscribeListener(clientConnection)
 
 	//TODO this should actually only be called once at the servers start up
-	go eventManagersG[0].waitForTick()
+	go eventManager.waitForTick()
 
 	clientConnection.receiveMsgFromClient()
 }

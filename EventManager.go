@@ -18,6 +18,16 @@ type EventManager struct {
 	queue_lock sync.Mutex
 	eventQue   []Event
 	room       *Room
+	worldRooms []*Room
+}
+
+func newEventManager() *EventManager {
+	em := new(EventManager)
+	em.listeners = make(map[string]Listener)
+	em.eventQue = make([]Event, 0, 10)
+	em.worldRooms = loadRooms()
+
+	return em
 }
 
 func newEventManagerForRoom(room *Room) *EventManager {
@@ -25,7 +35,7 @@ func newEventManagerForRoom(room *Room) *EventManager {
 	em.listeners = make(map[string]Listener)
 	em.eventQue = make([]Event, 0, 10)
 	em.room = room
-
+	em.worldRooms = loadRooms()
 	return em
 }
 
@@ -60,9 +70,6 @@ func (em *EventManager) receiveMessage(msg ClientMessage) {
 	em.sendMessageToRoom(msg.Value)
 }
 
-// The client connection class what should receive the clients message;
-//	it can then parse it and determine what event to add here.
-//	Then the event manager will call the appropiate room or character functions
 func (em *EventManager) addEvent(event Event) {
 	em.queue_lock.Lock()
 	em.eventQue = append(em.eventQue, event)
@@ -99,13 +106,13 @@ func (em *EventManager) executeCombatRound() {
 
 func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *ClientMessage) {
 	var output []FormattedString
-
+	eventRoom := em.worldRooms[cc.character.RoomIN]
 	cmd := event.Command
 	switch {
 	case cmd == "look":
-		output = em.room.getRoomDescription()
+		output = eventRoom.getRoomDescription()
 	case cmd == "get":
-		output = em.room.getItem(cc.character, event.Value)
+		output = eventRoom.getItem(cc.character, event.Value)
 	case cmd == "move":
 		output = cc.character.moveCharacter(event.Value)
 	case cmd == "say":

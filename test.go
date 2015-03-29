@@ -12,17 +12,17 @@ import (
 	_ "strings"
 )
 
-func populateTestData() {
-	monsterTemplatesG = make(map[string]*Monster)
-	onlinePlayers = make(map[string]*Character)
-	loadMonsterData()
-	worldRoomsG = loadRooms()
-	loadCharacterData("Ragnar")
-	onlinePlayers["Ragnar"].addItemToInventory(Item{name: "Brown-Hat", description: "A moldy old hat with holes in it"})
-	onlinePlayers["Ragnar"].addItemToInventory(Item{name: "Walking-Stick", description: "A sturdy walking stick made of oak"})
+//func populateTestData() {
+//	monsterTemplatesG = make(map[string]*Monster)
+//	onlinePlayers = make(map[string]*Character)
+//	loadMonsterData()
+//	worldRoomsG = loadRooms()
+//	loadCharacterData("Ragnar")
+//	onlinePlayers["Ragnar"].addItemToInventory(Item{name: "Brown-Hat", description: "A moldy old hat with holes in it"})
+//	onlinePlayers["Ragnar"].addItemToInventory(Item{name: "Walking-Stick", description: "A sturdy walking stick made of oak"})
 
-	worldRoomsG[0].populateRoomWithMonsters()
-}
+//	worldRoomsG[0].populateRoomWithMonsters()
+//}
 
 func printFormatedOutput(output []FormattedString) {
 	for _, element := range output {
@@ -30,42 +30,6 @@ func printFormatedOutput(output []FormattedString) {
 		fmt.Println(element.Value)
 	}
 	ct.ResetColor()
-}
-
-func MovementAndCombatTest() {
-	var input string
-	printFormatedOutput(worldRoomsG[0].getRoomDescription())
-	output := make([]FormattedString, 5, 5)
-	for {
-		read, err := fmt.Scan(&input)
-		checkError(err)
-		_ = read
-
-		if input == "exit" {
-			break
-		} else if input == "attack" {
-			var target string
-			read, err = fmt.Scan(&target)
-			checkError(err)
-
-			output = onlinePlayers["Ragnar"].makeAttack(target)
-		} else if input == "look" {
-			var target string
-			read, err = fmt.Scan(&target)
-			checkError(err)
-			if target == "room" {
-				output = worldRoomsG[onlinePlayers["Ragnar"].RoomIN].getRoomDescription()
-			} else {
-				output = monsterTemplatesG[target].getLookDescription()
-			}
-		} else if input == "get" {
-
-		} else { //assume movement
-			output = onlinePlayers["Ragnar"].moveCharacter(input)
-		}
-
-		printFormatedOutput(output)
-	}
 }
 
 //func LogInWithClientTest() {

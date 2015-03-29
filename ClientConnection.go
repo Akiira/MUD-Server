@@ -48,7 +48,7 @@ func newClientConnection(conn net.Conn, em *EventManager) *ClientConnection {
 	startingRoomDescription := worldRoomsG[cc.character.RoomIN].getRoomDescription()
 	err = cc.myEncoder.Encode(ServerMessage{Value: startingRoomDescription})
 	checkError(err)
-
+	
 	return cc
 }
 

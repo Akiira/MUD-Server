@@ -4,9 +4,16 @@ import (
 	"strings"
 )
 
+//command for error
+const ErrorUnexpectedCommand = 201
+const ErrorWorldIsNotFound = 202
+
 //command for system
 const CommandLogin = 101
 const CommandLogout = 102
+const CommandRedirectServer = 103
+const CommandEnterWorld = 104
+const CommandQueryCharacter = 105
 
 //command for create user
 const CommandRegister = 111
@@ -22,6 +29,7 @@ const CommandJoinWorld = 21 // will change the room occur the same time with lea
 
 //this is suppose to be an event
 type ClientMessage struct {
+	MsgType      int
 	CombatAction bool
 	Command      string
 	Value        string
