@@ -9,6 +9,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -29,11 +30,13 @@ func main() {
 	listener := setUpServer()
 
 	for {
+		fmt.Println("i'm waiting")
 		conn, err := listener.Accept()
-		checkError(err)
-		fmt.Println("Connection established")
-
-		go HandleLoginClient(conn)
+		//checkError(err)
+		if err == nil {
+			fmt.Println("Connection established")
+			go HandleLoginClient(conn)
+		}
 	}
 
 }
@@ -50,7 +53,6 @@ func HandleLoginClient(myConn net.Conn) {
 	for {
 
 		err := myDecoder.Decode(&clientResponse)
-		checkError(err)
 
 		if err == nil {
 
@@ -95,35 +97,74 @@ func HandleLoginClient(myConn net.Conn) {
 							svMsg.MsgDetail = addr
 							gob.NewEncoder(myConn).Encode(svMsg)
 						} else {
-							var svMsg ServerMessage
-							svMsg.MsgType = ErrorWorldIsNotFound
-							svMsg.MsgDetail = "error world is not found"
-							gob.NewEncoder(myConn).Encode(svMsg)
+							replyWorldIsNotFound(myConn)
 						}
 					} else {
-						var svMsg ServerMessage
-						svMsg.MsgType = ErrorAuthorizationFail
-						svMsg.MsgDetail = "error password is not correct"
-						gob.NewEncoder(myConn).Encode(svMsg)
+						replyFailAuthorizationCommand(myConn, "password is incorrect")
 					}
 				} else {
-					var svMsg ServerMessage
-					svMsg.MsgType = ErrorAuthorizationFail
-					svMsg.MsgDetail = "error cannot find user data"
-					gob.NewEncoder(myConn).Encode(svMsg)
+					replyFailAuthorizationCommand(myConn, "error cannot find user data")
 				}
 
-			} else {
-				var svMsg ServerMessage
-				svMsg.MsgType = ErrorUnexpectedCommand
-				svMsg.MsgDetail = "error unexpected command"
-				gob.NewEncoder(myConn).Encode(svMsg)
-			}
+			} else if clientResponse.CommandType == CommandQueryCharacter {
+				value := clientResponse.Value
+				data := strings.Fields(value)
+				username := data[0]
+				password := data[1]
 
+				fielName := "./Characters/" + username + ".xml"
+
+				if _, err := os.Stat(fielName); err == nil {
+
+					xmlFile, err := os.Open(fielName)
+					checkError(err)
+					defer xmlFile.Close()
+
+					//should send charData to world server
+					//as an notification that a character is going to join
+
+					var charData CharacterXML
+					XMLdata, _ := ioutil.ReadAll(xmlFile)
+					xml.Unmarshal(XMLdata, &charData)
+					if password == charData.Password {
+						var svMsg ServerMessage
+						svMsg.MsgType = CommandCharacterDetail
+						svMsg.MsgDetail = charData.Name + " " + strconv.Itoa(charData.RoomIN) + " " + strconv.Itoa(charData.HP) + " " + strconv.Itoa(charData.Defense)
+						gob.NewEncoder(myConn).Encode(svMsg)
+					} else {
+						replyFailAuthorizationCommand(myConn, "password is incorrect")
+					}
+				} else {
+					replyFailAuthorizationCommand(myConn, "error cannot find user data")
+				}
+			} else {
+				replyUnexpectedCommand(myConn)
+			}
 		} else {
 			break
 		}
 	}
+
+}
+func replyWorldIsNotFound(myConn net.Conn) {
+	var svMsg ServerMessage
+	svMsg.MsgType = ErrorWorldIsNotFound
+	svMsg.MsgDetail = "error world is not found"
+	gob.NewEncoder(myConn).Encode(svMsg)
+}
+
+func replyFailAuthorizationCommand(myConn net.Conn, msgDetail string) {
+	var svMsg ServerMessage
+	svMsg.MsgType = ErrorAuthorizationFail
+	svMsg.MsgDetail = msgDetail
+	gob.NewEncoder(myConn).Encode(svMsg)
+}
+
+func replyUnexpectedCommand(myConn net.Conn) {
+	var svMsg ServerMessage
+	svMsg.MsgType = ErrorUnexpectedCommand
+	svMsg.MsgDetail = "error unexpected command"
+	gob.NewEncoder(myConn).Encode(svMsg)
 }
 
 func readServerList() {

@@ -18,7 +18,7 @@ type ClientConnection struct {
 }
 
 //CliecntConnection constructor
-func newClientConnection(conn net.Conn, em *EventManager) *ClientConnection {
+func newClientConnection(conn net.Conn, em *EventManager, playerChar *Character) *ClientConnection {
 	cc := new(ClientConnection)
 	cc.myConn = conn
 
@@ -30,7 +30,7 @@ func newClientConnection(conn net.Conn, em *EventManager) *ClientConnection {
 	err := cc.myDecoder.Decode(&clientResponse)
 	checkError(err) //TODO replace check errors with somthing that doesnt crash server
 
-	cc.character = getCharacterFromFile(clientResponse.Value)
+	cc.character = playerChar
 	//em.addCharacterToRoom(cc.character, cc.character.RoomIN)
 	cc.CurrentEM = em
 
