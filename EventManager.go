@@ -17,7 +17,6 @@ type EventManager struct {
 	listeners  map[string]Listener
 	queue_lock sync.Mutex
 	eventQue   []Event
-	room       *Room
 	worldRooms []*Room
 }
 
@@ -32,15 +31,11 @@ func newEventManager() *EventManager {
 	return em
 }
 
-func (em *EventManager) sendMessageToRoom(msg string) {
-	var newMsg ServerMessage
-	tmp := make([]FormattedString, 1, 1)
+func (em *EventManager) sendMessageToRoom(roomID int, msg ServerMessage) {
+	room := em.worldRooms[roomID]
 
-	tmp[0] = FormattedString{Color: ct.Blue, Value: msg}
-	newMsg.Value = tmp
-
-	for _, listener := range em.listeners {
-		listener.sendMsgToClient(newMsg)
+	for _, client := range room.CharactersInRoom {
+		client.myClientConn.sendMsgToClient(msg)
 	}
 }
 
@@ -57,10 +52,6 @@ func (em *EventManager) unsubscribeListener(prevListener Listener) {
 	delete(em.listeners, prevListener.getCharactersName())
 	em.queue_lock.Unlock()
 
-}
-
-func (em *EventManager) receiveMessage(msg ClientMessage) {
-	em.sendMessageToRoom(msg.Value)
 }
 
 func (em *EventManager) addEvent(event Event) {
@@ -109,8 +100,8 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 	case cmd == "move":
 		output = cc.character.moveCharacter(event.Value)
 	case cmd == "say":
-		str := cc.character.Name + " says \"" + event.Value + "\""
-		em.sendMessageToRoom(str)
+		formattedOutput := newFormattedStringSplice(ct.Blue, cc.character.Name+" says \""+event.Value+"\"")
+		em.sendMessageToRoom(cc.character.RoomIN, ServerMessage{Value: temp})
 	}
 
 	if len(output) > 0 {
