@@ -56,9 +56,6 @@ func HandleClient(myConn net.Conn) {
 	clientConnection := newClientConnection(myConn, eventManager)
 	_ = clientConnection
 
-	//TODO this should actually only be called once at the servers start up
-	go eventManager.waitForTick()
-
 	clientConnection.receiveMsgFromClient()
 }
 

@@ -27,6 +27,8 @@ func newEventManager() *EventManager {
 	em.eventQue = make([]Event, 0, 10)
 	em.worldRooms = loadRooms()
 
+	go em.waitForTick()
+
 	return em
 }
 

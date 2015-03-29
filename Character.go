@@ -71,6 +71,7 @@ func (c *Character) addItemToInventory(item Item) {
 	c.PersonalInvetory.items[item.name] = item
 }
 
+//TODO
 //func (char *Character) moveCharacter(direction string, source *Room, destination *Room) []FormattedString
 
 func (char *Character) moveCharacter(direction string) []FormattedString {
