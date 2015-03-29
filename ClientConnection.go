@@ -9,7 +9,6 @@ import (
 )
 
 type ClientConnection struct {
-	authen    bool
 	myConn    net.Conn
 	myEncoder *gob.Encoder
 	myDecoder *gob.Decoder
@@ -21,7 +20,6 @@ type ClientConnection struct {
 //CliecntConnection constructor
 func newClientConnection(conn net.Conn, em *EventManager) *ClientConnection {
 	cc := new(ClientConnection)
-	cc.authen = true //need to be changed to false as default later
 	cc.myConn = conn
 
 	cc.myEncoder = gob.NewEncoder(conn)
@@ -32,23 +30,12 @@ func newClientConnection(conn net.Conn, em *EventManager) *ClientConnection {
 	err := cc.myDecoder.Decode(&clientResponse)
 	checkError(err) //TODO replace check errors with somthing that doesnt crash server
 
-	if err == nil {
-		if(cc.authen){
-			em.receiveMessage(clientResponse)	
-		}
-		else{
-			//some logic to check for login or token
-		}
-		
-	}
-	
-	cc.character = newCharacterFromName(clientResponse.Value)
+	cc.character = getCharacterFromFile(clientResponse.Value)
+	//em.addCharacterToRoom(cc.character, cc.character.RoomIN)
 	cc.CurrentEM = em
 
-	startingRoomDescription := worldRoomsG[cc.character.RoomIN].getRoomDescription()
-	err = cc.myEncoder.Encode(ServerMessage{Value: startingRoomDescription})
-	checkError(err)
-	
+	em.executeNonCombatEvent(cc, &ClientMessage{Command: "look", Value: "room"})
+
 	return cc
 }
 
