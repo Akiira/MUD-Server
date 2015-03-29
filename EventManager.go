@@ -32,15 +32,6 @@ func newEventManager() *EventManager {
 	return em
 }
 
-func newEventManagerForRoom(room *Room) *EventManager {
-	em := new(EventManager)
-	em.listeners = make(map[string]Listener)
-	em.eventQue = make([]Event, 0, 10)
-	em.room = room
-	em.worldRooms = loadRooms()
-	return em
-}
-
 func (em *EventManager) sendMessageToRoom(msg string) {
 	var newMsg ServerMessage
 	tmp := make([]FormattedString, 1, 1)
