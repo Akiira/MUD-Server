@@ -22,7 +22,13 @@ func newFormattedString2(color ct.Color, msg string) []FormattedString {
 	return fs
 }
 
-func addMessageToSplice(splice []FormattedString, color ct.Color, msg string) []FormattedString {
+func addMessageToSplice(splice []FormattedString, msg string) []FormattedString {
+	temp := FormattedString{Color: ct.White, Value: msg}
+
+	return append(splice, temp)
+}
+
+func addMessageToSplice2(splice []FormattedString, color ct.Color, msg string) []FormattedString {
 	temp := FormattedString{Color: color, Value: msg}
 
 	return append(splice, temp)

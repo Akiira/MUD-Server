@@ -6,89 +6,112 @@ package main
 // user: admin1
 // pw: admin
 import (
-	"database/sql"
+	"bufio"
 	"encoding/gob"
 	"fmt"
+	"github.com/daviddengcn/go-colortext"
+	"log"
 	"net"
+	"os"
+	"strings"
 )
 
-var databaseG *sql.DB //The G means its a global var
+const centralServer = "central"
+
+var servers map[string]string
+
 var eventManager *EventManager
 
 func main() {
 	//populateTestData()
 	//MovementAndCombatTest()
+
+	readServerList()
 	runServer()
 }
 
 func runServer() {
 	eventManager = newEventManager()
 
-	listener := setUpServer()
+	listener := setUpServerWithPort(1300)
 
 	for {
 		conn, err := listener.Accept()
-		checkError(err)
-		fmt.Println("Connection established")
+		//checkError(err)
+		if err == nil {
+			fmt.Println("Connection established")
 
-		go HandleClient(conn)
+			go HandleClientLogin(conn)
+		}
 	}
 }
 
-func HandleClient(myConn net.Conn) {
+func readServerList() {
+	//this should be the one that read list of servers, including central server
 
-	clientConnection := newClientConnection(myConn, eventManager)
-	_ = clientConnection
+	file, err := os.Open("serverConfig/serverList.txt")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		readData := strings.Fields(scanner.Text())
+		fmt.Println(readData)
+		servers[readData[0]] = readData[1]
+	}
+
+	if err := scanner.Err(); err != nil {
+		log.Fatal(err)
+	}
+
+	//Pattanapoom Hand
+	//start model
+}
+
+func HandleClientLogin(myConn net.Conn) {
+
+	var playerChar *Character
+
+	//need to check for authentication first
+
+	var clientResponse ClientMessage
+	myDecoder := gob.NewDecoder(myConn)
+	err := myDecoder.Decode(&clientResponse)
+
+	if err == nil {
+		if clientResponse.CommandType == CommandLogin {
+			username := clientResponse.getUsername()
+			password := clientResponse.getPassword()
+			playerChar = queryCharacterFromCentral(username, password)
+		} else {
+			svMsg := newServerMessage(newFormattedString2(ct.Red, "error unexpected command"))
+			gob.NewEncoder(myConn).Encode(svMsg)
+		}
+	}
+
+	//once the authentication is good player can continue on gameplay
+
+	clientConnection := newClientConnection(myConn, eventManager, playerChar)
 
 	clientConnection.receiveMsgFromClient()
 }
 
-func handleClient(client net.Conn) {
-	//encoder := gob.NewEncoder(client)
-	decoder := gob.NewDecoder(client)
+func queryCharacterFromCentral(username string, password string) *Character {
 
-	var clientsMessage ClientMessage
-	decoder.Decode(&clientsMessage)
+	address := servers["central"]
 
-	fmt.Println("clients message: " + clientsMessage.Value)
-
-	if isGoodLogin(clientsMessage.getUsername(), clientsMessage.getPassword()) {
-		fmt.Println("Good Login!")
-	} else {
-		fmt.Println("Bad Login!")
-	}
-	databaseG.Close() //TODO remove these closes
-	client.Close()
-
-	//get clients character name
-	// load info from database
-}
-
-func intializeDatabaseConnection() {
-	var err error
-	databaseG, err = sql.Open("mysql",
-		"admin1:admin@tcp(127.0.0.1:3306)/mud-database")
+	conn, err := net.Dial("tcp", address)
 	checkError(err)
 
-	err = databaseG.Ping()
+	clientResponse := ClientMessage{Value: username}
+	err = gob.NewEncoder(conn).Encode(clientResponse)
 	checkError(err)
-}
 
-func isGoodLogin(name string, pw string) bool {
-	rows, err := databaseG.Query("select Password from Login where CharacterNameLI = ?", name)
-
+	var queriedChar Character
+	err = gob.NewDecoder(conn).Decode(&queriedChar)
 	checkError(err)
-	defer rows.Close()
 
-	var DBpassword string
-
-	if rows.Next() {
-		err := rows.Scan(&DBpassword)
-		checkError(err)
-		if DBpassword == pw {
-			return true
-		}
-	}
-
-	return false
+	return &queriedChar
 }

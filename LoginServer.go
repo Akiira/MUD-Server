@@ -1,153 +1,124 @@
 package main
 
-//import (
-//	"bufio"
-//	"encoding/gob"
-//	"encoding/xml"
-//	"fmt"
-//	"io/ioutil"
-//	"log"
-//	"net"
-//	"os"
-//	"strings"
-//)
+import (
+	"bufio"
+	"encoding/gob"
+	"fmt"
+	"log"
+	"net"
+	"os"
+	"strings"
+)
 
-//var serverNames [10]string
-//var serverAddrs [10]string
-//var serverNum int
+var servers map[string]string
 
-//func loginServer() {
-//	//func main() {
+//func main() {
+func notMain() {
+	servers = make(map[string]string)
+	//files, _ := ioutil.ReadDir("./")
 
-//	//files, _ := ioutil.ReadDir("./")
+	/*
+		for _, f := range files {
+			fmt.Println(f.Name())
+		}*/
+	readServerList()
 
-//	/*
-//		for _, f := range files {
-//			fmt.Println(f.Name())
-//		}*/
-//	readServerList()
+	go runCharacterServer()
+	runClientServer()
+}
 
-//	listener := setUpServer()
+func runCharacterServer() {
+	listener := setUpServerWithPort(1301)
+	for {
+		fmt.Println("Character Server: i'm waiting")
+		conn, err := listener.Accept()
+		//checkError(err)
+		if err == nil {
+			fmt.Println("Character Server:Connection established")
 
-//	for {
-//		conn, err := listener.Accept()
-//		checkError(err)
-//		fmt.Println("Connection established")
+		}
+	}
+}
 
-//		//go HandleLoginClient(conn)
-//	}
+func runClientServer() {
+	listener := setUpServer()
 
-//}
+	for {
+		fmt.Println("Client Server: i'm waiting")
+		conn, err := listener.Accept()
+		//checkError(err)
+		if err == nil {
+			fmt.Println("Client Server:Connection established")
+			go HandleLoginClient(conn)
+		}
+	}
+}
 
-////func HandleLoginClient(myConn net.Conn) {
+func HandleLoginClient(myConn net.Conn) {
 
-////	//waiting for login msg
-////	//then validate and send connection for world server back
-////	//or return error validation fail
+	//waiting for login msg
+	//then validate and send connection for world server back
+	//or return error validation fail
 
-////	var clientResponse ClientMessage
-////	myDecoder := gob.NewDecoder(myConn)
+	var clientResponse ClientMessage
+	myDecoder := gob.NewDecoder(myConn)
 
-////	for {
+	err := myDecoder.Decode(&clientResponse)
 
-////		err := myDecoder.Decode(&clientResponse)
-////		checkError(err)
+	c := getCharacterFromFile(clientResponse.getUsername(), clientResponse.getPassword())
 
-////		if err == nil {
+	//TODO
+	if c == nil {
+		//incorrect password or character name
+	} else {
+		// Correct!
+	}
+}
+func replyWorldIsNotFound(myConn net.Conn) {
+	var svMsg ServerMessage
+	//svMsg.MsgType = ErrorWorldIsNotFound
+	//svMsg.MsgDetail = "error world is not found"
+	gob.NewEncoder(myConn).Encode(svMsg)
+}
 
-////			if clientResponse.MsgType == CommandLogin {
-////				username := clientResponse.getUsername()
-////				password := clientResponse.getPassword()
+func replyFailAuthorizationCommand(myConn net.Conn, msgDetail string) {
+	var svMsg ServerMessage
+	//svMsg.MsgType = ErrorAuthorizationFail
+	//svMsg.MsgDetail = msgDetail
+	gob.NewEncoder(myConn).Encode(svMsg)
+}
 
-////				fielName := username + ".xml"
+func replyUnexpectedCommand(myConn net.Conn) {
+	var svMsg ServerMessage
+	//svMsg.MsgType = ErrorUnexpectedCommand
+	//svMsg.MsgDetail = "error unexpected command"
+	gob.NewEncoder(myConn).Encode(svMsg)
+}
 
-////				if _, err := os.Stat(fielName); err == nil {
-////					fmt.Printf("file exists; processing...")
+func readServerList() {
+	//this should be the one that read list of servers, including central server
+	serverNum = 0
+	file, err := os.Open("serverConfig/serverList.txt")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
 
-////					xmlFile, err := os.Open(fielName)
-////					checkError(err)
-////					defer xmlFile.Close()
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		readData := strings.Fields(scanner.Text())
+		fmt.Println(readData)
+		servers[data[0]] = data[1]
+	}
 
-////					//should send charData to world server
-////					//as an notification that a character is going to join
+	for i := 0; i < serverNum; i++ {
+		fmt.Println(serverNames[i], " ", serverAddrs[i])
+	}
 
-////					var charData CharacterXML
-////					XMLdata, _ := ioutil.ReadAll(xmlFile)
-////					xml.Unmarshal(XMLdata, &charData)
+	if err := scanner.Err(); err != nil {
+		log.Fatal(err)
+	}
 
-////					if password == charData.Password {
-
-////						//find the world's addr for character to respawn
-////						lookupWorld := charData.CurrentWorld
-////						found := false
-////						var addr string
-////						for i := 0; i < serverNum; i++ {
-////							if serverNames[i] == lookupWorld {
-////								found = true
-////								addr = serverAddrs[i]
-////								break
-////							}
-////						}
-
-////						if found {
-////							//send world addr back to client
-////							var svMsg ServerMessage
-////							svMsg.MsgType = CommandRedirectServer
-////							svMsg.MsgDetail = addr
-////							gob.NewEncoder(myConn).Encode(svMsg)
-////						} else {
-////							var svMsg ServerMessage
-////							svMsg.MsgType = ErrorWorldIsNotFound
-////							svMsg.MsgDetail = "error world is not found"
-////							gob.NewEncoder(myConn).Encode(svMsg)
-////						}
-////					} else {
-////						var svMsg ServerMessage
-////						svMsg.MsgType = ErrorAuthorizationFail
-////						svMsg.MsgDetail = "error fail to authorization"
-////						gob.NewEncoder(myConn).Encode(svMsg)
-////					}
-////				}
-
-////			} else {
-////				var svMsg ServerMessage
-////				svMsg.MsgType = ErrorUnexpectedCommand
-////				svMsg.MsgDetail = "error unexpected command"
-////				gob.NewEncoder(myConn).Encode(svMsg)
-////			}
-
-////		} else {
-////			break
-////		}
-////	}
-////}
-
-//func readServerList() {
-//	//this should be the one that read list of servers, including central server
-//	serverNum = 0
-//	file, err := os.Open("serverConfig/serverList.txt")
-//	if err != nil {
-//		log.Fatal(err)
-//	}
-//	defer file.Close()
-
-//	scanner := bufio.NewScanner(file)
-//	for scanner.Scan() {
-//		readData := strings.Fields(scanner.Text())
-//		fmt.Println(readData)
-//		serverNames[serverNum] = readData[0]
-//		serverAddrs[serverNum] = readData[1]
-//		serverNum++
-//	}
-
-//	for i := 0; i < serverNum; i++ {
-//		fmt.Println(serverNames[i], " ", serverAddrs[i])
-//	}
-
-//	if err := scanner.Err(); err != nil {
-//		log.Fatal(err)
-//	}
-
-//	//Pattanapoom Hand
-//	//start model
-//}
+	//Pattanapoom Hand
+	//start model
+}
