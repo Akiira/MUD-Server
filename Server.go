@@ -9,7 +9,6 @@ import (
 	"database/sql"
 	"encoding/gob"
 	"fmt"
-	//_ "github.com/go-sql-driver/mysql"
 	"net"
 )
 

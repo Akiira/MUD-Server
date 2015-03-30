@@ -100,7 +100,7 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 	case cmd == "move":
 		output = cc.character.moveCharacter(event.Value)
 	case cmd == "say":
-		formattedOutput := newFormattedStringSplice(ct.Blue, cc.character.Name+" says \""+event.Value+"\"")
+		formattedOutput := newFormattedString2(ct.Blue, cc.character.Name+" says \""+event.Value+"\"")
 		em.sendMessageToRoom(cc.character.RoomIN, ServerMessage{Value: formattedOutput})
 	}
 
