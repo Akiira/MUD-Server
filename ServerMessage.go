@@ -5,6 +5,10 @@ import (
 	"strings"
 )
 
+const (
+	REDIRECT = 1
+)
+
 type ServerMessage struct {
 	MsgType int
 	Value   []FormattedString
@@ -14,11 +18,11 @@ func newServerMessage(msgs []FormattedString) ServerMessage {
 	return ServerMessage{Value: msgs}
 }
 
-func getMessage(srvMsg ServerMessage) string {
-	if len(srvMsg.Value) == 0 {
+func (msg *ServerMessage) getMessage() string {
+	if len(msg.Value) == 0 {
 		return ""
 	}
-	return srvMsg.Value[0].Value
+	return msg.Value[0].Value
 }
 
 func (msg *ServerMessage) isError() bool {

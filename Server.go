@@ -24,12 +24,10 @@ var servers map[string]string
 var eventManager *EventManager
 
 func main() {
-	//populateTestData()
-	//MovementAndCombatTest()
+	loadMonsterData()
 
 	readServerList()
-	//runServer()
-	getCharactersFile("Ragnar")
+	runServer()
 }
 
 func runServer() {
@@ -74,8 +72,9 @@ func HandleClientConnection(myConn net.Conn) {
 
 	err := gob.NewDecoder(myConn).Decode(&clientResponse)
 	checkError(err)
-
+	fmt.Println("Clients Initial Message Received.")
 	getCharactersFile(clientResponse.getUsername())
+	fmt.Println("Characters file retreived from central server.")
 	playerChar := getCharacterFromFile(clientResponse.getUsername())
 
 	clientConnection := newClientConnection(myConn, eventManager, playerChar)

@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/gob"
 	"fmt"
+	"reflect"
 	//"io"
 	"net"
 	"sync"
@@ -27,7 +28,6 @@ func newClientConnection(conn net.Conn, em *EventManager, playerChar *Character)
 
 	//This associates the clients character with their connection
 	cc.character = playerChar
-	//em.addCharacterToRoom(cc.character, cc.character.RoomIN)
 	cc.CurrentEM = em
 
 	em.executeNonCombatEvent(cc, &ClientMessage{Command: "look", Value: "room"})
@@ -37,17 +37,21 @@ func newClientConnection(conn net.Conn, em *EventManager, playerChar *Character)
 
 func (cc *ClientConnection) receiveMsgFromClient() {
 	for {
-		var clientResponse ClientMessage
-		err := cc.myDecoder.Decode(&clientResponse)
+		var clientResponse *ClientMessage
+		clientResponse = new(ClientMessage)
+		fmt.Println(reflect.ValueOf(clientResponse))
+		err := cc.myDecoder.Decode(clientResponse)
+		//cc.myDecoder.DecodeValue()
+		fmt.Println("Message Read: ", clientResponse)
 		checkError(err)
 
 		if err == nil {
 			fmt.Println("Message read: ", clientResponse)
 			if clientResponse.CombatAction {
-				event := newEventFromMessage(clientResponse, cc.character, cc)
+				event := newEventFromMessage(*clientResponse, cc.character, cc)
 				cc.CurrentEM.addEvent(event)
 			} else {
-				cc.CurrentEM.executeNonCombatEvent(cc, &clientResponse)
+				cc.CurrentEM.executeNonCombatEvent(cc, clientResponse)
 			}
 
 		} else {

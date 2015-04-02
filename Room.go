@@ -3,7 +3,6 @@ package main
 import (
 	"github.com/daviddengcn/go-colortext"
 	"strings"
-	"time"
 )
 
 // Enumeration for movement/exit directions
@@ -114,13 +113,13 @@ func (room *Room) killOffMonster(monsterName string) {
 
 func (room *Room) populateRoomWithMonsters() { //TODO remove hardcoding, maybe load from xml file
 
-	for {
-		//Repopulate the room every 15 minutes
-		time.Sleep(time.Minute * 15)
-		room.MonstersInRoom["Rabbit"] = newMonsterFromName("Rabbit")
-		room.MonstersInRoom["Fox"] = newMonsterFromName("Deer")
-		room.MonstersInRoom["Deer"] = newMonsterFromName("Fox")
-	}
+	//for {
+	//Repopulate the room every 15 minutes
+	//time.Sleep(time.Minute * 15)
+	room.MonstersInRoom["Rabbit"] = newMonsterFromName("Rabbit")
+	room.MonstersInRoom["Fox"] = newMonsterFromName("Deer")
+	room.MonstersInRoom["Deer"] = newMonsterFromName("Fox")
+	//}
 }
 
 func (room *Room) getRoomDescription() []FormattedString {
