@@ -11,13 +11,13 @@ type FormattedString struct {
 }
 
 func newFormattedString(msg string) []FormattedString {
-	fs := make([]FormattedString, 1, 1)
+	fs := make([]FormattedString, 0, 1)
 	fs = append(fs, FormattedString{Color: ct.White, Value: msg})
 	return fs
 }
 
 func newFormattedString2(color ct.Color, msg string) []FormattedString {
-	fs := make([]FormattedString, 1, 1)
+	fs := make([]FormattedString, 0, 1)
 	fs = append(fs, FormattedString{Color: color, Value: msg})
 	return fs
 }

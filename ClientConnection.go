@@ -26,10 +26,6 @@ func newClientConnection(conn net.Conn, em *EventManager, playerChar *Character)
 	cc.myDecoder = gob.NewDecoder(conn)
 
 	//This associates the clients character with their connection
-	var clientResponse ClientMessage
-	err := cc.myDecoder.Decode(&clientResponse)
-	checkError(err) //TODO replace check errors with somthing that doesnt crash server
-
 	cc.character = playerChar
 	//em.addCharacterToRoom(cc.character, cc.character.RoomIN)
 	cc.CurrentEM = em
@@ -70,7 +66,4 @@ func (cc *ClientConnection) sendMsgToClient(msg ServerMessage) {
 
 func (cc *ClientConnection) getCharactersName() string {
 	return cc.character.Name
-}
-func (cc *ClientConnection) setCurrentEventManager(em *EventManager) {
-	cc.CurrentEM = em
 }

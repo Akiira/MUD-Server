@@ -41,6 +41,14 @@ func setUpServerWithPort(portNum int) *net.TCPListener {
 	return listener
 }
 
+func setUpServerWithAddress(addr string) *net.TCPListener {
+	tcpAddr, err := net.ResolveTCPAddr("tcp4", addr)
+	checkError(err)
+	listener, err := net.ListenTCP("tcp", tcpAddr)
+	checkError(err)
+	return listener
+}
+
 func setUpServer() *net.TCPListener {
 	service := "127.0.0.1:1200"
 	tcpAddr, err := net.ResolveTCPAddr("tcp4", service)

@@ -170,7 +170,18 @@ func (c *Character) getDefense() int {
 //	stats[2].Value = fmt.Sprintf("%2d %8s", c.Charisma, "")
 //}
 
-//TODO add items and any other missing fields
+func (c *Character) saveCharacter() {
+	//TODO saveCharacter
+
+	var ch CharacterXML
+	ch.Name = c.Name
+	ch.RoomIN = c.RoomIN
+	ch.Defense = c.Defense
+	ch.HP = c.HitPoints
+
+}
+
+//TODO add items, stats, and any other missing fields
 type CharacterXML struct {
 	XMLName      xml.Name `xml:"Character"`
 	Name         string   `xml:"Name"`
@@ -181,11 +192,9 @@ type CharacterXML struct {
 	CurrentWorld string   `xml:"CurrentWorld"`
 }
 
-func getCharacterFromFile(charName string, password string) *Character {
-	//TODO remove hard coding
+func getCharacterFromFile(charName string) *Character {
 	//TODO add proper error checking, i.e. check if file exist
-	//TODO check passwords match
-	xmlFile, err := os.Open("C:\\Go\\src\\MUD-Server\\Characters\\" + charName + ".xml")
+	xmlFile, err := os.Open("Characters/" + charName + ".xml")
 	checkError(err)
 	defer xmlFile.Close()
 
@@ -198,3 +207,8 @@ func getCharacterFromFile(charName string, password string) *Character {
 
 	return char
 }
+
+//func createNewCharacterFile(charName string) {
+//	//TODO write createNewCharacterFile
+//	xmlFile, err := os.Create("Characters/" + charName + ".xml")
+//}

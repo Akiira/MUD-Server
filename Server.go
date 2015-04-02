@@ -9,7 +9,8 @@ import (
 	"bufio"
 	"encoding/gob"
 	"fmt"
-	"github.com/daviddengcn/go-colortext"
+	_ "github.com/daviddengcn/go-colortext"
+	"io"
 	"log"
 	"net"
 	"os"
@@ -27,7 +28,8 @@ func main() {
 	//MovementAndCombatTest()
 
 	readServerList()
-	runServer()
+	//runServer()
+	getCharactersFile("Ragnar")
 }
 
 func runServer() {
@@ -41,14 +43,14 @@ func runServer() {
 		if err == nil {
 			fmt.Println("Connection established")
 
-			go HandleClientLogin(conn)
+			go HandleClientConnection(conn)
 		}
 	}
 }
 
 func readServerList() {
 	//this should be the one that read list of servers, including central server
-
+	servers = make(map[string]string)
 	file, err := os.Open("serverConfig/serverList.txt")
 	if err != nil {
 		log.Fatal(err)
@@ -65,53 +67,32 @@ func readServerList() {
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
-
-	//Pattanapoom Hand
-	//start model
 }
 
-func HandleClientLogin(myConn net.Conn) {
-
-	var playerChar *Character
-
-	//need to check for authentication first
-
+func HandleClientConnection(myConn net.Conn) {
 	var clientResponse ClientMessage
-	myDecoder := gob.NewDecoder(myConn)
-	err := myDecoder.Decode(&clientResponse)
 
-	if err == nil {
-		if clientResponse.CommandType == CommandLogin {
-			username := clientResponse.getUsername()
-			password := clientResponse.getPassword()
-			playerChar = queryCharacterFromCentral(username, password)
-		} else {
-			svMsg := newServerMessage(newFormattedString2(ct.Red, "error unexpected command"))
-			gob.NewEncoder(myConn).Encode(svMsg)
-		}
-	}
+	err := gob.NewDecoder(myConn).Decode(&clientResponse)
+	checkError(err)
 
-	//once the authentication is good player can continue on gameplay
+	getCharactersFile(clientResponse.getUsername())
+	playerChar := getCharacterFromFile(clientResponse.getUsername())
 
 	clientConnection := newClientConnection(myConn, eventManager, playerChar)
-
 	clientConnection.receiveMsgFromClient()
 }
 
-func queryCharacterFromCentral(username string, password string) *Character {
-
-	address := servers["central"]
-
-	conn, err := net.Dial("tcp", address)
+func getCharactersFile(name string) {
+	conn, err := net.Dial("tcp", servers["characterStorage"])
 	checkError(err)
+	defer conn.Close()
 
-	clientResponse := ClientMessage{Value: username}
-	err = gob.NewEncoder(conn).Encode(clientResponse)
+	gob.NewEncoder(conn).Encode(&ServerMessage{Value: newFormattedString(name)})
+
+	file, err := os.Create("Characters/" + name + ".xml")
 	checkError(err)
+	defer file.Close()
 
-	var queriedChar Character
-	err = gob.NewDecoder(conn).Decode(&queriedChar)
+	_, err = io.Copy(file, conn)
 	checkError(err)
-
-	return &queriedChar
 }

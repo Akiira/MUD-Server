@@ -1,8 +1,13 @@
 // ServerMessage
 package main
 
+import (
+	"strings"
+)
+
 type ServerMessage struct {
-	Value []FormattedString
+	MsgType int
+	Value   []FormattedString
 }
 
 func newServerMessage(msgs []FormattedString) ServerMessage {
@@ -21,5 +26,5 @@ func (msg *ServerMessage) isError() bool {
 		return false
 	}
 
-	return (strings.Split(message.Value, " ")[0] == "error")
+	return (strings.Split(msg.Value[0].Value, " ")[0] == "error")
 }
