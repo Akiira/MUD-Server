@@ -10,29 +10,19 @@ import (
 )
 
 type Character struct {
-	Name   string
-	RoomIN int
+	Race  string
+	Class string
 
-	HitPoints    int
-	MaxHitPoints int
-	Defense      int
-	level        int
-	experience   int
+	Defense    int
+	level      int
+	experience int
 
-	Strength     int
-	Constitution int
-	Dexterity    int
-	Wisdom       int
-	Charisma     int
-	Inteligence  int
+	Agent
 
-	//	Race string
-	//	Class string
-
+	//Equipment fields
 	PersonalInvetory Inventory
-
-	equipedWeapon  Weapon
-	equippedArmour ArmourSet
+	equipedWeapon    Weapon
+	equippedArmour   ArmourSet
 
 	myClientConn *ClientConnection
 }
@@ -40,7 +30,7 @@ type Character struct {
 func newCharacter(name string, room int, hp int, def int) *Character {
 	char := new(Character)
 	char.Name = name
-	char.HitPoints = hp
+	char.currentHP = hp
 	char.Defense = def
 	char.PersonalInvetory = *newInventory()
 	char.equippedArmour = newArmourSet()
@@ -93,40 +83,46 @@ func (char *Character) moveCharacter(direction string) []FormattedString {
 	}
 }
 
-//TODO
-//func (char *Character) makeAttack(target *Agenter) []FormattedString
-
-func (char *Character) makeAttack(targetName string) []FormattedString {
-	//TODO again just a temporary fix
-	target := char.myClientConn.CurrentEM.worldRooms[char.RoomIN].getMonster(targetName)
+func (char *Character) makeAttack(target Agenter) []FormattedString {
 
 	output := make([]FormattedString, 2, 2)
 
 	a1 := char.getAttackRoll()
-	if a1 >= target.Defense {
+	if a1 >= target.getDefense() {
 		target.takeDamage(2, 0)
-		output[0].Value = "\nYou hit the " + targetName + "!"
+		output[0].Value = "\nYou hit the " + target.getName() + "!"
 	} else {
-		output[0].Value = "\nYou missed the " + targetName + "!"
+		output[0].Value = "\nYou missed the " + target.getName() + "!"
 	}
 
-	if target.HP <= 0 {
+	if target.isDead() {
 		// TODO  reward player exp
-		output[1].Value = "\nThe " + targetName + " drops over dead."
-		room := char.myClientConn.CurrentEM.worldRooms[char.RoomIN]
-		room.killOffMonster(targetName)
+		output[1].Value = "\nThe " + target.getName() + " drops over dead."
+		room := char.myClientConn.CurrentEM.worldRooms[char.RoomIN] //TODO fix this line
+		room.killOffMonster(target.getName())
 	}
 
 	return output
 }
 
 func (c *Character) takeDamage(amount int, typeOfDamge int) []FormattedString {
-	//TODO implement this
-	return nil
+	if amount-c.equippedArmour.getArmoursDefense() > 0 {
+		c.currentHP -= (amount - c.equippedArmour.getArmoursDefense())
+	}
+	s := "You got hit for " + fmt.Sprintf("%i", amount) + " damage.\n"
+	return newFormattedStringSplice2(ct.Red, s)
 }
-
+func (c *Character) isDead() bool {
+	return c.currentHP > 0
+}
+func (c *Character) getName() string {
+	return c.Name
+}
+func (c *Character) getRoomID() int {
+	return c.RoomIN
+}
 func (c *Character) getAttackRoll() int {
-	return rand.Int() % 20
+	return rand.Int() % (20 + c.equipedWeapon.attack + c.Strength)
 }
 
 func (c *Character) getDefense() int {
@@ -178,7 +174,7 @@ func (c *Character) saveCharacter() {
 	ch.Name = c.Name
 	ch.RoomIN = c.RoomIN
 	ch.Defense = c.Defense
-	ch.HP = c.HitPoints
+	ch.HP = c.currentHP
 
 }
 
@@ -208,8 +204,3 @@ func getCharacterFromFile(charName string) *Character {
 
 	return char
 }
-
-//func createNewCharacterFile(charName string) {
-//	//TODO write createNewCharacterFile
-//	xmlFile, err := os.Create("Characters/" + charName + ".xml")
-//}

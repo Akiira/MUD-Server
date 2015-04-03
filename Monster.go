@@ -11,12 +11,12 @@ import (
 )
 
 type Monster struct {
-	Name        string
-	HP          int
+	Agent
 	Defense     int
 	description string
 	targets     map[string]*target
 	em          EventManager
+	weapon      Weapon
 }
 
 //TODO add mutex around targets field
@@ -31,7 +31,7 @@ var monsterTemplatesG map[string]*Monster
 func newMonsterFromXML(monsterData MonsterXML) *Monster {
 	m := new(Monster)
 	m.Name = monsterData.Name
-	m.HP = monsterData.HP
+	m.currentHP = monsterData.HP
 	m.Defense = monsterData.Defense
 	m.description = monsterData.Description
 	m.targets = make(map[string]*target)
@@ -42,7 +42,7 @@ func newMonsterFromXML(monsterData MonsterXML) *Monster {
 func newMonsterFromName(name string) *Monster {
 	m := new(Monster)
 	m.Name = monsterTemplatesG[name].Name
-	m.HP = monsterTemplatesG[name].HP
+	m.currentHP = monsterTemplatesG[name].currentHP
 	m.Defense = monsterTemplatesG[name].Defense
 	m.description = monsterTemplatesG[name].description
 	m.targets = make(map[string]*target)
@@ -52,9 +52,9 @@ func newMonsterFromName(name string) *Monster {
 
 func (m *Monster) fightPlayers() {
 	for {
-		time.Sleep(6 * time.Second)
+		time.Sleep(2 * time.Second)
 
-		if m.HP <= 0 || len(m.targets) <= 0 {
+		if m.currentHP <= 0 || len(m.targets) <= 0 {
 			break
 		}
 
@@ -67,7 +67,7 @@ func (m *Monster) fightPlayers() {
 			}
 		}
 
-		event := newEvent(MONSTER, m, "attack", attackTarget.character.Name, attackTarget)
+		event := newEvent(MONSTER, m, "attack", attackTarget.character, attackTarget)
 		m.em.addEvent(event)
 	}
 }
@@ -97,12 +97,26 @@ func (m *Monster) getAttackRoll() int {
 func (m *Monster) takeDamage(amount int, typeOfDamge int) []FormattedString {
 	return nil
 }
-
+func (c *Monster) getRoomID() int {
+	return c.RoomIN
+}
 func (m *Monster) getDefense() int {
 	return -1
 }
 
-func (m *Monster) makeAttack(targetName string) []FormattedString {
+func (m *Monster) getName() string {
+	return m.Name
+}
+
+func (m *Monster) isDead() bool {
+	return m.currentHP > 0
+}
+
+func (m *Monster) makeAttack(target Agenter) []FormattedString {
+	a1 := m.getAttackRoll()
+	if a1 >= target.getDefense() {
+		target.takeDamage(m.weapon.damage, 0)
+	}
 	return nil
 }
 
