@@ -68,16 +68,8 @@ func readServerList() {
 }
 
 func HandleClientConnection(myConn net.Conn) {
-	var clientResponse ClientMessage
 
-	err := gob.NewDecoder(myConn).Decode(&clientResponse)
-	checkError(err)
-	fmt.Println("Clients Initial Message Received.")
-	getCharactersFile(clientResponse.getUsername())
-	fmt.Println("Characters file retreived from central server.")
-	playerChar := getCharacterFromFile(clientResponse.getUsername())
-
-	clientConnection := newClientConnection(myConn, eventManager, playerChar)
+	clientConnection := newClientConnection(myConn, eventManager)
 	clientConnection.receiveMsgFromClient()
 }
 

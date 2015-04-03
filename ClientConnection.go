@@ -3,8 +3,6 @@ package main
 import (
 	"encoding/gob"
 	"fmt"
-	"reflect"
-	//"io"
 	"net"
 	"sync"
 )
@@ -19,7 +17,7 @@ type ClientConnection struct {
 }
 
 //CliecntConnection constructor
-func newClientConnection(conn net.Conn, em *EventManager, playerChar *Character) *ClientConnection {
+func newClientConnection(conn net.Conn, em *EventManager) *ClientConnection {
 	cc := new(ClientConnection)
 	cc.myConn = conn
 
@@ -27,9 +25,17 @@ func newClientConnection(conn net.Conn, em *EventManager, playerChar *Character)
 	cc.myDecoder = gob.NewDecoder(conn)
 
 	//This associates the clients character with their connection
-	cc.character = playerChar
+	var clientResponse ClientMessage
+	err := cc.myDecoder.Decode(&clientResponse)
+	checkError(err)
+
+	getCharactersFile(clientResponse.getUsername())
+	cc.character = getCharacterFromFile(clientResponse.getUsername())
+	cc.character.myClientConn = cc
+
 	cc.CurrentEM = em
 
+	//Send the client a description of their starting room
 	em.executeNonCombatEvent(cc, &ClientMessage{Command: "look", Value: "room"})
 
 	return cc
@@ -37,21 +43,17 @@ func newClientConnection(conn net.Conn, em *EventManager, playerChar *Character)
 
 func (cc *ClientConnection) receiveMsgFromClient() {
 	for {
-		var clientResponse *ClientMessage
-		clientResponse = new(ClientMessage)
-		fmt.Println(reflect.ValueOf(clientResponse))
-		err := cc.myDecoder.Decode(clientResponse)
-		//cc.myDecoder.DecodeValue()
-		fmt.Println("Message Read: ", clientResponse)
+		var clientResponse ClientMessage
+		err := cc.myDecoder.Decode(&clientResponse)
 		checkError(err)
 
 		if err == nil {
 			fmt.Println("Message read: ", clientResponse)
 			if clientResponse.CombatAction {
-				event := newEventFromMessage(*clientResponse, cc.character, cc)
+				event := newEventFromMessage(clientResponse, cc.character, cc)
 				cc.CurrentEM.addEvent(event)
 			} else {
-				cc.CurrentEM.executeNonCombatEvent(cc, clientResponse)
+				cc.CurrentEM.executeNonCombatEvent(cc, &clientResponse)
 			}
 
 		} else {
