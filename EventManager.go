@@ -93,6 +93,8 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 	eventRoom := em.worldRooms[cc.character.RoomIN]
 	cmd := event.Command
 	switch {
+	case cmd == "stats":
+		output = cc.getCharacter().getStatsPage()
 	case cmd == "look":
 		output = eventRoom.getRoomDescription()
 	case cmd == "get":
@@ -100,7 +102,7 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 	case cmd == "move":
 		output = cc.character.moveCharacter(event.Value)
 	case cmd == "say":
-		formattedOutput := newFormattedString2(ct.Blue, cc.character.Name+" says \""+event.Value+"\"")
+		formattedOutput := newFormattedStringSplice2(ct.Blue, cc.character.Name+" says \""+event.Value+"\"")
 		em.sendMessageToRoom(cc.character.RoomIN, ServerMessage{Value: formattedOutput})
 	}
 
