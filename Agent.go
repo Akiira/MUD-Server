@@ -24,4 +24,5 @@ type Agenter interface {
 	getName() string
 	getDefense() int
 	isDead() bool
+	getRoomID() int
 }
