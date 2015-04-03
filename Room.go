@@ -138,11 +138,11 @@ func (room *Room) getRoomDescription() []FormattedString {
 	formattedString[0].Color = ct.Green
 	formattedString[0].Value = room.Name
 	formattedString[1].Color = ct.White
-	formattedString[1].Value = "-------------------------------------------------\n"
+	formattedString[1].Value = "\n-------------------------------------------------\n"
 	formattedString[1].Value += room.Description
 	formattedString[2].Color = ct.Magenta
 
-	output = "Exits: "
+	output = "\nExits: "
 	for i := 0; i < 10; i++ {
 		if room.Exits[i] >= 0 {
 			output += convertIntToDirection(i) + " "
@@ -161,7 +161,7 @@ func (room *Room) getRoomDescription() []FormattedString {
 	for key, _ := range room.MonstersInRoom {
 		output += "\n\t" + key
 	}
-	formattedString[4].Value = output
+	formattedString[4].Value = output + "\n"
 	return formattedString
 }
 
