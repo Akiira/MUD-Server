@@ -78,7 +78,7 @@ func getCharactersFile(name string) {
 	checkError(err, true)
 	defer conn.Close()
 
-	gob.NewEncoder(conn).Encode(&ServerMessage{Value: newFormattedString(name)})
+	gob.NewEncoder(conn).Encode(&ServerMessage{Value: newFormattedStringSplice(name)})
 
 	file, err := os.Create("Characters/" + name + ".xml")
 	checkError(err, true)
