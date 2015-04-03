@@ -8,21 +8,22 @@ const (
 type Event struct {
 	playerORMonster bool
 	action          string
-	valueOrTarget   string //TODO consider changing this to an Ageneter as well
+	valueOrTarget   Agenter //TODO consider changing this to an Ageneter as well
 	agent           Agenter
 	client          *ClientConnection
 }
 
 func newEventFromMessage(msg ClientMessage, agent Agenter, cc *ClientConnection) Event {
-	return newEvent(PLAYER, agent, msg.Command, msg.Value, cc)
+	target := eventManager.worldRooms[cc.getCharactersRoomID()].getMonster(msg.Value)
+	return newEvent(PLAYER, agent, msg.Command, target, cc)
 }
 
-func newEvent(playerORMonster bool, agent Agenter, action string, value string, cc *ClientConnection) Event {
+func newEvent(playerORMonster bool, agent Agenter, action string, target Agenter, cc *ClientConnection) Event {
 	event := new(Event)
 	event.playerORMonster = playerORMonster
 	event.agent = agent
 	event.action = action
-	event.valueOrTarget = value
+	event.valueOrTarget = target
 	event.client = cc
 	return *event
 }
