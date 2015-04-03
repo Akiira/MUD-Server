@@ -35,27 +35,27 @@ const CommandJoinWorld = 21 // will change the room occur the same time with lea
 func setUpServerWithPort(portNum int) *net.TCPListener {
 	service := "127.0.0.1:" + strconv.Itoa(portNum)
 	tcpAddr, err := net.ResolveTCPAddr("tcp4", service)
-	checkError(err)
+	checkError(err, true)
 	listener, err := net.ListenTCP("tcp", tcpAddr)
-	checkError(err)
+	checkError(err, true)
 	return listener
 }
 
 func setUpServerWithAddress(addr string) *net.TCPListener {
 	tcpAddr, err := net.ResolveTCPAddr("tcp4", addr)
-	checkError(err)
+	checkError(err, true)
 	listener, err := net.ListenTCP("tcp", tcpAddr)
-	checkError(err)
+	checkError(err, true)
 	return listener
 }
 
 func setUpServer() *net.TCPListener {
 	service := "127.0.0.1:1200"
 	tcpAddr, err := net.ResolveTCPAddr("tcp4", service)
-	checkError(err)
+	checkError(err, true)
 
 	listener, err := net.ListenTCP("tcp", tcpAddr)
-	checkError(err)
+	checkError(err, true)
 	return listener
 }
 
@@ -71,7 +71,7 @@ func checkError(err error, exitIfError bool) {
 func checkErrorWithMessage(err error, exitIfError bool, messageIfError string) {
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Fatal error: %s", err.Error())
-		fmt.Fprintf("Additional Message: ", messageIfError)
+		fmt.Fprintf(os.Stderr, "Additional Message: %s", messageIfError)
 		if exitIfError {
 			os.Exit(1)
 		}

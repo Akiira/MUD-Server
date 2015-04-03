@@ -37,7 +37,7 @@ func runServer() {
 
 	for {
 		conn, err := listener.Accept()
-		//checkError(err)
+		checkError(err, false)
 		if err == nil {
 			fmt.Println("Connection established")
 
@@ -75,15 +75,15 @@ func HandleClientConnection(myConn net.Conn) {
 
 func getCharactersFile(name string) {
 	conn, err := net.Dial("tcp", servers["characterStorage"])
-	checkError(err)
+	checkError(err, true)
 	defer conn.Close()
 
 	gob.NewEncoder(conn).Encode(&ServerMessage{Value: newFormattedString(name)})
 
 	file, err := os.Create("Characters/" + name + ".xml")
-	checkError(err)
+	checkError(err, true)
 	defer file.Close()
 
 	_, err = io.Copy(file, conn)
-	checkError(err)
+	checkError(err, true)
 }

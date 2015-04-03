@@ -27,7 +27,7 @@ func newClientConnection(conn net.Conn, em *EventManager) *ClientConnection {
 	//This associates the clients character with their connection
 	var clientResponse ClientMessage
 	err := cc.myDecoder.Decode(&clientResponse)
-	checkError(err)
+	checkError(err, true)
 
 	getCharactersFile(clientResponse.getUsername())
 	cc.character = getCharacterFromFile(clientResponse.getUsername())
@@ -45,7 +45,7 @@ func (cc *ClientConnection) receiveMsgFromClient() {
 	for {
 		var clientResponse ClientMessage
 		err := cc.myDecoder.Decode(&clientResponse)
-		checkError(err)
+		checkError(err, false)
 
 		if err == nil {
 			fmt.Println("Message read: ", clientResponse)
@@ -67,9 +67,17 @@ func (cc *ClientConnection) sendMsgToClient(msg ServerMessage) {
 	cc.net_lock.Lock()
 	err := cc.myEncoder.Encode(msg)
 	cc.net_lock.Unlock()
-	checkError(err)
+	checkError(err, false)
 }
 
 func (cc *ClientConnection) getCharactersName() string {
 	return cc.character.Name
+}
+
+func (cc *ClientConnection) getCharactersRoomID() int {
+	return cc.character.RoomIN
+}
+
+func (cc *ClientConnection) getCharacter() *Character {
+	return cc.character
 }

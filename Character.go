@@ -195,7 +195,7 @@ type CharacterXML struct {
 func getCharacterFromFile(charName string) *Character {
 	//TODO add proper error checking, i.e. check if file exist
 	xmlFile, err := os.Open("Characters/" + charName + ".xml")
-	checkError(err)
+	checkError(err, true)
 	defer xmlFile.Close()
 
 	XMLdata, _ := ioutil.ReadAll(xmlFile)
