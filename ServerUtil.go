@@ -59,9 +59,21 @@ func setUpServer() *net.TCPListener {
 	return listener
 }
 
-func checkError(err error) {
+func checkError(err error, exitIfError bool) {
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Fatal error: %s", err.Error())
-		os.Exit(1)
+		if exitIfError {
+			os.Exit(1)
+		}
+	}
+}
+
+func checkErrorWithMessage(err error, exitIfError bool, messageIfError string) {
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Fatal error: %s", err.Error())
+		fmt.Fprintf("Additional Message: ", messageIfError)
+		if exitIfError {
+			os.Exit(1)
+		}
 	}
 }
