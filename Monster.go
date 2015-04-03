@@ -129,6 +129,7 @@ type MonstersXML struct {
 }
 
 func loadMonsterData() {
+	monsterTemplatesG = make(map[string]*Monster)
 	xmlFile, err := os.Open("monsterData.xml")
 	checkError(err)
 	defer xmlFile.Close()

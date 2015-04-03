@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/gob"
 	"fmt"
-	//"io"
 	"net"
 	"sync"
 )
@@ -18,7 +17,7 @@ type ClientConnection struct {
 }
 
 //CliecntConnection constructor
-func newClientConnection(conn net.Conn, em *EventManager, playerChar *Character) *ClientConnection {
+func newClientConnection(conn net.Conn, em *EventManager) *ClientConnection {
 	cc := new(ClientConnection)
 	cc.myConn = conn
 
@@ -28,12 +27,15 @@ func newClientConnection(conn net.Conn, em *EventManager, playerChar *Character)
 	//This associates the clients character with their connection
 	var clientResponse ClientMessage
 	err := cc.myDecoder.Decode(&clientResponse)
-	checkError(err) //TODO replace check errors with somthing that doesnt crash server
+	checkError(err)
 
-	cc.character = playerChar
-	//em.addCharacterToRoom(cc.character, cc.character.RoomIN)
+	getCharactersFile(clientResponse.getUsername())
+	cc.character = getCharacterFromFile(clientResponse.getUsername())
+	cc.character.myClientConn = cc
+
 	cc.CurrentEM = em
 
+	//Send the client a description of their starting room
 	em.executeNonCombatEvent(cc, &ClientMessage{Command: "look", Value: "room"})
 
 	return cc
@@ -70,7 +72,4 @@ func (cc *ClientConnection) sendMsgToClient(msg ServerMessage) {
 
 func (cc *ClientConnection) getCharactersName() string {
 	return cc.character.Name
-}
-func (cc *ClientConnection) setCurrentEventManager(em *EventManager) {
-	cc.CurrentEM = em
 }

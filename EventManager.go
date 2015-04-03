@@ -17,7 +17,6 @@ type EventManager struct {
 	listeners  map[string]Listener
 	queue_lock sync.Mutex
 	eventQue   []Event
-	room       *Room
 	worldRooms []*Room
 }
 
@@ -27,27 +26,16 @@ func newEventManager() *EventManager {
 	em.eventQue = make([]Event, 0, 10)
 	em.worldRooms = loadRooms()
 
+	go em.waitForTick()
+
 	return em
 }
 
-func newEventManagerForRoom(room *Room) *EventManager {
-	em := new(EventManager)
-	em.listeners = make(map[string]Listener)
-	em.eventQue = make([]Event, 0, 10)
-	em.room = room
-	em.worldRooms = loadRooms()
-	return em
-}
+func (em *EventManager) sendMessageToRoom(roomID int, msg ServerMessage) {
+	room := em.worldRooms[roomID]
 
-func (em *EventManager) sendMessageToRoom(msg string) {
-	var newMsg ServerMessage
-	tmp := make([]FormattedString, 1, 1)
-
-	tmp[0] = FormattedString{Color: ct.Blue, Value: msg}
-	newMsg.Value = tmp
-
-	for _, listener := range em.listeners {
-		listener.sendMsgToClient(newMsg)
+	for _, client := range room.CharactersInRoom {
+		client.myClientConn.sendMsgToClient(msg)
 	}
 }
 
@@ -64,10 +52,6 @@ func (em *EventManager) unsubscribeListener(prevListener Listener) {
 	delete(em.listeners, prevListener.getCharactersName())
 	em.queue_lock.Unlock()
 
-}
-
-func (em *EventManager) receiveMessage(msg ClientMessage) {
-	em.sendMessageToRoom(msg.Value)
 }
 
 func (em *EventManager) addEvent(event Event) {
@@ -116,8 +100,8 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 	case cmd == "move":
 		output = cc.character.moveCharacter(event.Value)
 	case cmd == "say":
-		str := cc.character.Name + " says \"" + event.Value + "\""
-		em.sendMessageToRoom(str)
+		formattedOutput := newFormattedString2(ct.Blue, cc.character.Name+" says \""+event.Value+"\"")
+		em.sendMessageToRoom(cc.character.RoomIN, ServerMessage{Value: formattedOutput})
 	}
 
 	if len(output) > 0 {

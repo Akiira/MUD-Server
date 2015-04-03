@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/daviddengcn/go-colortext"
 	"net"
 	"os"
 	"strconv"
@@ -33,16 +32,18 @@ const CommandLeave = 13 // leave occur the same time with enter the room??
 const CommandJoinWorld = 21 // will change the room occur the same time with leave?
 // probably use after authenticate with login server and move to the first world as well
 
-type FormattedString struct {
-	Color ct.Color
-	Value string
-}
-
 func setUpServerWithPort(portNum int) *net.TCPListener {
 	service := "127.0.0.1:" + strconv.Itoa(portNum)
 	tcpAddr, err := net.ResolveTCPAddr("tcp4", service)
 	checkError(err)
+	listener, err := net.ListenTCP("tcp", tcpAddr)
+	checkError(err)
+	return listener
+}
 
+func setUpServerWithAddress(addr string) *net.TCPListener {
+	tcpAddr, err := net.ResolveTCPAddr("tcp4", addr)
+	checkError(err)
 	listener, err := net.ListenTCP("tcp", tcpAddr)
 	checkError(err)
 	return listener
