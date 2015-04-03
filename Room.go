@@ -64,7 +64,8 @@ func newRoomFromXML(roomData RoomXML) *Room {
 	room.MonstersInRoom = make(map[string]*Monster)
 	room.ItemsInRoom = make(map[string]*Item)
 
-	go room.populateRoomWithMonsters()
+	room.populateRoomWithMonsters()
+	go room.repopulateRoomTick(15)
 
 	return &room
 }
@@ -114,15 +115,19 @@ func (room *Room) killOffMonster(monsterName string) {
 	room.ItemsInRoom[monsterName] = &Item{name: monsterName + " corpse", description: "A freshly kill " + monsterName + " corpse."}
 }
 
+func (room *Room) repopulateRoomTick(timeInMinutes int) {
+	for {
+		//Repopulate the room every x minutes
+		time.Sleep(time.Minute * timeInMinutes)
+		room.populateRoomWithMonsters()
+	}
+}
+
 func (room *Room) populateRoomWithMonsters() { //TODO remove hardcoding, maybe load from xml file
 
-	//for {
-	//Repopulate the room every 15 minutes
-	//time.Sleep(time.Minute * 15)
 	room.MonstersInRoom["Rabbit"] = newMonsterFromName("Rabbit")
 	room.MonstersInRoom["Fox"] = newMonsterFromName("Deer")
 	room.MonstersInRoom["Deer"] = newMonsterFromName("Fox")
-	//}
 }
 
 func (room *Room) getRoomDescription() []FormattedString {
