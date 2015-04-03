@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
+	"time"
 )
 
 // Enumeration for movement/exit directions
@@ -115,7 +116,7 @@ func (room *Room) killOffMonster(monsterName string) {
 	room.ItemsInRoom[monsterName] = &Item{name: monsterName + " corpse", description: "A freshly kill " + monsterName + " corpse."}
 }
 
-func (room *Room) repopulateRoomTick(timeInMinutes int) {
+func (room *Room) repopulateRoomTick(timeInMinutes time.Duration) {
 	for {
 		//Repopulate the room every x minutes
 		time.Sleep(time.Minute * timeInMinutes)
