@@ -47,19 +47,21 @@ func (cc *ClientConnection) receiveMsgFromClient() {
 		err := cc.myDecoder.Decode(&clientResponse)
 		checkError(err, false)
 
-		if err == nil {
-			fmt.Println("Message read: ", clientResponse)
-			if clientResponse.CombatAction {
-				event := newEventFromMessage(clientResponse, cc.character, cc)
-				cc.CurrentEM.addEvent(event)
-			} else {
-				cc.CurrentEM.executeNonCombatEvent(cc, &clientResponse)
-			}
+		fmt.Println("Message read: ", clientResponse)
 
+		if clientResponse.CombatAction {
+			event := newEventFromMessage(clientResponse, cc.character, cc)
+			cc.CurrentEM.addEvent(event)
 		} else {
+			cc.CurrentEM.executeNonCombatEvent(cc, &clientResponse)
+		}
+
+		if clientResponse.Command == "exit" {
 			break
 		}
 	}
+
+	cc.myConn.Close()
 }
 
 func (cc *ClientConnection) sendMsgToClient(msg ServerMessage) {
@@ -68,6 +70,10 @@ func (cc *ClientConnection) sendMsgToClient(msg ServerMessage) {
 	err := cc.myEncoder.Encode(msg)
 	cc.net_lock.Unlock()
 	checkError(err, false)
+}
+
+func (cc *ClientConnection) saveCharacter() string {
+	return cc.character.Name
 }
 
 func (cc *ClientConnection) getCharactersName() string {

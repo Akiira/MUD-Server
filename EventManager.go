@@ -94,6 +94,10 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 	eventRoom := em.worldRooms[cc.character.RoomIN]
 	cmd := event.Command
 	switch {
+	case cmd == "save" || cmd == "exit":
+		saveCharacterToFile(cc.getCharacter())
+		sendCharactersFile(cc.getCharactersName())
+		output = newFormattedStringSplice("Character succesfully saved.\n")
 	case cmd == "stats":
 		output = cc.getCharacter().getStatsPage()
 	case cmd == "look":
