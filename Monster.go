@@ -91,10 +91,11 @@ func (m *Monster) addNewTarget(targetCC *ClientConnection, agro int) {
 }
 
 func (m *Monster) getAttackRoll() int {
-	return rand.Int() % 20
+	return (rand.Int() % 20) + m.weapon.attack + m.Strength
 }
 
 func (m *Monster) takeDamage(amount int, typeOfDamge int) []FormattedString {
+	//TODO
 	return nil
 }
 func (c *Monster) getRoomID() int {

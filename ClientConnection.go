@@ -56,7 +56,8 @@ func (cc *ClientConnection) receiveMsgFromClient() {
 			cc.CurrentEM.executeNonCombatEvent(cc, &clientResponse)
 		}
 
-		if clientResponse.Command == "exit" {
+		if clientResponse.Command == "exit" || err != nil {
+			fmt.Println("Closing the connection")
 			break
 		}
 	}
@@ -70,10 +71,6 @@ func (cc *ClientConnection) sendMsgToClient(msg ServerMessage) {
 	err := cc.myEncoder.Encode(msg)
 	cc.net_lock.Unlock()
 	checkError(err, false)
-}
-
-func (cc *ClientConnection) saveCharacter() string {
-	return cc.character.Name
 }
 
 func (cc *ClientConnection) getCharactersName() string {

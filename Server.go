@@ -21,8 +21,8 @@ var servers map[string]string
 var eventManager *EventManager
 
 func main() {
-	xmlTest()
-	//runServer()
+	//xmlTest()
+	runServer()
 }
 
 func xmlTest() {
