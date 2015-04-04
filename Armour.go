@@ -2,6 +2,7 @@
 package main
 
 import (
+	"encoding/xml"
 	"github.com/daviddengcn/go-colortext"
 )
 
@@ -75,4 +76,16 @@ func (as *ArmourSet) getListOfArmourWorn() []FormattedString {
 func (as *ArmourSet) isArmourEquippedAtLocation(loc string) bool {
 	_, present := as.equipedArmour[loc]
 	return present
+}
+
+type ArmourSetXML struct {
+	XMLName xml.Name    `xml:"ArmourSet"`
+	ArmSet  []ArmourXML `xml:"Armour"`
+}
+
+type ArmourXML struct {
+	XMLName      xml.Name `xml:"Armour"`
+	ItemInfo     ItemXML  `xml:"Item"`
+	Defense      int      `xml:"Defense"`
+	WearLocation string   `xml:"Location"`
 }

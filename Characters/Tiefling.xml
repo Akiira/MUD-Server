@@ -23,36 +23,38 @@
 		<Attack>3</Attack>
 		<Damage>5</Damage>
 	</Weapon>
-	<Armour>
-		<Item>
-			<Name>"Silly Hat"</Name>
-			<Description>"A large hat with many colors"</Description>
-			<Level>1</Level>
-			<Worth>2</Worth>
-		</Item>
-		<Defense>1</Defense>
-		<Location>"Head"</Location>
-	</Armour>
-	<Armour>
-		<Item>
-			<Name>"Silly Pants"</Name>
-			<Description>"Oversized pants with an odd color"</Description>
-			<Level>1</Level>
-			<Worth>2</Worth>
-		</Item>
-		<Defense>1</Defense>
-		<Location>"Legs"</Location>
-	</Armour>
-	<Armour>
-		<Item>
-			<Name>"Old Boots"</Name>
-			<Description>"Tattered old boots"</Description>
-			<Level>1</Level>
-			<Worth>2</Worth>
-		</Item>
-		<Defense>1</Defense>
-		<Location>"Feet"</Location>
-	</Armour>
+	<ArmourSet>
+		<Armour>
+			<Item>
+				<Name>"Silly Hat"</Name>
+				<Description>"A large hat with many colors"</Description>
+				<Level>1</Level>
+				<Worth>2</Worth>
+			</Item>
+			<Defense>1</Defense>
+			<Location>"Head"</Location>
+		</Armour>
+		<Armour>
+			<Item>
+				<Name>"Silly Pants"</Name>
+				<Description>"Oversized pants with an odd color"</Description>
+				<Level>1</Level>
+				<Worth>2</Worth>
+			</Item>
+			<Defense>1</Defense>
+			<Location>"Legs"</Location>
+		</Armour>
+		<Armour>
+			<Item>
+				<Name>"Old Boots"</Name>
+				<Description>"Tattered old boots"</Description>
+				<Level>1</Level>
+				<Worth>2</Worth>
+			</Item>
+			<Defense>1</Defense>
+			<Location>"Feet"</Location>
+		</Armour>
+	</ArmourSet>
 	<Inventory>	
 		<Item>
 			<Name>"Lantern"</Name>

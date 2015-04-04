@@ -190,7 +190,7 @@ type CharacterXML struct {
 	CurrentWorld string `xml:"CurrentWorld"`
 
 	EquipedWeapon WeaponXML    `xml:"Weapon"`
-	ArmSet        []ArmourXML  `xml:"Armour"`
+	ArmSet        ArmourSetXML `xml:"ArmourSet"`
 	PersInv       InventoryXML `xml:"Inventory"`
 }
 
@@ -199,28 +199,6 @@ type InventoryXML struct {
 	Items   []ItemXML   `xml:"Item"`
 	Weapons []WeaponXML `xml:"Weapon"`
 	Armours []ArmourXML `xml:"Armour"`
-}
-
-type ItemXML struct {
-	XMLName     xml.Name `xml:"Item"`
-	Name        string   `xml:"Name"`
-	Description string   `xml:"Description"`
-	ItemLevel   int      `xml:"Level"`
-	ItemWorth   int      `xml:"Worth"`
-}
-
-type WeaponXML struct {
-	XMLName  xml.Name `xml:"Weapon"`
-	ItemInfo ItemXML  `xml:"Item"`
-	Attack   int      `xml:"Attack"`
-	Damage   int      `xml:"Damage"`
-}
-
-type ArmourXML struct {
-	XMLName      xml.Name `xml:"Armour"`
-	ItemInfo     ItemXML  `xml:"Item"`
-	Defense      int      `xml:"Defense"`
-	WearLocation string   `xml:"Location"`
 }
 
 func getCharacterFromFile(charName string) *Character {
