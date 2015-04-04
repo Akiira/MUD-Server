@@ -167,16 +167,7 @@ func (c *Character) getStatsPage() []FormattedString {
 	return output.fmtedStrings
 }
 
-func (c *Character) saveCharacter() {
-	//TODO saveCharacter
-
-	var ch CharacterXML
-	ch.Name = c.Name
-	ch.RoomIN = c.RoomIN
-	ch.Defense = c.Defense
-	ch.HP = c.currentHP
-
-}
+//==============="STATIC" FUNCTIONS===================//
 
 //TODO add items, stats, and any other missing fields
 type CharacterXML struct {
@@ -203,4 +194,15 @@ func getCharacterFromFile(charName string) *Character {
 	char := newCharacter(charData.Name, charData.RoomIN, charData.HP, charData.Defense)
 
 	return char
+}
+
+func saveCharacterToFile(char *Character) {
+	//TODO saveCharacter
+
+	var ch CharacterXML
+	ch.Name = char.Name
+	ch.RoomIN = char.RoomIN
+	ch.Defense = char.Defense
+	ch.HP = char.currentHP
+
 }
