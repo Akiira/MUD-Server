@@ -78,12 +78,29 @@ func getCharactersFile(name string) {
 	checkError(err, true)
 	defer conn.Close()
 
-	gob.NewEncoder(conn).Encode(&ServerMessage{Value: newFormattedStringSplice(name)})
+	err = gob.NewEncoder(conn).Encode(&ServerMessage{MsgType: GETFILE, Value: newFormattedStringSplice(name)})
+	checkError(err, true)
 
 	file, err := os.Create("Characters/" + name + ".xml")
 	checkError(err, true)
 	defer file.Close()
 
 	_, err = io.Copy(file, conn)
+	checkError(err, true)
+}
+
+func sendCharactersFile(name string) {
+	conn, err := net.Dial("tcp", servers["characterStorage"])
+	checkError(err, true)
+	defer conn.Close()
+
+	err = gob.NewEncoder(conn).Encode(&ServerMessage{MsgType: SAVEFILE, Value: newFormattedStringSplice(name)})
+	checkError(err, true)
+
+	file, err := os.Open("Characters/" + name + ".xml")
+	checkError(err, true)
+	defer file.Close()
+
+	_, err = io.Copy(conn, file)
 	checkError(err, true)
 }
