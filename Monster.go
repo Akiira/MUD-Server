@@ -101,7 +101,7 @@ func (c *Monster) getRoomID() int {
 	return c.RoomIN
 }
 func (m *Monster) getDefense() int {
-	return -1
+	return m.Defense
 }
 
 func (m *Monster) getName() string {
