@@ -1,10 +1,5 @@
 package main
 
-//"database/sql"
-//_ "github.com/go-sql-driver/mysql"
-// port 3306, tcp
-// user: admin1
-// pw: admin
 import (
 	"bufio"
 	"encoding/gob"
