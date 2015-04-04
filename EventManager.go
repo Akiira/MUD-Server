@@ -94,6 +94,8 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 	eventRoom := em.worldRooms[cc.character.RoomIN]
 	cmd := event.Command
 	switch {
+	case cmd == "inv":
+		output = cc.character.PersonalInvetory.getInventoryDescription()
 	case cmd == "save" || cmd == "exit":
 		saveCharacterToFile(cc.getCharacter())
 		sendCharactersFile(cc.getCharactersName())
