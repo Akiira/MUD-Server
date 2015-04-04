@@ -27,6 +27,10 @@ func weaponFromXML(weaponData *WeaponXML) *Weapon {
 }
 
 func (w *Weapon) toXML() *WeaponXML {
-	//TODO toXML
-	return nil
+	wpnXML := new(WeaponXML)
+	wpnXML.ItemInfo = *w.Item.toXML()
+	wpnXML.Attack = w.attack
+	wpnXML.Damage = w.damage
+
+	return wpnXML
 }
