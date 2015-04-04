@@ -17,6 +17,19 @@ type Agent struct {
 	Inteligence  int
 }
 
+func (a *Agent) setAgentStatsFromXML(charData *CharacterXML) {
+	a.Strength = charData.Strength
+	a.Wisdom = charData.Wisdom
+	a.Inteligence = charData.Inteligence
+	a.Dexterity = charData.Dexterity
+	a.Charisma = charData.Charisma
+	a.Constitution = charData.Constitution
+	a.currentHP = charData.HP
+	a.MaxHitPoints = charData.HP
+	a.Name = charData.Name
+	a.RoomIN = charData.RoomIN
+}
+
 //The go community says to end interface names with "er"
 type Agenter interface {
 	makeAttack(target Agenter) []FormattedString
