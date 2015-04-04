@@ -19,6 +19,16 @@ type ItemXML struct {
 	ItemWorth   int      `xml:"Worth"`
 }
 
+func itemFromXML(itemData *ItemXML) *Item {
+	itm := new(Item)
+	itm.description = itemData.Description
+	itm.itemLevel = itemData.ItemLevel
+	itm.itemWorth = itemData.ItemWorth
+	itm.name = itemData.Name
+
+	return itm
+}
+
 func (i *Item) getName() string {
 	return i.name
 }

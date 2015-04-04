@@ -16,3 +16,17 @@ type WeaponXML struct {
 	Attack   int      `xml:"Attack"`
 	Damage   int      `xml:"Damage"`
 }
+
+func weaponFromXML(weaponData *WeaponXML) *Weapon {
+	wpn := new(Weapon)
+	wpn.Item = *itemFromXML(&weaponData.ItemInfo)
+	wpn.attack = weaponData.Attack
+	wpn.damage = weaponData.Damage
+
+	return wpn
+}
+
+func (w *Weapon) toXML() *WeaponXML {
+	//TODO toXML
+	return nil
+}

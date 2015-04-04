@@ -27,6 +27,8 @@ type Character struct {
 	myClientConn *ClientConnection
 }
 
+//=================== CONSTRUCTORS =====================//
+
 func newCharacter(name string, room int, hp int, def int) *Character {
 	char := new(Character)
 	char.Name = name
@@ -37,6 +39,15 @@ func newCharacter(name string, room int, hp int, def int) *Character {
 
 	return char
 }
+
+func characterFromXML(charData *CharacterXML) *Character {
+	char := new(Character)
+	char.equipedWeapon = *weaponFromXML(&charData.EquipedWeapon)
+
+	return char
+}
+
+//================== CLASS FUNCTIONS =============//
 
 //TODO change some of these functions so that they return []FormatterString
 // 		so the client can see the effects.
