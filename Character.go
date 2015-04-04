@@ -42,7 +42,11 @@ func newCharacter(name string, room int, hp int, def int) *Character {
 
 func characterFromXML(charData *CharacterXML) *Character {
 	char := new(Character)
+	char.setAgentStatsFromXML(charData)
 	char.equipedWeapon = *weaponFromXML(&charData.EquipedWeapon)
+	char.equippedArmour = *armourSetFromXML(charData.ArmSet)
+	char.level = charData.Level
+	char.experience = charData.experience
 
 	return char
 }
@@ -223,7 +227,7 @@ func getCharacterFromFile(charName string) *Character {
 	var charData CharacterXML
 	xml.Unmarshal(XMLdata, &charData)
 
-	char := newCharacter(charData.Name, charData.RoomIN, charData.HP, charData.Defense)
+	char := characterFromXML(&charData)
 
 	return char
 }
