@@ -10,10 +10,6 @@ type FmtStrCollection struct {
 	currentColor ct.Color
 }
 
-func parseStringForFormatString(fmtstring string) {
-
-}
-
 func newFormattedStringCollection() *FmtStrCollection {
 	fsc := new(FmtStrCollection)
 	fsc.fmtedStrings = make([]FormattedString, 0, 1)

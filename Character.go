@@ -171,13 +171,56 @@ func (c *Character) getStatsPage() []FormattedString {
 
 //TODO add items, stats, and any other missing fields
 type CharacterXML struct {
-	XMLName      xml.Name `xml:"Character"`
-	Name         string   `xml:"Name"`
-	RoomIN       int      `xml:"RoomIN"`
-	HP           int      `xml:"HitPoints"`
+	XMLName xml.Name `xml:"Character"`
+	Name    string   `xml:"Name"`
+	RoomIN  int      `xml:"RoomIN"`
+	HP      int      `xml:"HitPoints"`
+	Defense int      `xml:"Defense"`
+
+	Strength     int `xml:"Strength"`
+	Constitution int `xml:"Constitution"`
+	Dexterity    int `xml:"Dexterity"`
+	Wisdom       int `xml:"Wisdom"`
+	Charisma     int `xml:"Charisma"`
+	Inteligence  int `xml:"Inteligence"`
+
+	Level      int `xml:"Level"`
+	experience int `xml:"experience"`
+
+	CurrentWorld string `xml:"CurrentWorld"`
+
+	EquipedWeapon WeaponXML    `xml:"Weapon"`
+	ArmSet        []ArmourXML  `xml:"Armour"`
+	PersInv       InventoryXML `xml:"Inventory"`
+}
+
+type InventoryXML struct {
+	XMLName xml.Name    `xml:"Inventory"`
+	Items   []ItemXML   `xml:"Item"`
+	Weapons []WeaponXML `xml:"Weapon"`
+	Armours []ArmourXML `xml:"Armour"`
+}
+
+type ItemXML struct {
+	XMLName     xml.Name `xml:"Item"`
+	Name        string   `xml:"Name"`
+	Description string   `xml:"Description"`
+	ItemLevel   int      `xml:"Level"`
+	ItemWorth   int      `xml:"Worth"`
+}
+
+type WeaponXML struct {
+	XMLName  xml.Name `xml:"Weapon"`
+	ItemInfo ItemXML  `xml:"Item"`
+	Attack   int      `xml:"Attack"`
+	Damage   int      `xml:"Damage"`
+}
+
+type ArmourXML struct {
+	XMLName      xml.Name `xml:"Armour"`
+	ItemInfo     ItemXML  `xml:"Item"`
 	Defense      int      `xml:"Defense"`
-	Password     string   `xml:"Password"`
-	CurrentWorld string   `xml:"CurrentWorld"`
+	WearLocation string   `xml:"Location"`
 }
 
 func getCharacterFromFile(charName string) *Character {

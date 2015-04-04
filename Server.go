@@ -3,9 +3,11 @@ package main
 import (
 	"bufio"
 	"encoding/gob"
+	"encoding/xml"
 	"fmt"
 	_ "github.com/daviddengcn/go-colortext"
 	"io"
+	"io/ioutil"
 	"log"
 	"net"
 	"os"
@@ -19,13 +21,26 @@ var servers map[string]string
 var eventManager *EventManager
 
 func main() {
-	loadMonsterData()
+	xmlTest()
+	//runServer()
+}
 
-	readServerList()
-	runServer()
+func xmlTest() {
+	xmlFile, err := os.Open("Characters/" + "Tiefling" + ".xml")
+	checkError(err, true)
+	defer xmlFile.Close()
+
+	XMLdata, _ := ioutil.ReadAll(xmlFile)
+
+	var charData CharacterXML
+	err = xml.Unmarshal(XMLdata, &charData)
+	checkError(err, true)
+	fmt.Println(charData)
 }
 
 func runServer() {
+	loadMonsterData()
+	readServerList()
 	eventManager = newEventManager()
 
 	listener := setUpServerWithPort(1300)
