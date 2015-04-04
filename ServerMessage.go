@@ -7,6 +7,8 @@ import (
 
 const (
 	REDIRECT = 1
+	GETFILE  = 2
+	SAVEFILE = 3
 )
 
 type ServerMessage struct {
