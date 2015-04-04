@@ -45,8 +45,13 @@ func newArmourSet() ArmourSet {
 }
 
 func armourSetFromXML(armourSetData ArmourSetXML) *ArmourSet {
-	//TODO
-	return nil
+	as := new(ArmourSet)
+
+	for _, arm := range armourSetData.ArmSet {
+		as.equipArmour(arm.WearLocation, *armourFromXML(arm))
+	}
+
+	return as
 }
 
 //=================== CLASS FUNCTIONS =====================//
