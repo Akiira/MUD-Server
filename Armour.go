@@ -21,17 +21,35 @@ func newArmour(name1 string, descr string, def int, wearLoc string) Armour {
 	//return &a
 }
 
+func armourFromXML(armourData ArmourXML) *Armour {
+	arm := new(Armour)
+	arm.Item = *itemFromXML(&armourData.ItemInfo)
+	arm.defense = armourData.Defense
+	arm.wearLocation = armourData.WearLocation
+
+	return arm
+}
+
 //--------------ARMOURSET CLASS----------------
 
 type ArmourSet struct {
 	equipedArmour map[string]Armour
 }
 
+//=================== CONSTRUCTORS =====================//
+
 func newArmourSet() ArmourSet {
 	as := new(ArmourSet)
 	as.equipedArmour = make(map[string]Armour, 5)
 	return *as
 }
+
+func armourSetFromXML(armourSetData ArmourSetXML) *ArmourSet {
+	//TODO
+	return nil
+}
+
+//=================== CLASS FUNCTIONS =====================//
 
 func (as *ArmourSet) getArmoursDefense() int {
 	defense := 0
@@ -77,6 +95,8 @@ func (as *ArmourSet) isArmourEquippedAtLocation(loc string) bool {
 	_, present := as.equipedArmour[loc]
 	return present
 }
+
+//=================== XML STUFF =====================//
 
 type ArmourSetXML struct {
 	XMLName xml.Name    `xml:"ArmourSet"`
