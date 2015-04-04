@@ -30,6 +30,15 @@ func armourFromXML(armourData ArmourXML) *Armour {
 	return arm
 }
 
+func (arm *Armour) toXML() *ArmourXML {
+	armXML := new(ArmourXML)
+	armXML.ItemInfo = *arm.Item.toXML()
+	armXML.Defense = arm.defense
+	armXML.WearLocation = arm.wearLocation
+
+	return armXML
+}
+
 //--------------ARMOURSET CLASS----------------
 
 type ArmourSet struct {
@@ -99,6 +108,16 @@ func (as *ArmourSet) getListOfArmourWorn() []FormattedString {
 func (as *ArmourSet) isArmourEquippedAtLocation(loc string) bool {
 	_, present := as.equipedArmour[loc]
 	return present
+}
+
+func (as *ArmourSet) toXML() *ArmourSetXML {
+	asXML := new(ArmourSetXML)
+
+	for _, arm := range as.equipedArmour {
+		asXML.ArmSet = append(asXML.ArmSet, *arm.toXML())
+	}
+
+	return asXML
 }
 
 //=================== XML STUFF =====================//
