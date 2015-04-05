@@ -22,12 +22,12 @@ var servers map[string]string
 var eventManager *EventManager
 
 func main() {
-	//xmlTest()
-	//runServer()
+
 	readServerList()
+	runServer()
 	fmt.Println("Servers Read")
-	getCharactersFile("Ragnar")
-	sendCharactersFile("Tiefling")
+	//getCharactersFile("Ragnar")
+	//sendCharactersFile("Tiefling")
 }
 
 func xmlTest() {
