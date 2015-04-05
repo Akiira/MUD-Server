@@ -10,6 +10,14 @@ type Weapon struct {
 	damage int
 }
 
+func (wpn *Weapon) getAttack() int {
+	return wpn.attack
+}
+
+func (wpn *Weapon) getDamage() int {
+	return wpn.damage
+}
+
 type WeaponXML struct {
 	XMLName  xml.Name `xml:"Weapon"`
 	ItemInfo ItemXML  `xml:"Item"`
