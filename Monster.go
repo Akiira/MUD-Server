@@ -3,6 +3,7 @@ package main
 
 import (
 	"encoding/xml"
+	"fmt"
 	"github.com/daviddengcn/go-colortext"
 	"io/ioutil"
 	"math/rand"
@@ -17,6 +18,8 @@ type Monster struct {
 	targets     map[string]*target
 	em          EventManager
 	weapon      Weapon
+
+	lastTarget Agenter
 }
 
 //TODO add mutex around targets field
@@ -67,7 +70,7 @@ func (m *Monster) fightPlayers() {
 			}
 		}
 
-		event := newEvent(MONSTER, m, "attack", attackTarget.character, attackTarget)
+		event := newEvent(m, "attack", attackTarget.character, attackTarget)
 		m.em.addEvent(event)
 	}
 }
@@ -95,7 +98,7 @@ func (m *Monster) getAttackRoll() int {
 }
 
 func (m *Monster) takeDamage(amount int, typeOfDamge int) []FormattedString {
-	//TODO
+	m.currentHP -= amount
 	return nil
 }
 func (c *Monster) getRoomID() int {
@@ -116,9 +119,25 @@ func (m *Monster) isDead() bool {
 func (m *Monster) makeAttack(target Agenter) []FormattedString {
 	a1 := m.getAttackRoll()
 	if a1 >= target.getDefense() {
-		target.takeDamage(m.weapon.damage, 0)
+		target.takeDamage(m.getDamage(), 0)
+		output := newFormattedStringCollection()
+		output.addMessage(ct.Red, fmt.Sprintf("The %s hit you for %i damage\n", m.Name, m.getDamage()))
+
+		if target.isDead() {
+			output.addMessage(ct.Red, "\nYou died!.\n")
+		}
+		return output.fmtedStrings
 	}
-	return nil
+
+	return newFormattedStringSplice2(ct.Red, fmt.Sprintf("The %s's attack missed you.\n", m.Name))
+}
+
+func (m *Monster) getClientConnection() *ClientConnection {
+	return m.lastTarget.getClientConnection()
+}
+
+func (m *Monster) getDamage() int {
+	return m.weapon.damage + m.Strength
 }
 
 func (m *Monster) getLookDescription() []FormattedString {
