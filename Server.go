@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"encoding/gob"
 	"encoding/xml"
 	"fmt"
@@ -22,7 +23,11 @@ var eventManager *EventManager
 
 func main() {
 	//xmlTest()
-	runServer()
+	//runServer()
+	readServerList()
+	fmt.Println("Servers Read")
+	getCharactersFile("Ragnar")
+	sendCharactersFile("Tiefling")
 }
 
 func xmlTest() {
@@ -95,8 +100,9 @@ func getCharactersFile(name string) {
 	checkError(err, true)
 	defer file.Close()
 
-	_, err = io.Copy(file, conn)
+	sent, err := io.Copy(file, conn)
 	checkError(err, true)
+	fmt.Println("Amount Written: ", sent)
 }
 
 func sendCharactersFile(name string) {
@@ -111,6 +117,11 @@ func sendCharactersFile(name string) {
 	checkError(err, true)
 	defer file.Close()
 
-	_, err = io.Copy(conn, file)
+	buf := new(bytes.Buffer)
+	io.Copy(buf, file)
+	written, err := conn.Write(buf.Bytes())
+
+	//written, err := io.Copy(conn, buf)
 	checkError(err, true)
+	fmt.Println("Amount Written: ", written)
 }
