@@ -15,17 +15,14 @@ import (
 	"strings"
 )
 
-const centralServer = "central"
-
 var servers map[string]string
-
 var eventManager *EventManager
 
 func main() {
 
 	readServerList()
 	runServer()
-	fmt.Println("Servers Read")
+
 	//getCharactersFile("Ragnar")
 	//sendCharactersFile("Tiefling")
 }
@@ -48,7 +45,7 @@ func runServer() {
 	readServerList()
 	eventManager = newEventManager()
 
-	listener := setUpServerWithPort(1300)
+	listener := setUpServerWithAddress(os.Args[1])
 
 	for {
 		conn, err := listener.Accept()
