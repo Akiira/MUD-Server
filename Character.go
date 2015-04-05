@@ -104,15 +104,15 @@ func (char *Character) makeAttack(target Agenter) []FormattedString {
 
 	a1 := char.getAttackRoll()
 	if a1 >= target.getDefense() {
-		target.takeDamage(2, 0)
-		output[0].Value = "\nYou hit the " + target.getName() + "!"
+		target.takeDamage(char.getDamage(), 0)
+		output[0].Value = "\nYou hit the " + target.getName() + "!\n"
 	} else {
-		output[0].Value = "\nYou missed the " + target.getName() + "!"
+		output[0].Value = "\nYou missed the " + target.getName() + "!\n"
 	}
 
 	if target.isDead() {
 		// TODO  reward player exp
-		output[1].Value = "\nThe " + target.getName() + " drops over dead."
+		output[1].Value = "The " + target.getName() + " drops over dead.\n"
 		room := char.myClientConn.CurrentEM.worldRooms[char.RoomIN] //TODO fix this line
 		room.killOffMonster(target.getName())
 	}
@@ -121,9 +121,10 @@ func (char *Character) makeAttack(target Agenter) []FormattedString {
 }
 
 func (c *Character) takeDamage(amount int, typeOfDamge int) []FormattedString {
-	if amount-c.equippedArmour.getArmoursDefense() > 0 {
-		c.currentHP -= (amount - c.equippedArmour.getArmoursDefense())
-	}
+	//	if amount-c.equippedArmour.getArmoursDefense() > 0 {
+	//		c.currentHP -= (amount - c.equippedArmour.getArmoursDefense())
+	//	}
+	c.currentHP -= amount
 	s := "You got hit for " + fmt.Sprintf("%i", amount) + " damage.\n"
 	return newFormattedStringSplice2(ct.Red, s)
 }
@@ -137,11 +138,19 @@ func (c *Character) getRoomID() int {
 	return c.RoomIN
 }
 func (c *Character) getAttackRoll() int {
-	return rand.Int() % (20 + c.equipedWeapon.attack + c.Strength)
+	return (rand.Int() % 20) + c.equipedWeapon.attack + c.Strength
 }
 
 func (c *Character) getDefense() int {
 	return c.Defense
+}
+
+func (c *Character) getClientConnection() *ClientConnection {
+	return c.myClientConn
+}
+
+func (c *Character) getDamage() int {
+	return c.equipedWeapon.damage + c.Strength
 }
 
 func (c *Character) getStatsPage() []FormattedString {
