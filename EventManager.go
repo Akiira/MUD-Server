@@ -75,14 +75,13 @@ func (em *EventManager) executeCombatRound() {
 		action := event.action
 		switch {
 		case action == "attack":
-			//TODO could produce two outputs, one for target and one for victim
-			output = event.agent.makeAttack(event.valueOrTarget)
+			output = event.agent.makeAttack(event.target)
 		}
 
-		if event.client != nil { //TODO fix this to return messages to client when they get hit
-			var servMsg ServerMessage
-			servMsg.Value = output
-			event.client.sendMsgToClient(servMsg)
+		event.agent.getClientConnection().sendMsgToClient(newServerMessage(output))
+
+		if event.target.isDead() {
+
 		}
 	}
 
