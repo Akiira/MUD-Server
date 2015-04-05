@@ -30,6 +30,8 @@ func (a *Agent) setAgentStatsFromXML(charData *CharacterXML) {
 	a.RoomIN = charData.RoomIN
 }
 
+//func (a *Agent) getDamage() {
+
 //The go community says to end interface names with "er"
 type Agenter interface {
 	makeAttack(target Agenter) []FormattedString
@@ -38,4 +40,5 @@ type Agenter interface {
 	getDefense() int
 	isDead() bool
 	getRoomID() int
+	getClientConnection() *ClientConnection
 }
