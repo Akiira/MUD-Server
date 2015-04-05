@@ -85,15 +85,23 @@ func (char *Character) moveCharacter(direction string) []FormattedString {
 
 	dirAsInt := convertDirectionToInt(direction)
 
-	if room.Exits[dirAsInt] >= 0 {
-		room.removePCFromRoom(char.Name)
-		room.ExitLinksToRooms[dirAsInt].addPCToRoom(char)
-		char.RoomIN = room.Exits[dirAsInt]
-		return room.ExitLinksToRooms[dirAsInt].getRoomDescription()
+	if dirAsInt >= 0 {
+
+		if room.Exits[dirAsInt] >= 0 {
+			room.removePCFromRoom(char.Name)
+			room.ExitLinksToRooms[dirAsInt].addPCToRoom(char)
+			char.RoomIN = room.Exits[dirAsInt]
+			return room.ExitLinksToRooms[dirAsInt].getRoomDescription()
+		} else {
+			output := make([]FormattedString, 1, 1)
+			output[0].Color = ct.White
+			output[0].Value = "No exit in that direction\n"
+			return output
+		}
 	} else {
 		output := make([]FormattedString, 1, 1)
-		output[0].Color = ct.Black
-		output[0].Value = "No exit in that direction"
+		output[0].Color = ct.White
+		output[0].Value = "invalid move command\n"
 		return output
 	}
 }
