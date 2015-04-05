@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"net"
 	"os"
-	"strconv"
 )
 
 //command for error
@@ -32,28 +31,9 @@ const CommandLeave = 13 // leave occur the same time with enter the room??
 const CommandJoinWorld = 21 // will change the room occur the same time with leave?
 // probably use after authenticate with login server and move to the first world as well
 
-func setUpServerWithPort(portNum int) *net.TCPListener {
-	service := "127.0.0.1:" + strconv.Itoa(portNum)
-	tcpAddr, err := net.ResolveTCPAddr("tcp4", service)
-	checkError(err, true)
-	listener, err := net.ListenTCP("tcp", tcpAddr)
-	checkError(err, true)
-	return listener
-}
-
 func setUpServerWithAddress(addr string) *net.TCPListener {
 	tcpAddr, err := net.ResolveTCPAddr("tcp4", addr)
 	checkError(err, true)
-	listener, err := net.ListenTCP("tcp", tcpAddr)
-	checkError(err, true)
-	return listener
-}
-
-func setUpServer() *net.TCPListener {
-	service := "127.0.0.1:1200"
-	tcpAddr, err := net.ResolveTCPAddr("tcp4", service)
-	checkError(err, true)
-
 	listener, err := net.ListenTCP("tcp", tcpAddr)
 	checkError(err, true)
 	return listener
