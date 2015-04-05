@@ -24,6 +24,19 @@ import (
 //	worldRoomsG[0].populateRoomWithMonsters()
 //}
 
+//func xmlTest() {
+//	xmlFile, err := os.Open("Characters/" + "Tiefling" + ".xml")
+//	checkError(err, true)
+//	defer xmlFile.Close()
+
+//	XMLdata, _ := ioutil.ReadAll(xmlFile)
+
+//	var charData CharacterXML
+//	err = xml.Unmarshal(XMLdata, &charData)
+//	checkError(err, true)
+//	fmt.Println(charData)
+//}
+
 func printFormatedOutput(output []FormattedString) {
 	for _, element := range output {
 		ct.ChangeColor(element.Color, false, ct.Black, false)

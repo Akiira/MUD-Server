@@ -4,11 +4,9 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/gob"
-	"encoding/xml"
 	"fmt"
 	_ "github.com/daviddengcn/go-colortext"
 	"io"
-	"io/ioutil"
 	"log"
 	"net"
 	"os"
@@ -25,19 +23,6 @@ func main() {
 
 	//getCharactersFile("Ragnar")
 	//sendCharactersFile("Tiefling")
-}
-
-func xmlTest() {
-	xmlFile, err := os.Open("Characters/" + "Tiefling" + ".xml")
-	checkError(err, true)
-	defer xmlFile.Close()
-
-	XMLdata, _ := ioutil.ReadAll(xmlFile)
-
-	var charData CharacterXML
-	err = xml.Unmarshal(XMLdata, &charData)
-	checkError(err, true)
-	fmt.Println(charData)
 }
 
 func runServer() {
