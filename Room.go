@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/xml"
+	"fmt"
 	"github.com/daviddengcn/go-colortext"
 	"io/ioutil"
 	"os"
@@ -108,6 +109,7 @@ func (room *Room) getItem(char *Character, itemName string) []FormattedString {
 }
 
 func (room *Room) getMonster(monsterName string) *Monster {
+	fmt.Println(room.MonstersInRoom[monsterName])
 	return room.MonstersInRoom[monsterName]
 }
 
@@ -127,8 +129,8 @@ func (room *Room) repopulateRoomTick(timeInMinutes time.Duration) {
 func (room *Room) populateRoomWithMonsters() { //TODO remove hardcoding, maybe load from xml file
 
 	room.MonstersInRoom["Rabbit"] = newMonsterFromName("Rabbit")
-	room.MonstersInRoom["Fox"] = newMonsterFromName("Deer")
-	room.MonstersInRoom["Deer"] = newMonsterFromName("Fox")
+	room.MonstersInRoom["Fox"] = newMonsterFromName("Fox")
+	room.MonstersInRoom["Deer"] = newMonsterFromName("Deer")
 }
 
 func (room *Room) getRoomDescription() []FormattedString {
