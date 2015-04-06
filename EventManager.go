@@ -74,6 +74,10 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 	var msgType int
 	msgType = GAMEPLAY
 	switch {
+	case cmd == "bid":
+		//TODO
+		// check if there is a running auction
+		// if so then: auction.bidOnItem(event.getBid(), cc, time.Now()) //Or get time from Timestamp?
 	case cmd == "inv":
 		output = cc.character.PersonalInvetory.getInventoryDescription()
 	case cmd == "save" || cmd == "exit":
