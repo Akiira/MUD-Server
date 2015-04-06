@@ -259,7 +259,7 @@ func getCharacterFromCentral(charName string) *Character {
 
 	conn, err := net.Dial("tcp", address)
 	checkError(err, true)
-
+	defer conn.Close()
 	enc := gob.NewEncoder(conn)
 	dec := gob.NewDecoder(conn)
 
