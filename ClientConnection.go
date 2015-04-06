@@ -5,15 +5,18 @@ import (
 	"fmt"
 	"net"
 	"sync"
+	"time"
 )
 
 type ClientConnection struct {
-	myConn    net.Conn
-	myEncoder *gob.Encoder
-	myDecoder *gob.Decoder
-	net_lock  sync.Mutex
-	character *Character
-	CurrentEM *EventManager
+	myConn       net.Conn
+	myEncoder    *gob.Encoder
+	myDecoder    *gob.Decoder
+	net_lock     sync.Mutex
+	ping_lock    sync.Mutex
+	pingResponse *sync.Cond
+	character    *Character
+	CurrentEM    *EventManager
 }
 
 //CliecntConnection constructor
@@ -33,6 +36,7 @@ func newClientConnection(conn net.Conn, em *EventManager) *ClientConnection {
 	cc.character.myClientConn = cc
 	cc.CurrentEM = em
 
+	cc.pingResponse = sync.NewCond(&cc.ping_lock)
 	fmt.Println(cc.character)
 
 	//Send the client a description of their starting room
@@ -44,6 +48,7 @@ func newClientConnection(conn net.Conn, em *EventManager) *ClientConnection {
 func (cc *ClientConnection) receiveMsgFromClient() {
 	for {
 		var clientResponse ClientMessage
+
 		err := cc.myDecoder.Decode(&clientResponse)
 		checkError(err, false)
 
@@ -52,6 +57,8 @@ func (cc *ClientConnection) receiveMsgFromClient() {
 		if clientResponse.CombatAction {
 			event := newEventFromMessage(clientResponse, cc.character, cc)
 			cc.CurrentEM.addEvent(event)
+		} else if clientResponse.Command == "ping" {
+			cc.pingResponse.Signal()
 		} else {
 			cc.CurrentEM.executeNonCombatEvent(cc, &clientResponse)
 		}
@@ -73,6 +80,19 @@ func (cc *ClientConnection) sendMsgToClient(msg ServerMessage) {
 	checkError(err, false)
 }
 
+func (cc *ClientConnection) getAverageRoundTripTime() time.Duration {
+	cc.net_lock.Lock()
+	var avg time.Duration
+	for i := 0; i < 10; i++ {
+		now := time.Now()
+		cc.sendMsgToClient(newServerMessageTypeS(PING, "ping"))
+		cc.pingResponse.Wait()
+		then := time.Now()
+		avg += then.Sub(now)
+	}
+
+	return ((avg / 10) / 2)
+}
 func (cc *ClientConnection) getCharactersName() string {
 	return cc.character.Name
 }
