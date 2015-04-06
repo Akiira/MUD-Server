@@ -3,7 +3,7 @@ package main
 
 import (
 	"encoding/xml"
-	"fmt"
+	_ "fmt"
 	"github.com/daviddengcn/go-colortext"
 )
 
@@ -58,9 +58,7 @@ func armourSetFromXML(armourSetData ArmourSetXML) *ArmourSet {
 	as := newArmourSet()
 
 	for _, arm := range armourSetData.ArmSet {
-		fmt.Println("before call")
 		as.equipArmour(arm.WearLocation, *armourFromXML(arm))
-		fmt.Println("after call")
 	}
 
 	return as
@@ -88,11 +86,8 @@ func (as *ArmourSet) takeOffArmourByLocation(loc string) Armour {
 }
 
 func (as *ArmourSet) equipArmour(location string, arm Armour) {
-	fmt.Println("inside method call")
+
 	//TODO add check for armour already being worn
-	fmt.Println("location is " + location)
-	fmt.Print("armour is ")
-	fmt.Println(arm)
 	as.equipedArmour[location] = arm
 }
 
