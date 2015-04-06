@@ -97,3 +97,16 @@ func sendCharactersFile(name string) {
 	err = encdr.Encode(c)
 	checkError(err, false)
 }
+
+func sendCharactersXML(charData *CharacterXML) {
+	conn, err := net.Dial("tcp", servers["characterStorage"])
+	checkError(err, true)
+	defer conn.Close()
+
+	encdr := gob.NewEncoder(conn)
+	err = encdr.Encode(&ServerMessage{MsgType: SAVEFILE, Value: newFormattedStringSplice(charData.Name)})
+	checkError(err, true)
+
+	err = encdr.Encode(*charData)
+	checkError(err, false)
+}
