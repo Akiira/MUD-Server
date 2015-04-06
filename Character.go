@@ -50,6 +50,8 @@ func characterFromXML(charData *CharacterXML) *Character {
 
 	char.PersonalInvetory = *inventoryFromXML(&charData.PersInv)
 
+	//TODO still not finished
+
 	return char
 }
 
@@ -82,49 +84,33 @@ func (c *Character) addItemToInventory(item Item) {
 //func (char *Character) moveCharacter(direction string, source *Room, destination *Room) []FormattedString
 
 func (char *Character) moveCharacter(direction string) (int, []FormattedString) {
-	//TODO this is just a temporary fix
-	room := char.myClientConn.CurrentEM.worldRooms[char.RoomIN]
 
 	dirAsInt := convertDirectionToInt(direction)
+	room := char.myClientConn.CurrentEM.worldRooms[char.RoomIN] //TODO this is just a temporary fix
 
-	if dirAsInt >= 0 {
+	if room.isValidDirection(dirAsInt) {
+		newRoom := room.getConnectedRoom(dirAsInt)
 
-		if room.Exits[dirAsInt] >= 0 {
-			if room.ExitLinksToWorlds[dirAsInt] == LocalWorld {
-				room.removePCFromRoom(char.Name)
-				room.ExitLinksToRooms[dirAsInt].addPCToRoom(char)
-				char.RoomIN = room.Exits[dirAsInt]
-				return GAMEPLAY, room.ExitLinksToRooms[dirAsInt].getRoomDescription()
-			} else {
+		if newRoom.isLocal() {
+			room.removePCFromRoom(char.Name)
+			newRoom.addPCToRoom(char)
 
-				//room.removePCFromRoom(char.Name)
-				fmt.Println(char.Name)
-				sendCharactersFile(char.Name)
-				sendCharactersXML(char.toXML())
-
-				char.RoomIN = room.Exits[dirAsInt]
-				newWorldAddress := servers[room.ExitLinksToWorlds[dirAsInt]]
-				output := make([]FormattedString, 1, 1)
-				output[0].Color = ct.White
-				output[0].Value = newWorldAddress
-				return REDIRECT, output
-				/*
-					output := make([]FormattedString, 1, 1)
-					output[0].Color = ct.White
-					output[0].Value = "No exit in that direction\n"
-					return GAMEPLAY, output*/
-			}
+			return GAMEPLAY, room.ExitLinksToRooms[dirAsInt].getRoomDescription()
 		} else {
-			output := make([]FormattedString, 1, 1)
-			output[0].Color = ct.White
-			output[0].Value = "No exit in that direction\n"
-			return GAMEPLAY, output
+
+			fmt.Println(char.Name)
+			room.removePCFromRoom(char.Name)
+			newRoom.addPCToRoom(char)
+			sendCharactersFile(char.Name)
+
+			//TODO sendCharactersXML is what we should do When all the toXML
+			// functions are done because it will be quicker
+			//sendCharactersXML(char.toXML())
+
+			return REDIRECT, newFormattedStringSplice(servers[room.ExitLinksToWorlds[dirAsInt]])
 		}
 	} else {
-		output := make([]FormattedString, 1, 1)
-		output[0].Color = ct.White
-		output[0].Value = "invalid move command\n"
-		return GAMEPLAY, output
+		return GAMEPLAY, newFormattedStringSplice("No exit in that direction\n")
 	}
 }
 
@@ -161,6 +147,7 @@ func (c *Character) takeDamage(amount int, typeOfDamge int) []FormattedString {
 func (c *Character) isDead() bool {
 	return c.currentHP > 0
 }
+
 func (c *Character) getName() string {
 	return c.Name
 }
