@@ -246,13 +246,6 @@ type CharacterXML struct {
 	PersInv       InventoryXML `xml:"Inventory"`
 }
 
-type InventoryXML struct {
-	XMLName xml.Name    `xml:"Inventory"`
-	Items   []ItemXML   `xml:"Item"`
-	Weapons []WeaponXML `xml:"Weapon"`
-	Armours []ArmourXML `xml:"Armour"`
-}
-
 func getCharacterFromCentral(charName string) *Character {
 
 	address := servers["characterStorage"]
@@ -266,12 +259,12 @@ func getCharacterFromCentral(charName string) *Character {
 	serverMsg := newServerMessageTypeS(GETFILE, charName)
 
 	var queriedChar CharacterXML
-	var char *Character
+
 	err = enc.Encode(serverMsg)
 	checkError(err, true)
 	err = dec.Decode(&queriedChar)
 	checkError(err, true)
-	char = characterFromXML(&queriedChar)
+	char := characterFromXML(&queriedChar)
 
 	fmt.Print("got : ")
 	fmt.Println(char)
