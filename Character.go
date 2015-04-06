@@ -263,7 +263,7 @@ func getCharacterFromCentral(charName string) *Character {
 	enc := gob.NewEncoder(conn)
 	dec := gob.NewDecoder(conn)
 
-	serverMsg := newSimpleServerMessage(GETFILE, charName)
+	serverMsg := newServerMessageTypeS(GETFILE, charName)
 
 	var queriedChar CharacterXML
 	var char *Character

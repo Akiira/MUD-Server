@@ -61,7 +61,7 @@ func (em *EventManager) executeCombatRound() {
 			output = event.agent.makeAttack(event.target)
 		}
 
-		event.agent.getClientConnection().sendMsgToClient(newServerMessage(output))
+		event.agent.getClientConnection().sendMsgToClient(newServerMessageFS(output))
 
 		if event.target.isDead() {
 
@@ -98,6 +98,6 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 	}
 
 	if len(output) > 0 {
-		cc.sendMsgToClient(newServerMessageWithType(msgType, output))
+		cc.sendMsgToClient(newServerMessageTypeFS(msgType, output))
 	}
 }
