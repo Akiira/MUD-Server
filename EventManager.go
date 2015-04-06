@@ -14,7 +14,6 @@ type Listener interface {
 }
 
 type EventManager struct {
-	listeners  map[string]Listener
 	queue_lock sync.Mutex
 	eventQue   []Event
 	worldRooms []*Room
@@ -22,7 +21,6 @@ type EventManager struct {
 
 func newEventManager(worldName string) *EventManager {
 	em := new(EventManager)
-	em.listeners = make(map[string]Listener)
 	em.eventQue = make([]Event, 0, 10)
 	em.worldRooms = loadRooms(worldName)
 
@@ -37,21 +35,6 @@ func (em *EventManager) sendMessageToRoom(roomID int, msg ServerMessage) {
 	for _, client := range room.CharactersInRoom {
 		client.myClientConn.sendMsgToClient(msg)
 	}
-}
-
-func (em *EventManager) subscribeListener(newListener Listener) {
-
-	em.queue_lock.Lock()
-	em.listeners[newListener.getCharactersName()] = newListener
-	em.queue_lock.Unlock()
-}
-
-func (em *EventManager) unsubscribeListener(prevListener Listener) {
-
-	em.queue_lock.Lock()
-	delete(em.listeners, prevListener.getCharactersName())
-	em.queue_lock.Unlock()
-
 }
 
 func (em *EventManager) addEvent(event Event) {
