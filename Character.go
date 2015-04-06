@@ -35,7 +35,7 @@ func newCharacter(name string, room int, hp int, def int) *Character {
 	char.currentHP = hp
 	char.Defense = def
 	char.PersonalInvetory = *newInventory()
-	char.equippedArmour = newArmourSet()
+	char.equippedArmour = *newArmourSet()
 
 	return char
 }
@@ -273,9 +273,13 @@ func getCharacterFromCentral(charName string) *Character {
 	checkError(err, true)
 	char = characterFromXML(&queriedChar)
 
+	fmt.Print("got : ")
+	fmt.Println(char)
+
 	return char
 }
 
+/*
 func saveCharacterToFile(char *Character) {
 	//TODO saveCharacter
 
@@ -285,4 +289,4 @@ func saveCharacterToFile(char *Character) {
 	ch.Defense = char.Defense
 	ch.HP = char.currentHP
 
-}
+}*/

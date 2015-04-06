@@ -32,7 +32,7 @@
 				<Worth>2</Worth>
 			</Item>
 			<Defense>1</Defense>
-			<Location>"Head"</Location>
+			<Location>Head</Location>
 		</Armour>
 		<Armour>
 			<Item>
@@ -42,7 +42,7 @@
 				<Worth>2</Worth>
 			</Item>
 			<Defense>1</Defense>
-			<Location>"Legs"</Location>
+			<Location>Legs</Location>
 		</Armour>
 		<Armour>
 			<Item>
@@ -52,7 +52,7 @@
 				<Worth>2</Worth>
 			</Item>
 			<Defense>1</Defense>
-			<Location>"Feet"</Location>
+			<Location>Feet</Location>
 		</Armour>
 	</ArmourSet>
 	<Inventory>	
@@ -80,7 +80,7 @@
 				<Worth>2</Worth>
 			</Item>
 			<Defense>1</Defense>
-			<Location>"Head"</Location>
+			<Location>Head</Location>
 		</Armour>
 		<Armour>
 			<Item>
@@ -90,7 +90,7 @@
 				<Worth>2</Worth>
 			</Item>
 			<Defense>1</Defense>
-			<Location>"Legs"</Location>
+			<Location>Legs</Location>
 		</Armour>
 		<Armour>
 			<Item>
@@ -100,7 +100,7 @@
 				<Worth>2</Worth>
 			</Item>
 			<Defense>1</Defense>
-			<Location>"Feet"</Location>
+			<Location>Feet</Location>
 		</Armour>
 	</Inventory>
 </Character>

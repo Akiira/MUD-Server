@@ -33,6 +33,8 @@ func newClientConnection(conn net.Conn, em *EventManager) *ClientConnection {
 	cc.character.myClientConn = cc
 	cc.CurrentEM = em
 
+	fmt.Println(cc.character)
+
 	//Send the client a description of their starting room
 	em.executeNonCombatEvent(cc, &ClientMessage{Command: "look", Value: "room"})
 
