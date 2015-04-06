@@ -1,0 +1,70 @@
+ <?xml version="1.0"?>
+ <Rooms>
+	<Room>
+		<ID>0</ID>
+		<Name>The Path to the Dwarven Village</Name>
+		<Description>You walk in the hill's shadow down an ever-widening path which leads to the
+outskirts of the dwarven village.  The hill rises above you to the southwest,
+and a smaller path leads to its crest in that direction.  A tunnel here leads
+down a short distance into the hill itself, and the dwarven village can be
+seen near the mountains to the north. </Description>
+		<Exit> 
+			<Direction>n</Direction>
+			<RoomID>1</RoomID>
+			<WorldID>local</WorldID>
+		</Exit>
+	</Room>
+	<Room>
+		<ID>1</ID>
+		<Name>Path nearing the Mountain</Name>
+		<Description>You are near the base a rugged mountain.  Dense forest prevents passage in
+most directions, and it grows dark to the north as the path begins its way
+up the shadowed mountain.</Description>
+		<Exit> 
+			<Direction>s</Direction>	
+			<RoomID>0</RoomID>
+			<WorldID>local</WorldID>
+		</Exit>
+		<Exit> 
+			<Direction>n</Direction>
+			<RoomID>2</RoomID>
+			<WorldID>local</WorldID>
+		</Exit>
+	</Room>
+	<Room>
+		<ID>2</ID>
+		<Name>Path up the Mountain</Name>
+		<Description>Standing near the halfway point up the mountain, you can easily see the
+hill of the crossroads in the distance to the southwest, while the top
+of the mountain is very near to the north.</Description>
+		<Exit> 
+			<Direction>s</Direction>
+			<RoomID>1</RoomID>
+			<WorldID>local</WorldID>
+		</Exit>
+		<Exit> 
+			<Direction>n</Direction>
+			<RoomID>3</RoomID>
+			<WorldID>local</WorldID>
+		</Exit>
+	</Room>
+	<Room>
+		<ID>3</ID>
+		<Name>Top of the Mountain</Name>
+		<Description>You stand on the mountain's top.  Far to the south you can see the spires
+of the city of Darkhaven, and a path leads down the mountainside to its
+base in that direction.  To your east and west, large gates have been
+built into the rock face.</Description>
+		<Exit> 
+			<Direction>s</Direction>
+			<RoomID>2</RoomID>
+			<WorldID>local</WorldID>
+		</Exit>
+		<Exit> 
+			<Direction>n</Direction>
+			<RoomID>0</RoomID>
+			<WorldID>world2</WorldID>
+		</Exit>
+	</Room>
+ </Rooms>
+ 
