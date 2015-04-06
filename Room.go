@@ -30,6 +30,8 @@ type Room struct {
 	ID          int
 	Description string
 
+	localWorld bool
+
 	// This represents each directions exit and has the room number of the connected
 	// room or -1 if no exit in that direction. This can probaly be combined
 	// with ExitLinksToRooms.
@@ -85,12 +87,24 @@ func (room *Room) setRoomLink(roomLink []*Room) {
 	}
 }
 
-func (room *Room) getRoomLink(exit int) *Room {
+func (room *Room) isValidDirection(dir int) bool {
+	return dir >= 0 && room.Exits[dir] >= 0
+}
+
+func (room *Room) isLocal() bool {
+	return room.localWorld
+}
+
+func (room *Room) getConnectedRoom(exit int) *Room {
 	return room.ExitLinksToRooms[exit]
 }
 
 func (room *Room) addPCToRoom(char *Character) {
-	room.CharactersInRoom[char.Name] = char
+
+	if room.CharactersInRoom != nil {
+		room.CharactersInRoom[char.Name] = char
+	}
+	char.RoomIN = room.ID
 }
 
 func (room *Room) removePCFromRoom(charName string) {
@@ -232,6 +246,7 @@ type ExitXML struct {
 	ConnectedWorldID string   `xml:"WorldID"`
 }
 
+//TODO add localWorld field
 type RoomXML struct {
 	XMLName     xml.Name  `xml:"Room"`
 	ID          int       `xml:"ID"`
