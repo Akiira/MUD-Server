@@ -2,10 +2,8 @@ package main
 
 import (
 	"bufio"
-	"bytes"
 	"encoding/gob"
 	"fmt"
-	_ "github.com/daviddengcn/go-colortext"
 	"io"
 	"log"
 	"net"
@@ -18,6 +16,11 @@ var eventManager *EventManager
 
 func main() {
 
+	if len(os.Args) < 3 {
+		fmt.Println(os.Args[0] + " requires 2 arguments, worldname and iNetAddress, ex world1 localhost:1300")
+		os.Exit(1)
+	}
+
 	readServerList()
 	runServer()
 
@@ -28,9 +31,9 @@ func main() {
 func runServer() {
 	loadMonsterData()
 	readServerList()
-	eventManager = newEventManager()
+	eventManager = newEventManager(os.Args[1])
 
-	listener := setUpServerWithAddress(os.Args[1])
+	listener := setUpServerWithAddress(os.Args[2])
 
 	for {
 		conn, err := listener.Accept()
@@ -70,23 +73,6 @@ func HandleClientConnection(myConn net.Conn) {
 	clientConnection.receiveMsgFromClient()
 }
 
-func getCharactersFile(name string) {
-	conn, err := net.Dial("tcp", servers["characterStorage"])
-	checkError(err, true)
-	defer conn.Close()
-
-	err = gob.NewEncoder(conn).Encode(&ServerMessage{MsgType: GETFILE, Value: newFormattedStringSplice(name)})
-	checkError(err, true)
-
-	file, err := os.Create("Characters/" + name + ".xml")
-	checkError(err, true)
-	defer file.Close()
-
-	sent, err := io.Copy(file, conn)
-	checkError(err, true)
-	fmt.Println("Amount Written: ", sent)
-}
-
 func sendCharactersFile(name string) {
 	conn, err := net.Dial("tcp", servers["characterStorage"])
 	checkError(err, true)
@@ -97,13 +83,8 @@ func sendCharactersFile(name string) {
 
 	file, err := os.Open("Characters/" + name + ".xml")
 	checkError(err, true)
-	defer file.Close()
-
-	buf := new(bytes.Buffer)
-	io.Copy(buf, file)
-	written, err := conn.Write(buf.Bytes())
-
-	//written, err := io.Copy(conn, buf)
+	written, err := io.Copy(conn, file)
 	checkError(err, true)
-	fmt.Println("Amount Written: ", written)
+	fmt.Println("Amount Send: ", written)
+	file.Close()
 }

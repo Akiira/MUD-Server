@@ -20,11 +20,11 @@ type EventManager struct {
 	worldRooms []*Room
 }
 
-func newEventManager() *EventManager {
+func newEventManager(worldName string) *EventManager {
 	em := new(EventManager)
 	em.listeners = make(map[string]Listener)
 	em.eventQue = make([]Event, 0, 10)
-	em.worldRooms = loadRooms()
+	em.worldRooms = loadRooms(worldName)
 
 	go em.waitForTick()
 
@@ -92,6 +92,8 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 	var output []FormattedString
 	eventRoom := em.worldRooms[cc.character.RoomIN]
 	cmd := event.Command
+	var msgType int
+	msgType = GAMEPLAY
 	switch {
 	case cmd == "inv":
 		output = cc.character.PersonalInvetory.getInventoryDescription()
@@ -106,13 +108,13 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 	case cmd == "get":
 		output = eventRoom.getItem(cc.character, event.Value)
 	case cmd == "move":
-		output = cc.character.moveCharacter(event.Value)
+		msgType, output = cc.character.moveCharacter(event.Value)
 	case cmd == "say":
 		formattedOutput := newFormattedStringSplice2(ct.Blue, cc.character.Name+" says \""+event.Value+"\"")
 		em.sendMessageToRoom(cc.character.RoomIN, ServerMessage{Value: formattedOutput})
 	}
 
 	if len(output) > 0 {
-		cc.sendMsgToClient(ServerMessage{Value: output})
+		cc.sendMsgToClient(newServerMessageWithType(msgType, output))
 	}
 }

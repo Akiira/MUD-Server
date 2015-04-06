@@ -22,6 +22,8 @@ const (
 	SOUTH_WEST = 7
 	UP         = 8
 	DOWN       = 9
+
+	LocalWorld = "local"
 )
 
 type Room struct {
@@ -32,8 +34,9 @@ type Room struct {
 	// This represents each directions exit and has the room number of the connected
 	// room or -1 if no exit in that direction. This can probaly be combined
 	// with ExitLinksToRooms.
-	Exits            [10]int
-	ExitLinksToRooms [10]*Room
+	Exits             [10]int
+	ExitLinksToRooms  [10]*Room
+	ExitLinksToWorlds [10]string
 
 	//This represents the player characters (PCs) in the room
 	CharactersInRoom map[string]*Character
@@ -60,6 +63,7 @@ func newRoomFromXML(roomData RoomXML) *Room {
 
 	for _, roomExit := range roomData.Exits {
 		room.Exits[convertDirectionToInt(roomExit.Direction)] = roomExit.ConnectedRoomID
+		room.ExitLinksToWorlds[convertDirectionToInt(roomExit.Direction)] = roomExit.ConnectedWorldID
 	}
 
 	room.CharactersInRoom = make(map[string]*Character)
@@ -74,9 +78,10 @@ func newRoomFromXML(roomData RoomXML) *Room {
 
 //This function must be called after all rooms are created and is
 // responsible for seting the exit pointers to point at the correct rooms
+
 func (room *Room) setRoomLink(roomLink []*Room) {
 	for i := 0; i < 10; i++ {
-		if room.Exits[i] != -1 {
+		if room.Exits[i] != -1 && room.ExitLinksToWorlds[i] == LocalWorld {
 			room.ExitLinksToRooms[i] = roomLink[room.Exits[i]]
 		}
 	}
@@ -226,9 +231,10 @@ func convertIntToDirection(direction int) string {
 }
 
 type ExitXML struct {
-	XMLName         xml.Name `xml:"Exit"`
-	Direction       string   `xml:"Direction"`
-	ConnectedRoomID int      `xml:"RoomID"`
+	XMLName          xml.Name `xml:"Exit"`
+	Direction        string   `xml:"Direction"`
+	ConnectedRoomID  int      `xml:"RoomID"`
+	ConnectedWorldID string   `xml:"WorldID"`
 }
 
 type RoomXML struct {
@@ -244,8 +250,8 @@ type RoomsXML struct {
 	Rooms   []RoomXML `xml:"Room"`
 }
 
-func loadRooms() []*Room {
-	xmlFile, err := os.Open("roomData.xml")
+func loadRooms(worldName string) []*Room {
+	xmlFile, err := os.Open(worldName + ".xml")
 	checkError(err, true)
 	defer xmlFile.Close()
 

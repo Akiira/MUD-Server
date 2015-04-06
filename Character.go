@@ -1,12 +1,12 @@
 package main
 
 import (
+	"encoding/gob"
 	"encoding/xml"
 	"fmt"
 	"github.com/daviddengcn/go-colortext"
-	"io/ioutil"
 	"math/rand"
-	"os"
+	"net"
 )
 
 type Character struct {
@@ -79,7 +79,7 @@ func (c *Character) addItemToInventory(item Item) {
 //TODO
 //func (char *Character) moveCharacter(direction string, source *Room, destination *Room) []FormattedString
 
-func (char *Character) moveCharacter(direction string) []FormattedString {
+func (char *Character) moveCharacter(direction string) (int, []FormattedString) {
 	//TODO this is just a temporary fix
 	room := char.myClientConn.CurrentEM.worldRooms[char.RoomIN]
 
@@ -88,21 +88,41 @@ func (char *Character) moveCharacter(direction string) []FormattedString {
 	if dirAsInt >= 0 {
 
 		if room.Exits[dirAsInt] >= 0 {
-			room.removePCFromRoom(char.Name)
-			room.ExitLinksToRooms[dirAsInt].addPCToRoom(char)
-			char.RoomIN = room.Exits[dirAsInt]
-			return room.ExitLinksToRooms[dirAsInt].getRoomDescription()
+			if room.ExitLinksToWorlds[dirAsInt] == LocalWorld {
+				room.removePCFromRoom(char.Name)
+				room.ExitLinksToRooms[dirAsInt].addPCToRoom(char)
+				char.RoomIN = room.Exits[dirAsInt]
+				return GAMEPLAY, room.ExitLinksToRooms[dirAsInt].getRoomDescription()
+			} else {
+				//TODO save character profile back to central server before redirect
+
+				//room.removePCFromRoom(char.Name)
+				fmt.Println(char.Name)
+				sendCharactersFile(char.Name)
+
+				char.RoomIN = room.Exits[dirAsInt]
+				newWorldAddress := servers[room.ExitLinksToWorlds[dirAsInt]]
+				output := make([]FormattedString, 1, 1)
+				output[0].Color = ct.White
+				output[0].Value = newWorldAddress
+				return REDIRECT, output
+				/*
+					output := make([]FormattedString, 1, 1)
+					output[0].Color = ct.White
+					output[0].Value = "No exit in that direction\n"
+					return GAMEPLAY, output*/
+			}
 		} else {
 			output := make([]FormattedString, 1, 1)
 			output[0].Color = ct.White
 			output[0].Value = "No exit in that direction\n"
-			return output
+			return GAMEPLAY, output
 		}
 	} else {
 		output := make([]FormattedString, 1, 1)
 		output[0].Color = ct.White
 		output[0].Value = "invalid move command\n"
-		return output
+		return GAMEPLAY, output
 	}
 }
 
@@ -233,18 +253,25 @@ type InventoryXML struct {
 	Armours []ArmourXML `xml:"Armour"`
 }
 
-func getCharacterFromFile(charName string) *Character {
-	//TODO add proper error checking, i.e. check if file exist
-	xmlFile, err := os.Open("Characters/" + charName + ".xml")
+func getCharacterFromCentral(charName string) *Character {
+
+	address := servers["characterStorage"]
+
+	conn, err := net.Dial("tcp", address)
 	checkError(err, true)
-	defer xmlFile.Close()
 
-	XMLdata, _ := ioutil.ReadAll(xmlFile)
+	enc := gob.NewEncoder(conn)
+	dec := gob.NewDecoder(conn)
 
-	var charData CharacterXML
-	xml.Unmarshal(XMLdata, &charData)
+	serverMsg := newSimpleServerMessage(GETFILE, charName)
 
-	char := characterFromXML(&charData)
+	var queriedChar CharacterXML
+	var char *Character
+	err = enc.Encode(serverMsg)
+	checkError(err, true)
+	err = dec.Decode(&queriedChar)
+	checkError(err, true)
+	char = characterFromXML(&queriedChar)
 
 	return char
 }

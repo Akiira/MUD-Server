@@ -29,10 +29,8 @@ func newClientConnection(conn net.Conn, em *EventManager) *ClientConnection {
 	err := cc.myDecoder.Decode(&clientResponse)
 	checkError(err, true)
 
-	getCharactersFile(clientResponse.getUsername())
-	cc.character = getCharacterFromFile(clientResponse.getUsername())
+	cc.character = getCharacterFromCentral(clientResponse.getUsername())
 	cc.character.myClientConn = cc
-
 	cc.CurrentEM = em
 
 	//Send the client a description of their starting room
