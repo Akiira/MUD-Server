@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <Character>
-	<Name>"Ragnar"</Name>
+	<Name>Tiefling</Name>
 	<RoomIN>0</RoomIN>
 	<HitPoints>30</HitPoints>
 	<Defense>2</Defense>
@@ -12,11 +12,11 @@
 	<Inteligence>16</Inteligence>
 	<Level>1</Level>
 	<experience>0</experience>
-	<CurrentWorld>"World1"</CurrentWorld>
+	<CurrentWorld>World1</CurrentWorld>
 	<Weapon>
 		<Item>
-			<Name>"Short Sword"</Name>
-			<Description>"An old short sword."</Description>
+			<Name>Short Sword</Name>
+			<Description>An old short sword.</Description>
 			<Level>1</Level>
 			<Worth>10</Worth>
 		</Item>
@@ -26,8 +26,8 @@
 	<ArmourSet>
 		<Armour>
 			<Item>
-				<Name>"Silly Hat"</Name>
-				<Description>"A large hat with many colors"</Description>
+				<Name>Silly Hat</Name>
+				<Description>A large hat with many colors</Description>
 				<Level>1</Level>
 				<Worth>2</Worth>
 			</Item>
@@ -36,8 +36,8 @@
 		</Armour>
 		<Armour>
 			<Item>
-				<Name>"Silly Pants"</Name>
-				<Description>"Oversized pants with an odd color"</Description>
+				<Name>Silly Pants</Name>
+				<Description>Oversized pants with an odd color</Description>
 				<Level>1</Level>
 				<Worth>2</Worth>
 			</Item>
@@ -46,8 +46,8 @@
 		</Armour>
 		<Armour>
 			<Item>
-				<Name>"Old Boots"</Name>
-				<Description>"Tattered old boots"</Description>
+				<Name>Old Boots</Name>
+				<Description>Tattered old boots</Description>
 				<Level>1</Level>
 				<Worth>2</Worth>
 			</Item>
@@ -57,15 +57,15 @@
 	</ArmourSet>
 	<Inventory>	
 		<Item>
-			<Name>"Lantern"</Name>
-			<Description>"A sturdy copper lantern"</Description>
+			<Name>Lantern</Name>
+			<Description>A sturdy copper lantern</Description>
 			<Level>1</Level>
 			<Worth>5</Worth>
 		</Item>
 		<Weapon>
 			<Item>
-				<Name>"Short Sword"</Name>
-				<Description>"An old short sword."</Description>
+				<Name>Short Sword</Name>
+				<Description>An old short sword.</Description>
 				<Level>1</Level>
 				<Worth>10</Worth>
 			</Item>
@@ -74,8 +74,8 @@
 		</Weapon>
 		<Armour>
 			<Item>
-				<Name>"Silly Hat"</Name>
-				<Description>"A large hat with many colors"</Description>
+				<Name>Silly Hat</Name>
+				<Description>A large hat with many colors</Description>
 				<Level>1</Level>
 				<Worth>2</Worth>
 			</Item>
@@ -84,8 +84,8 @@
 		</Armour>
 		<Armour>
 			<Item>
-				<Name>"Silly Pants"</Name>
-				<Description>"Oversized pants with an odd color"</Description>
+				<Name>Silly Pants</Name>
+				<Description>Oversized pants with an odd color</Description>
 				<Level>1</Level>
 				<Worth>2</Worth>
 			</Item>
@@ -94,8 +94,8 @@
 		</Armour>
 		<Armour>
 			<Item>
-				<Name>"Old Boots"</Name>
-				<Description>"Tattered old boots"</Description>
+				<Name>Old Boots</Name>
+				<Description>Tattered old boots</Description>
 				<Level>1</Level>
 				<Worth>2</Worth>
 			</Item>
