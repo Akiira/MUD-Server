@@ -3,8 +3,9 @@ package main
 import (
 	"bufio"
 	"encoding/gob"
+	"encoding/xml"
 	"fmt"
-	"io"
+	"io/ioutil"
 	"log"
 	"net"
 	"os"
@@ -22,15 +23,15 @@ func main() {
 	}
 
 	readServerList()
-	runServer()
+	//runServer()
 
-	//getCharactersFile("Ragnar")
-	//sendCharactersFile("Tiefling")
+	getCharacterFromCentral("Ragnar")
+	sendCharactersFile("Tiefling")
 }
 
 func runServer() {
 	loadMonsterData()
-	readServerList()
+
 	eventManager = newEventManager(os.Args[1])
 
 	listener := setUpServerWithAddress(servers[os.Args[1]])
@@ -78,13 +79,21 @@ func sendCharactersFile(name string) {
 	checkError(err, true)
 	defer conn.Close()
 
-	err = gob.NewEncoder(conn).Encode(&ServerMessage{MsgType: SAVEFILE, Value: newFormattedStringSplice(name)})
+	encdr := gob.NewEncoder(conn)
+	err = encdr.Encode(&ServerMessage{MsgType: SAVEFILE, Value: newFormattedStringSplice(name)})
 	checkError(err, true)
 
 	file, err := os.Open("Characters/" + name + ".xml")
 	checkError(err, true)
-	written, err := io.Copy(conn, file)
-	checkError(err, true)
-	fmt.Println("Amount Send: ", written)
-	file.Close()
+	defer file.Close()
+
+	data, err := ioutil.ReadAll(file)
+	checkError(err, false)
+
+	var c CharacterXML
+	err = xml.Unmarshal(data, &c)
+	checkError(err, false)
+
+	err = encdr.Encode(c)
+	checkError(err, false)
 }
