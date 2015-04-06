@@ -8,7 +8,6 @@ import (
 type Weapon struct {
 	Item
 	attack int
-	damage int
 	minDmg int
 	maxDmg int
 }

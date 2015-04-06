@@ -141,7 +141,7 @@ func (m *Monster) getClientConnection() *ClientConnection {
 }
 
 func (m *Monster) getDamage() int {
-	return m.weapon.damage + m.Strength
+	return m.weapon.getDamage() + m.Strength
 }
 
 func (m *Monster) getLookDescription() []FormattedString {
