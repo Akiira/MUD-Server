@@ -48,6 +48,10 @@ func characterFromXML(charData *CharacterXML) *Character {
 	char.level = charData.Level
 	char.experience = charData.experience
 
+	char.PersonalInvetory = *inventoryFromXML(&charData.PersInv)
+
+	//TODO still not finished
+
 	return char
 }
 
@@ -80,49 +84,33 @@ func (c *Character) addItemToInventory(item Item) {
 //func (char *Character) moveCharacter(direction string, source *Room, destination *Room) []FormattedString
 
 func (char *Character) moveCharacter(direction string) (int, []FormattedString) {
-	//TODO this is just a temporary fix
-	room := char.myClientConn.CurrentEM.worldRooms[char.RoomIN]
 
 	dirAsInt := convertDirectionToInt(direction)
+	room := char.myClientConn.CurrentEM.worldRooms[char.RoomIN] //TODO this is just a temporary fix
 
-	if dirAsInt >= 0 {
+	if room.isValidDirection(dirAsInt) {
+		newRoom := room.getConnectedRoom(dirAsInt)
 
-		if room.Exits[dirAsInt] >= 0 {
-			if room.ExitLinksToWorlds[dirAsInt] == LocalWorld {
-				room.removePCFromRoom(char.Name)
-				room.ExitLinksToRooms[dirAsInt].addPCToRoom(char)
-				char.RoomIN = room.Exits[dirAsInt]
-				return GAMEPLAY, room.ExitLinksToRooms[dirAsInt].getRoomDescription()
-			} else {
-				//TODO save character profile back to central server before redirect
+		if newRoom.isLocal() {
+			room.removePCFromRoom(char.Name)
+			newRoom.addPCToRoom(char)
 
-				//room.removePCFromRoom(char.Name)
-				fmt.Println(char.Name)
-				sendCharactersFile(char.Name)
-
-				char.RoomIN = room.Exits[dirAsInt]
-				newWorldAddress := servers[room.ExitLinksToWorlds[dirAsInt]]
-				output := make([]FormattedString, 1, 1)
-				output[0].Color = ct.White
-				output[0].Value = newWorldAddress
-				return REDIRECT, output
-				/*
-					output := make([]FormattedString, 1, 1)
-					output[0].Color = ct.White
-					output[0].Value = "No exit in that direction\n"
-					return GAMEPLAY, output*/
-			}
+			return GAMEPLAY, room.ExitLinksToRooms[dirAsInt].getRoomDescription()
 		} else {
-			output := make([]FormattedString, 1, 1)
-			output[0].Color = ct.White
-			output[0].Value = "No exit in that direction\n"
-			return GAMEPLAY, output
+
+			fmt.Println(char.Name)
+			room.removePCFromRoom(char.Name)
+			newRoom.addPCToRoom(char)
+			sendCharactersFile(char.Name)
+
+			//TODO sendCharactersXML is what we should do When all the toXML
+			// functions are done because it will be quicker
+			//sendCharactersXML(char.toXML())
+
+			return REDIRECT, newFormattedStringSplice(servers[room.ExitLinksToWorlds[dirAsInt]])
 		}
 	} else {
-		output := make([]FormattedString, 1, 1)
-		output[0].Color = ct.White
-		output[0].Value = "invalid move command\n"
-		return GAMEPLAY, output
+		return GAMEPLAY, newFormattedStringSplice("No exit in that direction\n")
 	}
 }
 
@@ -170,6 +158,7 @@ func (c *Character) takeDamage(amount int, typeOfDamge int) []FormattedString {
 func (c *Character) isDead() bool {
 	return c.currentHP > 0
 }
+
 func (c *Character) getName() string {
 	return c.Name
 }
@@ -189,13 +178,12 @@ func (c *Character) getClientConnection() *ClientConnection {
 }
 
 func (c *Character) getDamage() int {
-	return c.equipedWeapon.damage + c.Strength
+	return c.equipedWeapon.getDamage() + c.Strength
 }
 
 func (c *Character) getStatsPage() []FormattedString {
 
 	output := newFormattedStringCollection()
-	//s1 := "LEVEL:#" + fmt.Sprintf("%2d %8s", c.level, "") + "#RACE :#" + fmt.Sprintf("%8s\n", "Human")
 
 	output.addMessage(ct.Green, "Character Page for "+c.Name+"\n-------------------------------------------------\n")
 	output.addMessage(ct.Green, "LEVEL:")
@@ -230,6 +218,32 @@ func (c *Character) getStatsPage() []FormattedString {
 	return output.fmtedStrings
 }
 
+func (char *Character) toXML() *CharacterXML {
+	var ch CharacterXML
+	ch.Name = char.Name
+	ch.RoomIN = char.RoomIN
+	ch.Defense = char.Defense
+	ch.HP = char.currentHP
+
+	ch.Strength = char.Strength
+	ch.Constitution = char.Constitution
+	ch.Dexterity = char.Dexterity
+	ch.Wisdom = char.Wisdom
+	ch.Charisma = char.Charisma
+	ch.Inteligence = char.Inteligence
+
+	ch.Level = char.level
+	ch.experience = char.experience
+
+	ch.CurrentWorld = "world1" //TODO remove hardcoding
+
+	ch.EquipedWeapon = *char.equipedWeapon.toXML()
+	ch.ArmSet = *char.equippedArmour.toXML()
+	ch.PersInv = *char.PersonalInvetory.toXML()
+
+	return &ch
+}
+
 //==============="STATIC" FUNCTIONS===================//
 
 //TODO add items, stats, and any other missing fields
@@ -257,13 +271,6 @@ type CharacterXML struct {
 	PersInv       InventoryXML `xml:"Inventory"`
 }
 
-type InventoryXML struct {
-	XMLName xml.Name    `xml:"Inventory"`
-	Items   []ItemXML   `xml:"Item"`
-	Weapons []WeaponXML `xml:"Weapon"`
-	Armours []ArmourXML `xml:"Armour"`
-}
-
 func getCharacterFromCentral(charName string) *Character {
 
 	address := servers["characterStorage"]
@@ -274,15 +281,15 @@ func getCharacterFromCentral(charName string) *Character {
 	enc := gob.NewEncoder(conn)
 	dec := gob.NewDecoder(conn)
 
-	serverMsg := newSimpleServerMessage(GETFILE, charName)
+	serverMsg := newServerMessageTypeS(GETFILE, charName)
 
 	var queriedChar CharacterXML
-	var char *Character
+
 	err = enc.Encode(serverMsg)
 	checkError(err, true)
 	err = dec.Decode(&queriedChar)
 	checkError(err, true)
-	char = characterFromXML(&queriedChar)
+	char := characterFromXML(&queriedChar)
 
 	fmt.Print("got : ")
 	fmt.Println(char)
@@ -290,7 +297,6 @@ func getCharacterFromCentral(charName string) *Character {
 	return char
 }
 
-/*
 func saveCharacterToFile(char *Character) {
 	//TODO saveCharacter
 
@@ -300,4 +306,4 @@ func saveCharacterToFile(char *Character) {
 	ch.Defense = char.Defense
 	ch.HP = char.currentHP
 
-}*/
+}

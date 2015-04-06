@@ -112,6 +112,10 @@ func (m *Monster) getName() string {
 	return m.Name
 }
 
+func (m *Monster) getCorpse() *Item {
+	return nil //TODO
+}
+
 func (m *Monster) isDead() bool {
 	return m.currentHP > 0
 }
@@ -137,7 +141,7 @@ func (m *Monster) getClientConnection() *ClientConnection {
 }
 
 func (m *Monster) getDamage() int {
-	return m.weapon.damage + m.Strength
+	return m.weapon.getDamage() + m.Strength
 }
 
 func (m *Monster) getLookDescription() []FormattedString {

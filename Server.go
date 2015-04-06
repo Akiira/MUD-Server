@@ -3,8 +3,9 @@ package main
 import (
 	"bufio"
 	"encoding/gob"
+	"encoding/xml"
 	"fmt"
-	"io"
+	"io/ioutil"
 	"log"
 	"net"
 	"os"
@@ -16,24 +17,24 @@ var eventManager *EventManager
 
 func main() {
 
-	if len(os.Args) < 3 {
-		fmt.Println(os.Args[0] + " requires 2 arguments, worldname and iNetAddress, ex world1 localhost:1300")
+	if len(os.Args) < 2 {
+		fmt.Println(os.Args[0] + " requires 1 arguments, worldname")
 		os.Exit(1)
 	}
 
 	readServerList()
-	runServer()
+	//runServer()
 
-	//getCharactersFile("Ragnar")
-	//sendCharactersFile("Tiefling")
+	getCharacterFromCentral("Ragnar")
+	sendCharactersFile("Tiefling")
 }
 
 func runServer() {
 	loadMonsterData()
-	readServerList()
+
 	eventManager = newEventManager(os.Args[1])
 
-	listener := setUpServerWithAddress(os.Args[2])
+	listener := setUpServerWithAddress(servers[os.Args[1]])
 
 	for {
 		conn, err := listener.Accept()
@@ -78,13 +79,34 @@ func sendCharactersFile(name string) {
 	checkError(err, true)
 	defer conn.Close()
 
-	err = gob.NewEncoder(conn).Encode(&ServerMessage{MsgType: SAVEFILE, Value: newFormattedStringSplice(name)})
+	encdr := gob.NewEncoder(conn)
+	err = encdr.Encode(&ServerMessage{MsgType: SAVEFILE, Value: newFormattedStringSplice(name)})
 	checkError(err, true)
 
 	file, err := os.Open("Characters/" + name + ".xml")
 	checkError(err, true)
-	written, err := io.Copy(conn, file)
+	defer file.Close()
+
+	data, err := ioutil.ReadAll(file)
+	checkError(err, false)
+
+	var c CharacterXML
+	err = xml.Unmarshal(data, &c)
+	checkError(err, false)
+
+	err = encdr.Encode(c)
+	checkError(err, false)
+}
+
+func sendCharactersXML(charData *CharacterXML) {
+	conn, err := net.Dial("tcp", servers["characterStorage"])
 	checkError(err, true)
-	fmt.Println("Amount Send: ", written)
-	file.Close()
+	defer conn.Close()
+
+	encdr := gob.NewEncoder(conn)
+	err = encdr.Encode(&ServerMessage{MsgType: SAVEFILE, Value: newFormattedStringSplice(charData.Name)})
+	checkError(err, true)
+
+	err = encdr.Encode(*charData)
+	checkError(err, false)
 }
