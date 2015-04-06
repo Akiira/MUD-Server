@@ -112,6 +112,10 @@ func (m *Monster) getName() string {
 	return m.Name
 }
 
+func (m *Monster) getCorpse() *Item {
+	return nil //TODO
+}
+
 func (m *Monster) isDead() bool {
 	return m.currentHP > 0
 }

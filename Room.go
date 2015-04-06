@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/xml"
-	"fmt"
 	"github.com/daviddengcn/go-colortext"
 	"io/ioutil"
 	"os"
@@ -78,7 +77,6 @@ func newRoomFromXML(roomData RoomXML) *Room {
 
 //This function must be called after all rooms are created and is
 // responsible for seting the exit pointers to point at the correct rooms
-
 func (room *Room) setRoomLink(roomLink []*Room) {
 	for i := 0; i < 10; i++ {
 		if room.Exits[i] != -1 && room.ExitLinksToWorlds[i] == LocalWorld {
@@ -105,16 +103,11 @@ func (room *Room) getItem(char *Character, itemName string) []FormattedString {
 	char.addItemToInventory(*item)
 
 	delete(room.ItemsInRoom, itemName)
-	output := make([]FormattedString, 1, 1)
 
-	output[0].Color = ct.White
-	output[0].Value = "You succesfully picked up the item and added it to your invenctory"
-
-	return output
+	return newFormattedStringSplice("You succesfully picked up the item and added it to your invenctory")
 }
 
 func (room *Room) getMonster(monsterName string) *Monster {
-	fmt.Println(room.MonstersInRoom[monsterName])
 	return room.MonstersInRoom[monsterName]
 }
 
@@ -125,6 +118,7 @@ func (room *Room) killOffMonster(monsterName string) {
 
 func (room *Room) repopulateRoomTick(timeInMinutes time.Duration) {
 	for {
+		//TODO should also periodically remove corpses and items in room
 		//Repopulate the room every x minutes
 		time.Sleep(time.Minute * timeInMinutes)
 		room.populateRoomWithMonsters()
@@ -140,14 +134,11 @@ func (room *Room) populateRoomWithMonsters() { //TODO remove hardcoding, maybe l
 
 func (room *Room) getRoomDescription() []FormattedString {
 	var output string
-	formattedString := make([]FormattedString, 5, 5)
+	fs := newFormattedStringCollection()
 
-	formattedString[0].Color = ct.Green
-	formattedString[0].Value = room.Name
-	formattedString[1].Color = ct.White
-	formattedString[1].Value = "\n-------------------------------------------------\n"
-	formattedString[1].Value += room.Description
-	formattedString[2].Color = ct.Magenta
+	fs.addMessage(ct.Green, room.Name)
+	fs.addMessage(ct.White, "\n-------------------------------------------------\n")
+	fs.addMessage2(room.Description)
 
 	output = "\nExits: "
 	for i := 0; i < 10; i++ {
@@ -155,21 +146,25 @@ func (room *Room) getRoomDescription() []FormattedString {
 			output += convertIntToDirection(i) + " "
 		}
 	}
-	formattedString[2].Value = output
 
+	fs.addMessage(ct.Magenta, output)
 	output = ""
-	formattedString[3].Color = ct.Yellow
+
 	for _, itemPtr := range room.ItemsInRoom {
 		output += "\n\t" + itemPtr.description
 	}
-	formattedString[3].Value = output
-	formattedString[4].Color = ct.Red
+	fs.addMessage(ct.Yellow, output)
 	output = ""
 	for key, _ := range room.MonstersInRoom {
 		output += "\n\t" + key
 	}
-	formattedString[4].Value = output + "\n"
-	return formattedString
+	fs.addMessage(ct.Red, output)
+	output = ""
+	for key, _ := range room.CharactersInRoom {
+		output += "\n\t" + key
+	}
+	fs.addMessage(ct.Blue, output+"\n")
+	return fs.fmtedStrings
 }
 
 //===================="STATIC" FUNCTIONS======================//
