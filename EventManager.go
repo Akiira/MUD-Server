@@ -98,8 +98,8 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 	case cmd == "inv":
 		output = cc.character.PersonalInvetory.getInventoryDescription()
 	case cmd == "save" || cmd == "exit":
-		saveCharacterToFile(cc.getCharacter())
-		sendCharactersFile(cc.getCharactersName())
+		//saveCharacterToFile(cc.getCharacter())
+		//sendCharactersFile(cc.getCharactersName())
 		output = newFormattedStringSplice("Character succesfully saved.\n")
 	case cmd == "stats":
 		output = cc.getCharacter().getStatsPage()

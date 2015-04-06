@@ -114,8 +114,14 @@ func (room *Room) getItem(char *Character, itemName string) []FormattedString {
 }
 
 func (room *Room) getMonster(monsterName string) *Monster {
-	fmt.Println(room.MonstersInRoom[monsterName])
-	return room.MonstersInRoom[monsterName]
+	//check for the existence of the monster first
+	if val, ok := room.MonstersInRoom[monsterName]; ok {
+		fmt.Println(room.MonstersInRoom[monsterName])
+		return val
+	} else { // in case, it's already dead, return nil
+		return nil
+	}
+
 }
 
 func (room *Room) killOffMonster(monsterName string) {
