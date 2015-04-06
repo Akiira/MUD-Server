@@ -3,6 +3,7 @@ package main
 
 import (
 	"strings"
+	"time"
 )
 
 //this is suppose to be an event
@@ -12,8 +13,36 @@ type ClientMessage struct {
 	Value        string
 }
 
-func ClientMessageConstructor(cmd string, val string) ClientMessage {
+func newClientMessage(cmd string, val string) ClientMessage {
 	return ClientMessage{CombatAction: false, Command: cmd, Value: val}
+}
+
+func (msg *ClientMessage) setCommand(cmd string) {
+	msg.CombatAction = false
+	msg.Command = cmd
+	msg.Value = ""
+}
+
+func (msg *ClientMessage) setCommandWithTimestamp(cmd string) {
+	msg.CombatAction = false
+	msg.Command = cmd + ";" + time.Now().String()
+	msg.Value = ""
+}
+
+func (msg *ClientMessage) setMsgWithTimestamp(cmd string, value string) {
+	msg.CombatAction = false
+	msg.Command = cmd + ";" + time.Now().String()
+	msg.Value = value
+}
+
+func (msg *ClientMessage) getTimeStamp() string {
+
+	peices := strings.Split(msg.Command, ";")
+	if len(peices) == 2 {
+		return peices[1]
+	} else {
+		return ""
+	}
 }
 
 func (msg *ClientMessage) setToMovementMessage(direction string) {
