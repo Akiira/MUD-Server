@@ -16,8 +16,8 @@ var eventManager *EventManager
 
 func main() {
 
-	if len(os.Args) < 3 {
-		fmt.Println(os.Args[0] + " requires 2 arguments, worldname and iNetAddress, ex world1 localhost:1300")
+	if len(os.Args) < 2 {
+		fmt.Println(os.Args[0] + " requires 1 arguments, worldname")
 		os.Exit(1)
 	}
 
@@ -33,7 +33,7 @@ func runServer() {
 	readServerList()
 	eventManager = newEventManager(os.Args[1])
 
-	listener := setUpServerWithAddress(os.Args[2])
+	listener := setUpServerWithAddress(servers[os.Args[1]])
 
 	for {
 		conn, err := listener.Accept()
