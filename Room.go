@@ -108,7 +108,20 @@ func (room *Room) addPCToRoom(char *Character) {
 }
 
 func (room *Room) removePCFromRoom(charName string) {
-	delete(room.CharactersInRoom, charName)
+	if char, found := room.getPC(charName); found {
+		char.RoomIN = -1
+		delete(room.CharactersInRoom, charName)
+	}
+}
+
+func (room *Room) getPC(charName string) (*Character, bool) {
+	if room.CharactersInRoom != nil {
+		char, found := room.CharactersInRoom[charName]
+
+		return char, found
+	} else {
+		return nil, false
+	}
 }
 
 func (room *Room) getItem(char *Character, itemName string) []FormattedString {
