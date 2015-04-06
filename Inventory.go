@@ -26,6 +26,11 @@ func newInventory() *Inventory {
 	return i
 }
 
+func inventoryFromXML(invXml *InventoryXML) *Inventory {
+	//TODO
+	return nil
+}
+
 //func (inv *Inventory) getItemByName(name string) Item {
 //	var i int
 //	for i = 0; i < inv.numberOfItems; i++ {
@@ -51,4 +56,8 @@ func (inv *Inventory) getInventoryDescription() []FormattedString {
 	}
 
 	return output
+}
+
+func (inv *Inventory) toXML() *InventoryXML {
+	return nil //TODO
 }

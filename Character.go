@@ -48,6 +48,8 @@ func characterFromXML(charData *CharacterXML) *Character {
 	char.level = charData.Level
 	char.experience = charData.experience
 
+	char.PersonalInvetory = *inventoryFromXML(&charData.PersInv)
+
 	return char
 }
 
@@ -94,11 +96,11 @@ func (char *Character) moveCharacter(direction string) (int, []FormattedString) 
 				char.RoomIN = room.Exits[dirAsInt]
 				return GAMEPLAY, room.ExitLinksToRooms[dirAsInt].getRoomDescription()
 			} else {
-				//TODO save character profile back to central server before redirect
 
 				//room.removePCFromRoom(char.Name)
 				fmt.Println(char.Name)
 				sendCharactersFile(char.Name)
+				sendCharactersXML(char.toXML())
 
 				char.RoomIN = room.Exits[dirAsInt]
 				newWorldAddress := servers[room.ExitLinksToWorlds[dirAsInt]]
@@ -178,7 +180,7 @@ func (c *Character) getClientConnection() *ClientConnection {
 }
 
 func (c *Character) getDamage() int {
-	return c.equipedWeapon.damage + c.Strength
+	return c.equipedWeapon.getDamage() + c.Strength
 }
 
 func (c *Character) getStatsPage() []FormattedString {
@@ -216,6 +218,32 @@ func (c *Character) getStatsPage() []FormattedString {
 	output.addMessage(ct.White, fmt.Sprintf("%2d %8s", c.Charisma, ""))
 
 	return output.fmtedStrings
+}
+
+func (char *Character) toXML() *CharacterXML {
+	var ch CharacterXML
+	ch.Name = char.Name
+	ch.RoomIN = char.RoomIN
+	ch.Defense = char.Defense
+	ch.HP = char.currentHP
+
+	ch.Strength = char.Strength
+	ch.Constitution = char.Constitution
+	ch.Dexterity = char.Dexterity
+	ch.Wisdom = char.Wisdom
+	ch.Charisma = char.Charisma
+	ch.Inteligence = char.Inteligence
+
+	ch.Level = char.level
+	ch.experience = char.experience
+
+	ch.CurrentWorld = "world1" //TODO remove hardcoding
+
+	ch.EquipedWeapon = *char.equipedWeapon.toXML()
+	ch.ArmSet = *char.equippedArmour.toXML()
+	ch.PersInv = *char.PersonalInvetory.toXML()
+
+	return &ch
 }
 
 //==============="STATIC" FUNCTIONS===================//
