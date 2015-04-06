@@ -10,6 +10,7 @@ const (
 	GETFILE  = 2
 	SAVEFILE = 3
 	GAMEPLAY = 4
+	PING     = 5
 )
 
 type ServerMessage struct {
