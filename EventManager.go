@@ -7,12 +7,6 @@ import (
 	"time"
 )
 
-type Listener interface {
-	setCurrentEventManager(em *EventManager)
-	sendMsgToClient(msg ServerMessage)
-	getCharactersName() string
-}
-
 type EventManager struct {
 	queue_lock sync.Mutex
 	eventQue   []Event
