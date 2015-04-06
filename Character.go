@@ -184,7 +184,6 @@ func (c *Character) getDamage() int {
 func (c *Character) getStatsPage() []FormattedString {
 
 	output := newFormattedStringCollection()
-	//s1 := "LEVEL:#" + fmt.Sprintf("%2d %8s", c.level, "") + "#RACE :#" + fmt.Sprintf("%8s\n", "Human")
 
 	output.addMessage(ct.Green, "Character Page for "+c.Name+"\n-------------------------------------------------\n")
 	output.addMessage(ct.Green, "LEVEL:")
