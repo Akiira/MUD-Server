@@ -50,15 +50,17 @@ func (em *EventManager) executeCombatRound() {
 	for _, event := range em.eventQue {
 		//TODO sort events by initiative stat before executing them
 		action := event.action
+		agent := event.agent
+
 		switch {
 		case action == "attack":
-			output = event.agent.makeAttack(event.target)
+			output = agent.makeAttack(event.target)
 		}
 
-		event.agent.getClientConnection().sendMsgToClient(newServerMessageFS(output))
+		agent.getClientConnection().sendMsgToClient(newServerMessageFS(output))
 
 		if event.target.isDead() {
-
+			//TODO
 		}
 	}
 
