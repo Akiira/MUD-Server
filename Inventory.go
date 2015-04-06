@@ -1,8 +1,18 @@
 package main
+
 import (
+	"encoding/xml"
 	"github.com/daviddengcn/go-colortext"
 	"strconv"
 )
+
+type InventoryXML struct {
+	XMLName xml.Name    `xml:"Inventory"`
+	Items   []ItemXML   `xml:"Item"`
+	Weapons []WeaponXML `xml:"Weapon"`
+	Armours []ArmourXML `xml:"Armour"`
+}
+
 type Inventory struct {
 	items         map[string]Item
 	numberOfItems int
@@ -29,16 +39,16 @@ func newInventory() *Inventory {
 
 func (inv *Inventory) getInventoryDescription() []FormattedString {
 	output := make([]FormattedString, len(inv.items)+1, len(inv.items)+1)
-	
-	output[0].Color = ct.White	
+
+	output[0].Color = ct.White
 	output[0].Value = "\nYou are carrying " + strconv.Itoa(len(inv.items)) + " unique items:"
-	
+
 	i := 1
 	for key, _ := range inv.items {
 		output[i].Color = ct.Green
 		output[i].Value = "\t" + key
 		i++
 	}
-	
+
 	return output
 }
