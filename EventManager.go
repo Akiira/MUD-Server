@@ -52,16 +52,15 @@ func (em *EventManager) executeCombatRound() {
 		action := event.action
 		agent := event.agent
 
+		target := em.worldRooms[agent.getRoomID()].getAgentInRoom(event.target)
+
 		switch {
 		case action == "attack":
-			output = agent.makeAttack(event.target)
+			output = agent.makeAttack(target)
 		}
 
 		agent.getClientConnection().sendMsgToClient(newServerMessageFS(output))
 
-		if event.target.isDead() {
-			//TODO
-		}
 	}
 
 	em.eventQue = em.eventQue[0:0]
