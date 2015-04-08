@@ -65,10 +65,8 @@ func (inv *Inventory) addArmourToInventory(addArmour *Armour) {
 }
 
 func inventoryFromXML(invXml *InventoryXML) *Inventory {
-	//TODO
+
 	inv := newInventory()
-	fmt.Println("this is invXML")
-	fmt.Println(invXml)
 
 	//loop through items
 	for i := 0; i < len(invXml.Items); i++ {
@@ -113,17 +111,6 @@ func inventoryFromXML(invXml *InventoryXML) *Inventory {
 
 	return inv
 }
-
-//func (inv *Inventory) getItemByName(name string) Item {
-//	var i int
-//	for i = 0; i < inv.numberOfItems; i++ {
-//		if inv.items[i].name == name {
-//			return inv.items[i]
-//		}
-//	}
-//	var null Item
-//	return null
-//}
 
 func (inv *Inventory) getInventoryDescription() []FormattedString {
 	output := make([]FormattedString, len(inv.items)+len(inv.weapons)+len(inv.armours)+1, len(inv.items)+len(inv.weapons)+len(inv.armours)+1)
@@ -180,5 +167,5 @@ func (inv *Inventory) toXML() *InventoryXML {
 		i++
 	}
 
-	return invXML //TODO
+	return invXML
 }

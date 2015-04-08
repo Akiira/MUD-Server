@@ -292,9 +292,6 @@ func getCharacterFromCentral(charName string) *Character {
 	err = dec.Decode(&queriedChar)
 	checkError(err, true)
 
-	fmt.Println("this is received char")
-	fmt.Println(queriedChar)
-
 	char := characterFromXML(&queriedChar)
 
 	return char
