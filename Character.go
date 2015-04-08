@@ -118,32 +118,32 @@ func (char *Character) moveCharacter(direction string) (int, []FormattedString) 
 func (char *Character) makeAttack(target Agenter) []FormattedString {
 
 	output := make([]FormattedString, 2, 2)
+
 	if target != nil { // check that the target is still there, not dead from the previous round
+		return newFormattedStringSplice("\nYour target is not exist any more!\n")
+	}
 
-		if !target.isDead() {
+	if !target.isDead() {
 
-			a1 := char.getAttackRoll()
-			if a1 >= target.getDefense() {
-				target.takeDamage(char.getDamage(), 0)
-				output[0].Value = "\nYou hit the " + target.getName() + "!\n"
-			} else {
-				output[0].Value = "\nYou missed the " + target.getName() + "!\n"
-			}
-
-			if target.isDead() {
-				// TODO  reward player exp
-				output[1].Value = "The " + target.getName() + " drops over dead.\n"
-				room := char.myClientConn.CurrentEM.worldRooms[char.RoomIN] //TODO fix this line
-				room.killOffMonster(target.getName())
-			}
-
+		a1 := char.getAttackRoll()
+		if a1 >= target.getDefense() {
+			target.takeDamage(char.getDamage(), 0)
+			output[0].Value = "\nYou hit the " + target.getName() + "!\n"
 		} else {
-			output[0].Value = "\nthe " + target.getName() + " is already dead!\n"
+			output[0].Value = "\nYou missed the " + target.getName() + "!\n"
+		}
+
+		if target.isDead() {
+			// TODO  reward player exp
+			output[1].Value = "The " + target.getName() + " drops over dead.\n"
+			room := char.myClientConn.CurrentEM.worldRooms[char.RoomIN] //TODO fix this line
+			room.killOffMonster(target.getName())
 		}
 
 	} else {
-		output[0].Value = "\nYour target is not exist any more!\n"
+		output[0].Value = "\nthe " + target.getName() + " is already dead!\n"
 	}
+
 	return output
 
 }

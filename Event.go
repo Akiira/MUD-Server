@@ -7,17 +7,16 @@ const (
 
 type Event struct {
 	action string
-	target Agenter //TODO consider changing this to an Ageneter as well
+	target string
 	agent  Agenter
 	client *ClientConnection
 }
 
 func newEventFromMessage(msg ClientMessage, agent Agenter, cc *ClientConnection) Event {
-	target := eventManager.worldRooms[cc.getCharactersRoomID()].getMonster(msg.Value)
-	return newEvent(agent, msg.Command, target, cc)
+	return newEvent(agent, msg.Command, msg.Value, cc)
 }
 
-func newEvent(agent Agenter, action string, target Agenter, cc *ClientConnection) Event {
+func newEvent(agent Agenter, action string, target string, cc *ClientConnection) Event {
 	event := new(Event)
 	event.agent = agent
 	event.action = action

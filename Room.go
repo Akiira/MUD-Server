@@ -150,7 +150,18 @@ func (room *Room) getMonster(monsterName string) *Monster {
 	} else { // in case, it's already dead, return nil
 		return nil
 	}
+}
 
+func (room *Room) getAgentInRoom(name string) Agenter {
+
+	//check for the existence of the monster first
+	if val := room.getMonster(name); val != nil {
+		return val
+	} else if val, found := room.getPC(name); found {
+		return val
+	} else { // in case, it's already dead, return nil
+		return nil
+	}
 }
 
 func (room *Room) killOffMonster(monsterName string) {

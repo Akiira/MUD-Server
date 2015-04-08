@@ -70,7 +70,7 @@ func (m *Monster) fightPlayers() {
 			}
 		}
 
-		event := newEvent(m, "attack", attackTarget.character, attackTarget)
+		event := newEvent(m, "attack", attackTarget.character.Name, attackTarget)
 		m.em.addEvent(event)
 	}
 }
