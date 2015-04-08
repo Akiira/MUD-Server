@@ -105,7 +105,9 @@ func (char *Character) moveCharacter(direction string) (int, []FormattedString) 
 
 			//TODO sendCharactersXML is what we should do When all the toXML
 			// functions are done because it will be quicker
-			//sendCharactersXML(char.toXML())
+			charXML := char.toXML()
+			//charXML.CurrentWorld = newRoom
+			sendCharactersXML(charXML)
 
 			return REDIRECT, newFormattedStringSplice(servers[room.ExitLinksToWorlds[dirAsInt]])
 		}
@@ -290,9 +292,6 @@ func getCharacterFromCentral(charName string) *Character {
 	err = dec.Decode(&queriedChar)
 	checkError(err, true)
 	char := characterFromXML(&queriedChar)
-
-	fmt.Print("got : ")
-	fmt.Println(char)
 
 	return char
 }

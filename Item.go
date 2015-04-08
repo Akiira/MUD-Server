@@ -9,6 +9,7 @@ type Item struct {
 	description string
 	itemLevel   int
 	itemWorth   int
+	quantity    int
 }
 
 type ItemXML struct {
@@ -17,6 +18,7 @@ type ItemXML struct {
 	Description string   `xml:"Description"`
 	ItemLevel   int      `xml:"Level"`
 	ItemWorth   int      `xml:"Worth"`
+	Quantity    int      `xml:"Quantity"`
 }
 
 func itemFromXML(itemData *ItemXML) *Item {
@@ -25,6 +27,7 @@ func itemFromXML(itemData *ItemXML) *Item {
 	itm.itemLevel = itemData.ItemLevel
 	itm.itemWorth = itemData.ItemWorth
 	itm.name = itemData.Name
+	itm.quantity = itemData.Quantity
 
 	return itm
 }
@@ -43,6 +46,7 @@ func (i *Item) toXML() *ItemXML {
 	xmlItem.Description = i.description
 	xmlItem.ItemLevel = i.itemLevel
 	xmlItem.ItemWorth = i.itemWorth
+	xmlItem.Quantity = i.quantity
 
 	return xmlItem
 }

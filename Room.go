@@ -29,15 +29,14 @@ type Room struct {
 	Name        string
 	ID          int
 	Description string
-
-	localWorld bool
+	WorldID     string
+	LocalWorld  bool
 
 	// This represents each directions exit and has the room number of the connected
 	// room or -1 if no exit in that direction. This can probaly be combined
 	// with ExitLinksToRooms.
-	Exits             [10]int
-	ExitLinksToRooms  [10]*Room
-	ExitLinksToWorlds [10]string
+	Exits            [10]int
+	ExitLinksToRooms [10]*Room
 
 	//This represents the player characters (PCs) in the room
 	CharactersInRoom map[string]*Character
@@ -57,6 +56,7 @@ func newRoomFromXML(roomData RoomXML) *Room {
 		Name:        roomData.Name,
 		ID:          roomData.ID,
 		Description: roomData.Description,
+		WorldID:     roomData.WorldID,
 	}
 	for i := 0; i < 10; i++ {
 		room.Exits[i] = -1
@@ -64,7 +64,6 @@ func newRoomFromXML(roomData RoomXML) *Room {
 
 	for _, roomExit := range roomData.Exits {
 		room.Exits[convertDirectionToInt(roomExit.Direction)] = roomExit.ConnectedRoomID
-		room.ExitLinksToWorlds[convertDirectionToInt(roomExit.Direction)] = roomExit.ConnectedWorldID
 	}
 
 	room.CharactersInRoom = make(map[string]*Character)
@@ -81,7 +80,7 @@ func newRoomFromXML(roomData RoomXML) *Room {
 // responsible for seting the exit pointers to point at the correct rooms
 func (room *Room) setRoomLink(roomLink []*Room) {
 	for i := 0; i < 10; i++ {
-		if room.Exits[i] != -1 && room.ExitLinksToWorlds[i] == LocalWorld {
+		if room.Exits[i] != -1 {
 			room.ExitLinksToRooms[i] = roomLink[room.Exits[i]]
 		}
 	}
@@ -261,10 +260,9 @@ func convertIntToDirection(direction int) string {
 }
 
 type ExitXML struct {
-	XMLName          xml.Name `xml:"Exit"`
-	Direction        string   `xml:"Direction"`
-	ConnectedRoomID  int      `xml:"RoomID"`
-	ConnectedWorldID string   `xml:"WorldID"`
+	XMLName         xml.Name `xml:"Exit"`
+	Direction       string   `xml:"Direction"`
+	ConnectedRoomID int      `xml:"RoomID"`
 }
 
 //TODO add localWorld field
@@ -273,6 +271,7 @@ type RoomXML struct {
 	ID          int       `xml:"ID"`
 	Name        string    `xml:"Name"`
 	Description string    `xml:"Description"`
+	WorldID     string    `xml:"WorldID"`
 	Exits       []ExitXML `xml:"Exit"`
 }
 

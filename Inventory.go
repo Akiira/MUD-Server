@@ -29,6 +29,43 @@ func newInventory() *Inventory {
 func inventoryFromXML(invXml *InventoryXML) *Inventory {
 	//TODO
 	ivn := new(Inventory)
+
+	//loop through items
+	for i := 0; i < len(invXml.Items); i++ {
+
+		if val, ok := ivn.items[invXml.Items[i].Name]; ok { // the item is already there
+			val.quantity++
+			ivn.items[invXml.Items[i].Name] = val
+		} else {
+			ivn.items[invXml.Items[i].Name] = itemFromXML(invXml.Items[i])
+		}
+
+	}
+
+	//loop through weapons
+	for i := 0; i < len(invXml.Weapons); i++ {
+
+		if val, ok := ivn.items[invXml.Weapons[i].Name]; ok { // the item is already there
+			val.quantity++
+			ivn.items[invXml.Weapons[i].Name] = val
+		} else {
+			ivn.items[invXml.Weapons[i].Name] = weaponFromXML(invXml.Weapons[i])
+		}
+
+	}
+
+	//loop through armours
+	for i := 0; i < len(invXml.Armours); i++ {
+
+		if val, ok := ivn.items[invXml.Armours[i].Name]; ok { // the item is already there
+			val.quantity++
+			ivn.items[invXml.Armours[i].Name] = val
+		} else {
+			ivn.items[invXml.Armours[i].Name] = armourFromXML(invXml.Armours[i])
+		}
+
+	}
+
 	return ivn
 }
 
@@ -60,5 +97,6 @@ func (inv *Inventory) getInventoryDescription() []FormattedString {
 }
 
 func (inv *Inventory) toXML() *InventoryXML {
+
 	return nil //TODO
 }
