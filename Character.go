@@ -297,6 +297,7 @@ func getCharacterFromCentral(charName string) *Character {
 	return char
 }
 
+/*
 func saveCharacterToFile(char *Character) {
 	//TODO saveCharacter
 
@@ -307,3 +308,4 @@ func saveCharacterToFile(char *Character) {
 	ch.HP = char.currentHP
 
 }
+*/

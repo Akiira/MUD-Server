@@ -2,7 +2,6 @@ package main
 
 import (
 	"encoding/xml"
-	"fmt"
 	"github.com/daviddengcn/go-colortext"
 	"strconv"
 )
@@ -107,8 +106,6 @@ func inventoryFromXML(invXml *InventoryXML) *Inventory {
 
 	}
 
-	fmt.Println(inv)
-
 	return inv
 }
 
@@ -116,24 +113,24 @@ func (inv *Inventory) getInventoryDescription() []FormattedString {
 	output := make([]FormattedString, len(inv.items)+len(inv.weapons)+len(inv.armours)+1, len(inv.items)+len(inv.weapons)+len(inv.armours)+1)
 
 	output[0].Color = ct.White
-	output[0].Value = "\nYou are carrying " + strconv.Itoa(len(inv.items)+len(inv.weapons)+len(inv.armours)) + " unique items:"
+	output[0].Value = "\nYou are carrying " + strconv.Itoa(len(inv.items)+len(inv.weapons)+len(inv.armours)) + " unique items:\n"
 
 	i := 1
 	for key, item := range inv.items {
 		output[i].Color = ct.Green
-		output[i].Value = "\t" + strconv.Itoa(item.quantity) + "\t" + key
+		output[i].Value = "\t" + strconv.Itoa(item.quantity) + "\t" + key + "\n"
 		i++
 	}
 
 	for key, weapon := range inv.weapons {
 		output[i].Color = ct.Green
-		output[i].Value = "\t" + strconv.Itoa(weapon.Item.quantity) + "\t" + key
+		output[i].Value = "\t" + strconv.Itoa(weapon.Item.quantity) + "\t" + key + "\n"
 		i++
 	}
 
 	for key, armour := range inv.armours {
 		output[i].Color = ct.Green
-		output[i].Value = "\t" + strconv.Itoa(armour.Item.quantity) + "\t" + key
+		output[i].Value = "\t" + strconv.Itoa(armour.Item.quantity) + "\t" + key + "\n"
 		i++
 	}
 

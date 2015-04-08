@@ -21,7 +21,7 @@ func (wpn *Weapon) getDamage() int {
 }
 
 func (wpn *Weapon) getDamageRange() int {
-	return wpn.maxDmg - wpn.minDmg
+	return wpn.maxDmg - wpn.minDmg + 1
 }
 
 type WeaponXML struct {
