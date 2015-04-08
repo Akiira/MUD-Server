@@ -117,7 +117,7 @@ func (m *Monster) getCorpse() *Item {
 }
 
 func (m *Monster) isDead() bool {
-	return m.currentHP > 0
+	return m.currentHP < 0
 }
 
 func (m *Monster) makeAttack(target Agenter) []FormattedString {
