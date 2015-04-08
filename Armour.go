@@ -22,9 +22,9 @@ func newArmour(name1 string, descr string, def int, wearLoc string) Armour {
 	//return &a
 }
 
-func armourFromXML(armourData ArmourXML) *Armour {
+func armourFromXML(armourData *ArmourXML) *Armour {
 	arm := new(Armour)
-	arm.Item = *itemFromXML(&armourData.ItemInfo)
+	arm.Item = *itemFromXML(&(armourData.ItemInfo))
 	arm.defense = armourData.Defense
 	arm.wearLocation = armourData.WearLocation
 
@@ -58,7 +58,7 @@ func armourSetFromXML(armourSetData ArmourSetXML) *ArmourSet {
 	as := newArmourSet()
 
 	for _, arm := range armourSetData.ArmSet {
-		as.equipArmour(arm.WearLocation, *armourFromXML(arm))
+		as.equipArmour(arm.WearLocation, *armourFromXML(&arm))
 	}
 
 	return as

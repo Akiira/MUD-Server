@@ -10,7 +10,7 @@ import (
 type EventManager struct {
 	queue_lock sync.Mutex
 	eventQue   []Event
-	worldRooms []*Room
+	worldRooms map[int]*Room
 }
 
 func newEventManager(worldName string) *EventManager {

@@ -98,18 +98,17 @@ func (char *Character) moveCharacter(direction string) (int, []FormattedString) 
 			return GAMEPLAY, room.ExitLinksToRooms[dirAsInt].getRoomDescription()
 		} else {
 
-			fmt.Println(char.Name)
 			room.removePCFromRoom(char.Name)
 			newRoom.addPCToRoom(char)
-			sendCharactersFile(char.Name)
+			//sendCharactersFile(char.Name)
 
 			//TODO sendCharactersXML is what we should do When all the toXML
 			// functions are done because it will be quicker
 			charXML := char.toXML()
-			//charXML.CurrentWorld = newRoom
+			charXML.CurrentWorld = newRoom.WorldID
 			sendCharactersXML(charXML)
 
-			return REDIRECT, newFormattedStringSplice(servers[room.ExitLinksToWorlds[dirAsInt]])
+			return REDIRECT, newFormattedStringSplice(servers[newRoom.WorldID])
 		}
 	} else {
 		return GAMEPLAY, newFormattedStringSplice("No exit in that direction\n")
@@ -221,6 +220,9 @@ func (c *Character) getStatsPage() []FormattedString {
 }
 
 func (char *Character) toXML() *CharacterXML {
+
+	//fmt.Println(char)
+
 	var ch CharacterXML
 	ch.Name = char.Name
 	ch.RoomIN = char.RoomIN
@@ -236,8 +238,6 @@ func (char *Character) toXML() *CharacterXML {
 
 	ch.Level = char.level
 	ch.experience = char.experience
-
-	ch.CurrentWorld = "world1" //TODO remove hardcoding
 
 	ch.EquipedWeapon = *char.equipedWeapon.toXML()
 	ch.ArmSet = *char.equippedArmour.toXML()
@@ -291,6 +291,10 @@ func getCharacterFromCentral(charName string) *Character {
 	checkError(err, true)
 	err = dec.Decode(&queriedChar)
 	checkError(err, true)
+
+	fmt.Println("this is received char")
+	fmt.Println(queriedChar)
+
 	char := characterFromXML(&queriedChar)
 
 	return char

@@ -34,7 +34,7 @@ type WeaponXML struct {
 
 func weaponFromXML(weaponData *WeaponXML) *Weapon {
 	wpn := new(Weapon)
-	wpn.Item = *itemFromXML(&weaponData.ItemInfo)
+	wpn.Item = *itemFromXML(&(weaponData.ItemInfo))
 	wpn.attack = weaponData.Attack
 	wpn.minDmg = weaponData.MinDmg
 	wpn.maxDmg = weaponData.MaxDmg

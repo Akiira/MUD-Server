@@ -3,9 +3,7 @@ package main
 import (
 	"bufio"
 	"encoding/gob"
-	"encoding/xml"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net"
 	"os"
@@ -23,10 +21,10 @@ func main() {
 	}
 
 	readServerList()
-	//runServer()
+	runServer()
 
-	getCharacterFromCentral("Ragnar")
-	sendCharactersFile("Tiefling")
+	//getCharacterFromCentral("Ragnar")
+	//sendCharactersFile("Tiefling")
 }
 
 func runServer() {
@@ -74,6 +72,7 @@ func HandleClientConnection(myConn net.Conn) {
 	clientConnection.receiveMsgFromClient()
 }
 
+/*
 func sendCharactersFile(name string) {
 	conn, err := net.Dial("tcp", servers["characterStorage"])
 	checkError(err, true)
@@ -97,8 +96,11 @@ func sendCharactersFile(name string) {
 	err = encdr.Encode(c)
 	checkError(err, false)
 }
-
+*/
 func sendCharactersXML(charData *CharacterXML) {
+
+	//fmt.Println(charData)
+
 	conn, err := net.Dial("tcp", servers["characterStorage"])
 	checkError(err, true)
 	defer conn.Close()

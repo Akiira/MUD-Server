@@ -58,27 +58,35 @@ func newRoomFromXML(roomData RoomXML) *Room {
 		Description: roomData.Description,
 		WorldID:     roomData.WorldID,
 	}
-	for i := 0; i < 10; i++ {
-		room.Exits[i] = -1
+
+	if room.WorldID == LocalWorld {
+		room.LocalWorld = true
+	} else {
+		room.LocalWorld = false
 	}
 
-	for _, roomExit := range roomData.Exits {
-		room.Exits[convertDirectionToInt(roomExit.Direction)] = roomExit.ConnectedRoomID
+	if room.LocalWorld {
+		for i := 0; i < 10; i++ {
+			room.Exits[i] = -1
+		}
+
+		for _, roomExit := range roomData.Exits {
+			room.Exits[convertDirectionToInt(roomExit.Direction)] = roomExit.ConnectedRoomID
+		}
+
+		room.CharactersInRoom = make(map[string]*Character)
+		room.MonstersInRoom = make(map[string]*Monster)
+		room.ItemsInRoom = make(map[string]*Item)
+
+		room.populateRoomWithMonsters()
+		go room.repopulateRoomTick(15)
 	}
-
-	room.CharactersInRoom = make(map[string]*Character)
-	room.MonstersInRoom = make(map[string]*Monster)
-	room.ItemsInRoom = make(map[string]*Item)
-
-	room.populateRoomWithMonsters()
-	go room.repopulateRoomTick(15)
-
 	return &room
 }
 
 //This function must be called after all rooms are created and is
 // responsible for seting the exit pointers to point at the correct rooms
-func (room *Room) setRoomLink(roomLink []*Room) {
+func (room *Room) setRoomLink(roomLink map[int]*Room) {
 	for i := 0; i < 10; i++ {
 		if room.Exits[i] != -1 {
 			room.ExitLinksToRooms[i] = roomLink[room.Exits[i]]
@@ -91,7 +99,7 @@ func (room *Room) isValidDirection(dir int) bool {
 }
 
 func (room *Room) isLocal() bool {
-	return room.localWorld
+	return room.LocalWorld
 }
 
 func (room *Room) getConnectedRoom(exit int) *Room {
@@ -100,7 +108,7 @@ func (room *Room) getConnectedRoom(exit int) *Room {
 
 func (room *Room) addPCToRoom(char *Character) {
 
-	if room.CharactersInRoom != nil {
+	if room.isLocal() {
 		room.CharactersInRoom[char.Name] = char
 	}
 	char.RoomIN = room.ID
@@ -280,7 +288,7 @@ type RoomsXML struct {
 	Rooms   []RoomXML `xml:"Room"`
 }
 
-func loadRooms(worldName string) []*Room {
+func loadRooms(worldName string) map[int]*Room {
 	xmlFile, err := os.Open(worldName + ".xml")
 	checkError(err, true)
 	defer xmlFile.Close()
@@ -290,15 +298,15 @@ func loadRooms(worldName string) []*Room {
 	var roomsData RoomsXML
 	xml.Unmarshal(XMLdata, &roomsData)
 
-	rooms := make([]*Room, 4, 4)
+	rooms := make(map[int]*Room)
 
-	for index, roomData := range roomsData.Rooms {
-		rooms[index] = newRoomFromXML(roomData)
+	for _, roomData := range roomsData.Rooms {
+		getRoom := newRoomFromXML(roomData)
+		rooms[getRoom.ID] = getRoom
 	}
 
-	for index := range rooms {
-		rooms[index].setRoomLink(rooms)
+	for _, room := range rooms {
+		room.setRoomLink(rooms)
 	}
-
 	return rooms
 }
