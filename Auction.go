@@ -11,8 +11,9 @@ type Auctioner interface {
 	beginAuction()
 	getAuctionInfo() *ServerMessage
 	bidOnItem(amount int, bidder *ClientConnection, timeOfBid time.Time) []FormattedString
-	determineWinner()
-	awardItemToWinner()
+	determineWinner() *Bid
+	awardItemToWinner(winner *Bid)
+	isOver() bool
 }
 
 type Auction struct {
@@ -39,7 +40,40 @@ func newAuction(item *Item) *Auction {
 }
 
 func (a *Auction) beginAuction() {
-	//TODO
+
+	for {
+		time.Sleep(time.Second * 2)
+
+		if time.Now().Sub(a.endTime).Seconds() > 0 {
+			break
+		}
+	}
+
+	winner := a.determineWinner()
+
+	if winner != nil {
+		a.awardItemToWinner(winner)
+	}
+}
+
+func (a *Auction) determineWinner() *Bid {
+	var highestBid *Bid
+
+	for _, bid := range a.recentBids {
+		if bid.amount > highestBid.amount {
+			highestBid = bid
+		}
+
+		if bid.amount == highestBid.amount && bid.durationFromEnd < highestBid.durationFromEnd {
+			highestBid = bid
+		}
+	}
+
+	return highestBid
+}
+
+func (a *Auction) awardItemToWinner(winner *Bid) {
+
 }
 
 func (a *Auction) getAuctionInfo() *ServerMessage {
