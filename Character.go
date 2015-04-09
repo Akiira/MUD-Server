@@ -100,8 +100,9 @@ func (char *Character) moveCharacter(direction string) (int, []FormattedString) 
 
 			room.removePCFromRoom(char.Name)
 			newRoom.addPCToRoom(char)
-
-			sendCharactersXML(char.toXML())
+			charXML := char.toXML()
+			charXML.CurrentWorld = newRoom.WorldID
+			sendCharactersXML(charXML)
 
 			return REDIRECT, newFormattedStringSplice(servers[newRoom.WorldID])
 		}
