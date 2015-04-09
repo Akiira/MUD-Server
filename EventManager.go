@@ -23,6 +23,15 @@ func newEventManager(worldName string) *EventManager {
 	return em
 }
 
+func (em *EventManager) sendMessageToWorld(msg ServerMessage) {
+
+	for _, room := range em.worldRooms {
+		for _, char := range room.CharactersInRoom {
+			char.myClientConn.sendMsgToClient(msg)
+		}
+	}
+}
+
 func (em *EventManager) sendMessageToRoom(roomID int, msg ServerMessage) {
 	room := em.worldRooms[roomID]
 
