@@ -88,6 +88,7 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 	msgType = GAMEPLAY
 	switch {
 	case cmd == "auction": //This is to start an auction
+		em.auctn_mutx.Lock()
 		if em.auction == nil {
 			item, found := cc.character.getItemFromInv(event.Value)
 			if found {
@@ -99,12 +100,13 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 				output = newFormattedStringSplice("Could not start the auction because you do not have that item.")
 			}
 		}
+		em.auctn_mutx.Unlock()
 	case cmd == "bid":
-		//TODO possibly add mutex around auction
-		// check if there is a running auction
+		em.auctn_mutx.Lock()
 		if em.isAuctionRunning() {
 			em.auction.bidOnItem(event.getBid(), cc, time.Now())
 		}
+		em.auctn_mutx.Unlock()
 	case cmd == "inv":
 		output = cc.character.PersonalInvetory.getInventoryDescription()
 	case cmd == "save" || cmd == "exit":
@@ -132,9 +134,11 @@ func (em *EventManager) runAuction() {
 	for {
 		time.Sleep(time.Second * 2)
 
+		em.auctn_mutx.Lock()
 		if em.auction.isOver() {
 			break
 		}
+		em.auctn_mutx.Unlock()
 	}
 
 	winner := em.auction.determineWinner()
@@ -144,6 +148,7 @@ func (em *EventManager) runAuction() {
 	}
 
 	em.auction = nil
+	em.auctn_mutx.Unlock()
 }
 
 func (em *EventManager) isAuctionRunning() bool {
