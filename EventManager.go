@@ -55,7 +55,7 @@ func (em *EventManager) waitForTick() {
 
 func (em *EventManager) executeCombatRound() {
 	var output []FormattedString
-
+	alreadyActed := make(map[string]bool)
 	for _, event := range em.eventQue {
 		//TODO sort events by initiative stat before executing them
 		action := event.action
@@ -63,13 +63,16 @@ func (em *EventManager) executeCombatRound() {
 
 		target := em.worldRooms[agent.getRoomID()].getAgentInRoom(event.target)
 
-		switch {
-		case action == "attack":
-			output = agent.makeAttack(target)
+		if _, found := alreadyActed[agent.getName()]; !found {
+			alreadyActed[agent.getName()] = true
+
+			switch {
+			case action == "attack":
+				output = agent.makeAttack(target)
+			}
+
+			agent.sendMessage(newServerMessageFS(output))
 		}
-
-		agent.sendMessage(newServerMessageFS(output))
-
 	}
 
 	em.eventQue = em.eventQue[0:0]
