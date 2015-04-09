@@ -37,6 +37,7 @@ func newClientConnection(conn net.Conn, em *EventManager) *ClientConnection {
 	cc.CurrentEM = em
 
 	cc.pingResponse = sync.NewCond(&cc.ping_lock)
+	//fmt.Println(cc.character)
 
 	//Send the client a description of their starting room
 	em.executeNonCombatEvent(cc, &ClientMessage{Command: "look", Value: "room"})

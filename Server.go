@@ -72,7 +72,34 @@ func HandleClientConnection(myConn net.Conn) {
 	clientConnection.receiveMsgFromClient()
 }
 
+/*
+func sendCharactersFile(name string) {
+	conn, err := net.Dial("tcp", servers["characterStorage"])
+	checkError(err, true)
+	defer conn.Close()
+
+	encdr := gob.NewEncoder(conn)
+	err = encdr.Encode(&ServerMessage{MsgType: SAVEFILE, Value: newFormattedStringSplice(name)})
+	checkError(err, true)
+
+	file, err := os.Open("Characters/" + name + ".xml")
+	checkError(err, true)
+	defer file.Close()
+
+	data, err := ioutil.ReadAll(file)
+	checkError(err, false)
+
+	var c CharacterXML
+	err = xml.Unmarshal(data, &c)
+	checkError(err, false)
+
+	err = encdr.Encode(c)
+	checkError(err, false)
+}
+*/
 func sendCharactersXML(charData *CharacterXML) {
+
+	//fmt.Println(charData)
 
 	conn, err := net.Dial("tcp", servers["characterStorage"])
 	checkError(err, true)
