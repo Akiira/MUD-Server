@@ -24,3 +24,11 @@ func newEvent(agent Agenter, action string, target string, cc *ClientConnection)
 	event.client = cc
 	return *event
 }
+
+func newPublicEvent(agent Agenter, action string, target string) Event {
+	event := new(Event)
+	event.agent = agent
+	event.action = action
+	event.target = target
+	return *event
+}

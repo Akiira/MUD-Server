@@ -2,6 +2,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/daviddengcn/go-colortext"
 	"sync"
 	"time"
@@ -25,8 +26,9 @@ func newEventManager(worldName string) *EventManager {
 
 func (em *EventManager) sendMessageToRoom(roomID int, msg ServerMessage) {
 	room := em.worldRooms[roomID]
-
+	fmt.Println("broadcasting")
 	for _, client := range room.CharactersInRoom {
+		//fmt.Println(client)
 		client.myClientConn.sendMsgToClient(msg)
 	}
 }
@@ -52,14 +54,14 @@ func (em *EventManager) executeCombatRound() {
 		action := event.action
 		agent := event.agent
 
-		target := em.worldRooms[agent.getRoomID()].getAgentInRoom(event.target)
-
 		switch {
 		case action == "attack":
-			output = agent.makeAttack(target)
+			output = agent.makeAttack(event.target)
 		}
 
-		agent.getClientConnection().sendMsgToClient(newServerMessageFS(output))
+		//agent.getClientConnection().sendMsgToClient(newServerMessageFS(output))
+
+		em.sendMessageToRoom(agent.getRoomID(), newServerMessageFS(output))
 
 	}
 

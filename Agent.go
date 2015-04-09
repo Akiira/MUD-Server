@@ -34,11 +34,11 @@ func (a *Agent) setAgentStatsFromXML(charData *CharacterXML) {
 
 //The go community says to end interface names with "er"
 type Agenter interface {
-	makeAttack(target Agenter) []FormattedString
+	makeAttack(target string) []FormattedString
 	takeDamage(amount int, typeOfDamge int) []FormattedString
 	getName() string
 	getDefense() int
 	isDead() bool
 	getRoomID() int
-	getClientConnection() *ClientConnection
+	//getClientConnection() *ClientConnection
 }
