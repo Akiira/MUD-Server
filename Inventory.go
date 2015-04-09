@@ -35,7 +35,6 @@ func (inv *Inventory) addItemToInventory(addItem *Item) {
 		inv.items[addItem.name] = val
 	} else {
 		inv.items[addItem.name] = *addItem
-		inv.numberOfItems++
 	}
 }
 func (inv *Inventory) addWeaponToInventory(addWeapon *Weapon) {
@@ -44,7 +43,6 @@ func (inv *Inventory) addWeaponToInventory(addWeapon *Weapon) {
 		inv.weapons[addWeapon.Item.name] = val
 	} else {
 		inv.weapons[addWeapon.Item.name] = *addWeapon
-		inv.numberOfWeapons++
 	}
 }
 func (inv *Inventory) addArmourToInventory(addArmour *Armour) {
@@ -53,68 +51,40 @@ func (inv *Inventory) addArmourToInventory(addArmour *Armour) {
 		inv.armours[addArmour.Item.name] = val
 	} else {
 		inv.armours[addArmour.Item.name] = *addArmour
-		inv.numberOfArmours++
 	}
 }
 
 func inventoryFromXML(invXml *InventoryXML) *Inventory {
-	//TODO
 	inv := newInventory()
-	fmt.Println("this is invXML")
-	fmt.Println(invXml)
 
 	//loop through items
-	for i := 0; i < len(invXml.Items); i++ {
-
-		if val, ok := inv.items[invXml.Items[i].Name]; ok { // the item is already there
-			val.quantity++
-			inv.items[invXml.Items[i].Name] = val
-		} else {
-			inv.items[invXml.Items[i].Name] = *itemFromXML(&(invXml.Items[i]))
-			inv.numberOfItems++
-		}
-
+	for _, itm := range invXml.Items {
+		inv.addItemToInventory(itemFromXML(&itm))
 	}
 
 	//loop through weapons
-	for i := 0; i < len(invXml.Weapons); i++ {
-
-		if val, ok := inv.weapons[invXml.Weapons[i].ItemInfo.Name]; ok { // the item is already there
-			val.quantity++
-			inv.weapons[invXml.Weapons[i].ItemInfo.Name] = val
-		} else {
-			inv.weapons[invXml.Weapons[i].ItemInfo.Name] = *weaponFromXML(&(invXml.Weapons[i]))
-			inv.numberOfWeapons++
-		}
-
+	for _, itm := range invXml.Weapons {
+		inv.addWeaponToInventory(weaponFromXML(&itm))
 	}
 
 	//loop through armours
-	for i := 0; i < len(invXml.Armours); i++ {
-
-		if val, ok := inv.armours[invXml.Armours[i].ItemInfo.Name]; ok { // the item is already there
-			val.quantity++
-			inv.armours[invXml.Armours[i].ItemInfo.Name] = val
-		} else {
-			inv.armours[invXml.Armours[i].ItemInfo.Name] = *armourFromXML(&(invXml.Armours[i]))
-			inv.numberOfArmours++
-		}
-
+	for _, itm := range invXml.Armours {
+		inv.addArmourToInventory(armourFromXML(&itm))
 	}
 
 	return inv
 }
 
-//func (inv *Inventory) getItemByName(name string) Item {
-//	var i int
-//	for i = 0; i < inv.numberOfItems; i++ {
-//		if inv.items[i].name == name {
-//			return inv.items[i]
-//		}
-//	}
-//	var null Item
-//	return null
-//}
+func (inv *Inventory) getItemByName(name string) Item {
+	var i int
+	for i = 0; i < inv.numberOfItems; i++ {
+		if inv.items[i].name == name {
+			return inv.items[i]
+		}
+	}
+	var null Item
+	return null
+}
 
 func (inv *Inventory) getInventoryDescription() []FormattedString {
 	output := make([]FormattedString, len(inv.items)+len(inv.weapons)+len(inv.armours)+1, len(inv.items)+len(inv.weapons)+len(inv.armours)+1)
