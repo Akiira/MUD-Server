@@ -216,9 +216,7 @@ func (c *Character) getStatsPage() []FormattedString {
 
 func (char *Character) toXML() *CharacterXML {
 
-	//fmt.Println(char)
-
-	var ch CharacterXML
+	ch := new(CharacterXML)
 	ch.Name = char.Name
 	ch.RoomIN = char.RoomIN
 	ch.Defense = char.Defense
@@ -238,7 +236,11 @@ func (char *Character) toXML() *CharacterXML {
 	ch.ArmSet = *char.equippedArmour.toXML()
 	ch.PersInv = *char.PersonalInvetory.toXML()
 
-	return &ch
+	return ch
+}
+
+func (char *Character) sendMessage(msg ServerMessage) {
+	char.myClientConn.sendMsgToClient(msg)
 }
 
 //==============="STATIC" FUNCTIONS===================//

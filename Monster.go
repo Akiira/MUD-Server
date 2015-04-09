@@ -116,6 +116,10 @@ func (m *Monster) getCorpse() *Item {
 	return nil //TODO
 }
 
+func (m *Monster) sendMessage(msg ServerMessage) {
+	//Do nothing.
+}
+
 func (m *Monster) isDead() bool {
 	return m.currentHP < 0
 }

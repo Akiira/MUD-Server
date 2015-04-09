@@ -1,5 +1,15 @@
 package main
 
+type Agenter interface {
+	makeAttack(target Agenter) []FormattedString
+	takeDamage(amount int, typeOfDamge int) []FormattedString
+	getName() string
+	getDefense() int
+	isDead() bool
+	getRoomID() int
+	sendMessage(ServerMessage)
+}
+
 type Agent struct {
 	Name         string
 	currentHP    int
@@ -28,17 +38,4 @@ func (a *Agent) setAgentStatsFromXML(charData *CharacterXML) {
 	a.MaxHitPoints = charData.HP
 	a.Name = charData.Name
 	a.RoomIN = charData.RoomIN
-}
-
-//func (a *Agent) getDamage() {
-
-//The go community says to end interface names with "er"
-type Agenter interface {
-	makeAttack(target Agenter) []FormattedString
-	takeDamage(amount int, typeOfDamge int) []FormattedString
-	getName() string
-	getDefense() int
-	isDead() bool
-	getRoomID() int
-	getClientConnection() *ClientConnection
 }
