@@ -21,9 +21,9 @@ type Inventory struct {
 
 func newInvXML() *InventoryXML {
 	invXML := new(InventoryXML)
-	invXML.Items = make([]ItemXML)
-	invXML.Weapons = make([]WeaponXML)
-	invXML.Armours = make([]ArmourXML)
+	invXML.Items = make([]ItemXML, 10)
+	invXML.Weapons = make([]WeaponXML, 10)
+	invXML.Armours = make([]ArmourXML, 10)
 
 	return invXML
 }
@@ -118,6 +118,7 @@ func (inv *Inventory) getInventoryDescription() []FormattedString {
 }
 
 func (inv *Inventory) toXML() *InventoryXML {
+	invXML := newInvXML()
 
 	for _, item := range inv.items {
 		invXML.Items = append(invXML.Items, *item.toXML())
