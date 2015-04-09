@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/daviddengcn/go-colortext"
 	"time"
 )
@@ -17,7 +18,7 @@ type Auctioner interface {
 }
 
 type Auction struct {
-	highestBid *Bid //TODO think about best type for this
+	highestBid *Bid
 	itemUp     *Item
 	endTime    time.Time
 	recentBids []*Bid
@@ -77,21 +78,36 @@ func (a *Auction) isOver() bool {
 }
 
 func (a *Auction) awardItemToWinner(winner *Bid) {
+	winner.bidder.sendMsgToClient(newServerMessageS("You won the auction."))
 	winner.bidder.giveItem(a.itemUp)
 }
 
-func (a *Auction) getAuctionInfo() *ServerMessage {
-	return nil //TODO
+func (a *Auction) getAuctionInfo() ServerMessage {
+	msg := newFormattedStringCollection()
+	msg.addMessage2("\tItem:" + a.itemUp.name)
+	msg.addMessage2(fmt.Sprint("\tCurrent Bid: %d", a.highestBid.amount))
+	msg.addMessage2("\tTime left: " + a.endTime.Sub(time.Now()).String())
+
+	return newServerMessageFS(msg.fmtedStrings)
 }
 
 func (a *Auction) bidOnItem(amount int, bidder *ClientConnection, timeOfBid time.Time) []FormattedString {
-	bid := new(Bid)
-	bid.bidder = bidder
 
-	estimatedTime := timeOfBid.Add(-1 * bidder.getAverageRoundTripTime())
+	if !a.isOver() && a.highestBid.amount <= amount {
+		bid := new(Bid)
+		bid.bidder = bidder
 
-	bid.durationFromEnd = a.endTime.Sub(estimatedTime)
+		estimatedTime := timeOfBid.Add(-1 * bidder.getAverageRoundTripTime())
+		bid.durationFromEnd = a.endTime.Sub(estimatedTime)
 
-	msg := "Your bid was recorded for time: " + estimatedTime.String() + "\n"
-	return newFormattedStringSplice2(ct.Green, msg)
+		a.highestBid = bid
+		a.recentBids = append(a.recentBids, bid)
+
+		msg := "Your bid was recorded for time: " + estimatedTime.String() + "\n"
+		return newFormattedStringSplice2(ct.Green, msg)
+	} else if a.highestBid.amount > amount {
+		return newFormattedStringSplice2(ct.Green, "Your bid was too low.")
+	} else {
+		return newFormattedStringSplice2(ct.Green, "The auction ended before you could place your bid.")
+	}
 }
