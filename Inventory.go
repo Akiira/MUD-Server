@@ -14,20 +14,14 @@ type InventoryXML struct {
 }
 
 type Inventory struct {
-	items           map[string]Item
-	weapons         map[string]Weapon
-	armours         map[string]Armour
-	numberOfItems   int
-	numberOfWeapons int
-	numberOfArmours int
+	items   map[string]Item
+	weapons map[string]Weapon
+	armours map[string]Armour
 }
 
 func newInventory() *Inventory {
 
 	i := new(Inventory)
-	i.numberOfItems = 0
-	i.numberOfWeapons = 0
-	i.numberOfArmours = 0
 	i.items = make(map[string]Item)
 	i.weapons = make(map[string]Weapon)
 	i.armours = make(map[string]Armour)
