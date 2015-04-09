@@ -75,15 +75,9 @@ func inventoryFromXML(invXml *InventoryXML) *Inventory {
 	return inv
 }
 
-func (inv *Inventory) getItemByName(name string) Item {
-	var i int
-	for i = 0; i < inv.numberOfItems; i++ {
-		if inv.items[i].name == name {
-			return inv.items[i]
-		}
-	}
-	var null Item
-	return null
+func (inv *Inventory) getItemByName(name string) *Item {
+	itm, _ := inv.items[name]
+	return &itm
 }
 
 func (inv *Inventory) getInventoryDescription() []FormattedString {
