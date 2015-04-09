@@ -19,6 +19,8 @@ type Inventory struct {
 	armours map[string]Armour
 }
 
+//=================== CONSTRUCTORS =====================//
+
 func newInvXML() *InventoryXML {
 	invXML := new(InventoryXML)
 	invXML.Items = make([]ItemXML, 10)
@@ -27,6 +29,29 @@ func newInvXML() *InventoryXML {
 
 	return invXML
 }
+
+func inventoryFromXML(invXml *InventoryXML) *Inventory {
+	inv := newInventory()
+
+	//loop through items
+	for _, itm := range invXml.Items {
+		inv.addItemToInventory(itemFromXML(&itm))
+	}
+
+	//loop through weapons
+	for _, itm := range invXml.Weapons {
+		inv.addWeaponToInventory(weaponFromXML(&itm))
+	}
+
+	//loop through armours
+	for _, itm := range invXml.Armours {
+		inv.addArmourToInventory(armourFromXML(&itm))
+	}
+
+	return inv
+}
+
+//================== CLASS FUNCTIONS =============//
 
 func newInventory() *Inventory {
 
@@ -63,30 +88,9 @@ func (inv *Inventory) addArmourToInventory(addArmour *Armour) {
 	}
 }
 
-func inventoryFromXML(invXml *InventoryXML) *Inventory {
-	inv := newInventory()
-
-	//loop through items
-	for _, itm := range invXml.Items {
-		inv.addItemToInventory(itemFromXML(&itm))
-	}
-
-	//loop through weapons
-	for _, itm := range invXml.Weapons {
-		inv.addWeaponToInventory(weaponFromXML(&itm))
-	}
-
-	//loop through armours
-	for _, itm := range invXml.Armours {
-		inv.addArmourToInventory(armourFromXML(&itm))
-	}
-
-	return inv
-}
-
-func (inv *Inventory) getItemByName(name string) *Item {
-	itm, _ := inv.items[name]
-	return &itm
+func (inv *Inventory) getItemByName(name string) (*Item, bool) {
+	itm, found := inv.items[name]
+	return &itm, found
 }
 
 func (inv *Inventory) getInventoryDescription() []FormattedString {
@@ -134,3 +138,5 @@ func (inv *Inventory) toXML() *InventoryXML {
 
 	return invXML
 }
+
+//==============="STATIC" FUNCTIONS===================//
