@@ -2,6 +2,7 @@
 package main
 
 import (
+	"strconv"
 	"strings"
 	"time"
 )
@@ -101,4 +102,10 @@ func (message *ClientMessage) getPassword() string {
 func (message *ClientMessage) getUsername() string {
 	split := strings.Split(message.Value, " ")
 	return split[0]
+}
+
+func (msg *ClientMessage) getBid() int {
+	val, err := strconv.Atoi(msg.Value)
+	checkError(err, false)
+	return val
 }
