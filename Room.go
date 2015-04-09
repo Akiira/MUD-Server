@@ -30,7 +30,6 @@ type Room struct {
 	ID          int
 	Description string
 	WorldID     string
-	LocalWorld  bool
 
 	// This represents each directions exit and has the room number of the connected
 	// room or -1 if no exit in that direction. This can probaly be combined
@@ -59,13 +58,7 @@ func newRoomFromXML(roomData RoomXML) *Room {
 		WorldID:     roomData.WorldID,
 	}
 
-	if room.WorldID == LocalWorld {
-		room.LocalWorld = true
-	} else {
-		room.LocalWorld = false
-	}
-
-	if room.LocalWorld {
+	if room.isLocal() {
 		for i := 0; i < 10; i++ {
 			room.Exits[i] = -1
 		}
@@ -99,7 +92,7 @@ func (room *Room) isValidDirection(dir int) bool {
 }
 
 func (room *Room) isLocal() bool {
-	return room.LocalWorld
+	return room.WorldID == LocalWorld
 }
 
 func (room *Room) getConnectedRoom(exit int) *Room {
