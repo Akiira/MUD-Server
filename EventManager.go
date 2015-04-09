@@ -27,7 +27,7 @@ func (em *EventManager) sendMessageToWorld(msg ServerMessage) {
 
 	for _, room := range em.worldRooms {
 		for _, char := range room.CharactersInRoom {
-			char.myClientConn.sendMsgToClient(msg)
+			char.sendMessage(msg)
 		}
 	}
 }
@@ -36,7 +36,7 @@ func (em *EventManager) sendMessageToRoom(roomID int, msg ServerMessage) {
 	room := em.worldRooms[roomID]
 
 	for _, char := range room.CharactersInRoom {
-		char.myClientConn.sendMsgToClient(msg)
+		char.sendMessage(msg)
 	}
 }
 
