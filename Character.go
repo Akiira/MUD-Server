@@ -173,6 +173,10 @@ func (c *Character) getClientConnection() *ClientConnection {
 	return c.myClientConn
 }
 
+func (c *Character) getItemFromInv(name string) (*Item, bool) {
+	return c.PersonalInvetory.getItemByName(name)
+}
+
 func (c *Character) getDamage() int {
 	return c.equipedWeapon.getDamage() + c.Strength
 }
