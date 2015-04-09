@@ -6,17 +6,6 @@ import (
 	"time"
 )
 
-//TODO just messing around with interfaces, prolly wont keep it
-type Auctioner interface {
-	newAuction(item *Item) *Auction
-	beginAuction()
-	getAuctionInfo() *ServerMessage
-	bidOnItem(amount int, bidder *ClientConnection, timeOfBid time.Time) []FormattedString
-	determineWinner() *Bid
-	awardItemToWinner(winner *Bid)
-	isOver() bool
-}
-
 type Auction struct {
 	highestBid *Bid
 	itemUp     *Item
@@ -38,23 +27,6 @@ func newAuction(item *Item) *Auction {
 	a.recentBids = make([]*Bid, 5)
 
 	return a
-}
-
-func (a *Auction) beginAuction() {
-
-	for {
-		time.Sleep(time.Second * 2)
-
-		if a.isOver() {
-			break
-		}
-	}
-
-	winner := a.determineWinner()
-
-	if winner != nil {
-		a.awardItemToWinner(winner)
-	}
 }
 
 func (a *Auction) determineWinner() *Bid {

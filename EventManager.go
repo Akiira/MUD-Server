@@ -8,6 +8,7 @@ import (
 )
 
 type EventManager struct {
+	auctn_mutx sync.Mutex
 	queue_lock sync.Mutex
 	eventQue   []Event
 	worldRooms map[int]*Room
@@ -91,7 +92,11 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 			item, found := cc.character.getItemFromInv(event.Value)
 			if found {
 				em.auction = newAuction(item)
-				em.sendMessageToWorld(*em.auction.getAuctionInfo())
+				em.sendMessageToWorld(em.auction.getAuctionInfo())
+				go em.runAuction()
+				output = newFormattedStringSplice("Your auction was succesfully started.")
+			} else {
+				output = newFormattedStringSplice("Could not start the auction because you do not have that item.")
 			}
 		}
 	case cmd == "bid":
@@ -121,6 +126,24 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 	if len(output) > 0 {
 		cc.sendMsgToClient(newServerMessageTypeFS(msgType, output))
 	}
+}
+
+func (em *EventManager) runAuction() {
+	for {
+		time.Sleep(time.Second * 2)
+
+		if em.auction.isOver() {
+			break
+		}
+	}
+
+	winner := em.auction.determineWinner()
+
+	if winner != nil {
+		em.auction.awardItemToWinner(winner)
+	}
+
+	em.auction = nil
 }
 
 func (em *EventManager) isAuctionRunning() bool {
