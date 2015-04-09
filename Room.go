@@ -181,11 +181,8 @@ func (room *Room) repopulateRoomTick(timeInMinutes time.Duration) {
 func (room *Room) populateRoomWithMonsters() { //TODO remove hardcoding, maybe load from xml file
 
 	room.MonstersInRoom["Rabbit"] = newMonsterFromName("Rabbit")
-	room.MonstersInRoom["Rabbit"].assignRoom(room.ID)
 	room.MonstersInRoom["Fox"] = newMonsterFromName("Fox")
-	room.MonstersInRoom["Fox"].assignRoom(room.ID)
 	room.MonstersInRoom["Deer"] = newMonsterFromName("Deer")
-	room.MonstersInRoom["Deer"].assignRoom(room.ID)
 }
 
 func (room *Room) getRoomDescription() []FormattedString {

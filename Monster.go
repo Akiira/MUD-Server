@@ -3,6 +3,7 @@ package main
 
 import (
 	"encoding/xml"
+	"fmt"
 	"github.com/daviddengcn/go-colortext"
 	"io/ioutil"
 	"math/rand"
@@ -14,7 +15,7 @@ type Monster struct {
 	Agent
 	Defense     int
 	description string
-	targets     []string
+	targets     map[string]*target
 	em          EventManager
 	weapon      Weapon
 
@@ -22,12 +23,12 @@ type Monster struct {
 }
 
 //TODO add mutex around targets field
-/*
+
 type target struct {
 	aggro        int
 	attackTarget *ClientConnection
 }
-*/
+
 var monsterTemplatesG map[string]*Monster
 
 func newMonsterFromXML(monsterData MonsterXML) *Monster {
@@ -36,8 +37,7 @@ func newMonsterFromXML(monsterData MonsterXML) *Monster {
 	m.currentHP = monsterData.HP
 	m.Defense = monsterData.Defense
 	m.description = monsterData.Description
-	//m.targets = make(map[string]*string)
-	m.targets = make([]string, 10)
+	m.targets = make(map[string]*target)
 
 	return m
 }
@@ -48,98 +48,35 @@ func newMonsterFromName(name string) *Monster {
 	m.currentHP = monsterTemplatesG[name].currentHP
 	m.Defense = monsterTemplatesG[name].Defense
 	m.description = monsterTemplatesG[name].description
-	m.targets = make([]string, 10)
+	m.targets = make(map[string]*target)
 
 	return m
-}
-
-func (m *Monster) assignRoom(roomID int) {
-	m.RoomIN = roomID
-	go m.fightPlayers()
 }
 
 func (m *Monster) fightPlayers() {
 	for {
 		time.Sleep(2 * time.Second)
-		/*
-			if m.currentHP <= 0 || len(m.targets) <= 0 {
-				break
-			}
-		*/
-		if m.currentHP <= 0 {
+
+		if m.currentHP <= 0 || len(m.targets) <= 0 {
 			break
 		}
 
 		//Find target with highest aggro
-		//var attackTarget *ClientConnection
-
-		//maxAggro := 0
+		var attackTarget *ClientConnection
+		maxAggro := 0
 		for _, targ := range m.targets {
-			//target := m.em.worldRooms[m.RoomIN].getAgentInRoom(targ)
-			event := newPublicEvent(m, "attack", targ) //, attackTarget)
-			m.em.addEvent(event)
-			/*if targ.aggro > maxAggro {
+			if targ.aggro > maxAggro {
 				attackTarget = targ.attackTarget
-			}*/
+			}
 		}
 
-		//event := newEvent(m, "attack", attackTarget.character.Name, attackTarget)
-		//m.em.addEvent(event)
+		event := newEvent(m, "attack", attackTarget.character.Name, attackTarget)
+		m.em.addEvent(event)
 	}
 }
 
 //TODO implement monsters combat functions
-func (m *Monster) addNewTarget(targetName string) {
 
-	//_, exist := m.targets[targetName]
-	exist := false
-
-	for _, targ := range m.targets {
-		if targ == targetName {
-			exist = true
-			break
-		}
-	}
-
-	if !exist {
-		//m.targets[targetCC.character.Name].aggro += agro
-		//} else {
-		//targ := target{aggro: agro, attackTarget: targetCC}
-		if len(m.targets) == cap(m.targets) {
-
-			t := make([]string, len(m.targets), (cap(m.targets)+1)*2) // +1 in case cap(m.targets) == 0
-			for i := range m.targets {
-				t[i] = m.targets[i]
-			}
-			m.targets = t
-		}
-
-		m.targets[len(m.targets)] = targetName
-		/*
-			if len(m.targets) == 1 {
-				go m.fightPlayers()
-			}*/
-	}
-}
-
-func (m *Monster) removeTarget(targetName string) {
-
-	//_, exist := m.targets[targetName]
-	exist := false
-	i := 0
-	for j, targ := range m.targets {
-		if targ == targetName {
-			i = j
-			exist = true
-			break
-		}
-	}
-	if exist {
-		m.targets = append(m.targets[:i], m.targets[i+1:]...)
-	}
-}
-
-/*
 func (m *Monster) addNewTarget(targetCC *ClientConnection, agro int) {
 
 	_, exist := m.targets[targetCC.character.Name]
@@ -154,7 +91,7 @@ func (m *Monster) addNewTarget(targetCC *ClientConnection, agro int) {
 			go m.fightPlayers()
 		}
 	}
-}*/
+}
 
 func (m *Monster) getAttackRoll() int {
 	return (rand.Int() % 20) + m.weapon.attack + m.Strength
@@ -180,51 +117,28 @@ func (m *Monster) getCorpse() *Item {
 }
 
 func (m *Monster) isDead() bool {
-	return m.currentHP <= 0
+	return m.currentHP < 0
 }
 
-func (m *Monster) makeAttack(targetName string) []FormattedString {
+func (m *Monster) makeAttack(target Agenter) []FormattedString {
+	a1 := m.getAttackRoll()
+	if a1 >= target.getDefense() {
+		target.takeDamage(m.getDamage(), 0)
+		output := newFormattedStringCollection()
+		output.addMessage(ct.Red, fmt.Sprintf("The %s hit you for %i damage\n", m.Name, m.getDamage()))
 
-	output := make([]FormattedString, 2, 2)
-
-	target := m.em.worldRooms[m.RoomIN].getAgentInRoom(targetName)
-
-	if target == nil {
-		output[0].Value = "\n" + m.Name + " try to attack the " + targetName + " but it does not exist in this room any more!\n"
-		m.removeTarget(targetName)
-	} else {
-
-		if !target.isDead() {
-			a1 := m.getAttackRoll()
-			if a1 >= target.getDefense() {
-				target.takeDamage(m.getDamage(), 0)
-				output[0].Value = "\n" + m.Name + " hit the " + targetName + "!\n"
-				/*
-					output := newFormattedStringCollection()
-					output.addMessage(ct.Red, fmt.Sprintf("The %s hit you for %i damage\n", m.Name, m.getDamage()))
-				*/
-
-				//return output.fmtedStrings
-			} else {
-				output[0].Value = "\n" + m.Name + " missed the " + targetName + "!\n"
-			}
-
-			if target.isDead() {
-				output[1].Value = "\n" + targetName + " died!.\n"
-			}
-
-		} else {
-			output[0].Value = "\n" + m.Name + " try to attack " + targetName + " but " + targetName + " is already dead!\n"
+		if target.isDead() {
+			output.addMessage(ct.Red, "\nYou died!.\n")
 		}
+		return output.fmtedStrings
 	}
-	//return newFormattedStringSplice2(ct.Red, fmt.Sprintf("The %s's attack missed you.\n", m.Name))
-	return output
+
+	return newFormattedStringSplice2(ct.Red, fmt.Sprintf("The %s's attack missed you.\n", m.Name))
 }
 
-/*
 func (m *Monster) getClientConnection() *ClientConnection {
 	return m.lastTarget.getClientConnection()
-}*/
+}
 
 func (m *Monster) getDamage() int {
 	return m.weapon.getDamage() + m.Strength

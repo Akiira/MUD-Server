@@ -36,8 +36,6 @@ func newClientConnection(conn net.Conn, em *EventManager) *ClientConnection {
 	cc.character.myClientConn = cc
 	cc.CurrentEM = em
 
-	em.worldRooms[cc.character.RoomIN].addPCToRoom(cc.character)
-
 	cc.pingResponse = sync.NewCond(&cc.ping_lock)
 
 	//Send the client a description of their starting room
