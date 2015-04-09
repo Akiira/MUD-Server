@@ -19,6 +19,15 @@ type Inventory struct {
 	armours map[string]Armour
 }
 
+func newInvXML() *InventoryXML {
+	invXML := new(InventoryXML)
+	invXML.Items = make([]ItemXML)
+	invXML.Weapons = make([]WeaponXML)
+	invXML.Armours = make([]ArmourXML)
+
+	return invXML
+}
+
 func newInventory() *Inventory {
 
 	i := new(Inventory)
@@ -109,31 +118,18 @@ func (inv *Inventory) getInventoryDescription() []FormattedString {
 }
 
 func (inv *Inventory) toXML() *InventoryXML {
-	invXML := new(InventoryXML)
 
-	invXML.Items = make([]ItemXML, len(inv.items), len(inv.items))
-
-	i := 0
 	for _, item := range inv.items {
-		invXML.Items[i] = *(item.toXML())
-		i++
+		invXML.Items = append(invXML.Items, *item.toXML())
 	}
 
-	invXML.Weapons = make([]WeaponXML, len(inv.weapons), len(inv.weapons))
-
-	i = 0
 	for _, weapon := range inv.weapons {
-		invXML.Weapons[i] = *(weapon.toXML())
-		i++
+		invXML.Weapons = append(invXML.Weapons, *weapon.toXML())
 	}
 
-	invXML.Armours = make([]ArmourXML, len(inv.armours), len(inv.armours))
-
-	i = 0
 	for _, armour := range inv.armours {
-		invXML.Armours[i] = *(armour.toXML())
-		i++
+		invXML.Armours = append(invXML.Armours, *armour.toXML())
 	}
 
-	return invXML //TODO
+	return invXML
 }
