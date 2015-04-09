@@ -42,12 +42,13 @@ func newMonsterFromXML(monsterData MonsterXML) *Monster {
 	return m
 }
 
-func newMonsterFromName(name string) *Monster {
+func newMonsterFromName(name string, roomID int) *Monster {
 	m := new(Monster)
 	m.Name = monsterTemplatesG[name].Name
 	m.currentHP = monsterTemplatesG[name].currentHP
 	m.Defense = monsterTemplatesG[name].Defense
 	m.description = monsterTemplatesG[name].description
+	m.RoomIN = roomID
 	m.targets = make(map[string]*target)
 
 	return m

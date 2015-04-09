@@ -39,11 +39,11 @@ func newAuction(item *Item) *Auction {
 }
 
 func (a *Auction) beginAuction() {
-
+	//TODO
 }
 
 func (a *Auction) getAuctionInfo() *ServerMessage {
-
+	return nil //TODO
 }
 
 func (a *Auction) bidOnItem(amount int, bidder *ClientConnection, timeOfBid time.Time) []FormattedString {

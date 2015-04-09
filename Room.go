@@ -58,15 +58,15 @@ func newRoomFromXML(roomData RoomXML) *Room {
 		WorldID:     roomData.WorldID,
 	}
 
+	for i := 0; i < 10; i++ {
+		room.Exits[i] = -1
+	}
+
+	for _, roomExit := range roomData.Exits {
+		room.Exits[convertDirectionToInt(roomExit.Direction)] = roomExit.ConnectedRoomID
+	}
+
 	if room.isLocal() {
-		for i := 0; i < 10; i++ {
-			room.Exits[i] = -1
-		}
-
-		for _, roomExit := range roomData.Exits {
-			room.Exits[convertDirectionToInt(roomExit.Direction)] = roomExit.ConnectedRoomID
-		}
-
 		room.CharactersInRoom = make(map[string]*Character)
 		room.MonstersInRoom = make(map[string]*Monster)
 		room.ItemsInRoom = make(map[string]*Item)
@@ -88,7 +88,7 @@ func (room *Room) setRoomLink(roomLink map[int]*Room) {
 }
 
 func (room *Room) isValidDirection(dir int) bool {
-	return dir >= 0 && room.Exits[dir] >= 0
+	return dir < 10 && dir >= 0 && room.Exits[dir] >= 0
 }
 
 func (room *Room) isLocal() bool {
@@ -173,9 +173,9 @@ func (room *Room) repopulateRoomTick(timeInMinutes time.Duration) {
 
 func (room *Room) populateRoomWithMonsters() { //TODO remove hardcoding, maybe load from xml file
 
-	room.MonstersInRoom["Rabbit"] = newMonsterFromName("Rabbit")
-	room.MonstersInRoom["Fox"] = newMonsterFromName("Fox")
-	room.MonstersInRoom["Deer"] = newMonsterFromName("Deer")
+	room.MonstersInRoom["Rabbit"] = newMonsterFromName("Rabbit", room.ID)
+	room.MonstersInRoom["Fox"] = newMonsterFromName("Fox", room.ID)
+	room.MonstersInRoom["Deer"] = newMonsterFromName("Deer", room.ID)
 }
 
 func (room *Room) getRoomDescription() []FormattedString {

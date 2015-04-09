@@ -34,10 +34,10 @@ func newClientConnection(conn net.Conn, em *EventManager) *ClientConnection {
 
 	cc.character = getCharacterFromCentral(clientResponse.getUsername())
 	cc.character.myClientConn = cc
+	em.worldRooms[cc.character.RoomIN].addPCToRoom(cc.character)
 	cc.CurrentEM = em
 
 	cc.pingResponse = sync.NewCond(&cc.ping_lock)
-	//fmt.Println(cc.character)
 
 	//Send the client a description of their starting room
 	em.executeNonCombatEvent(cc, &ClientMessage{Command: "look", Value: "room"})

@@ -91,7 +91,7 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 			item, found := cc.character.getItemFromInv(event.Value)
 			if found {
 				em.auction = newAuction(item)
-				em.sendMessageToWorld(em.auction.getAuctionInfo())
+				em.sendMessageToWorld(*em.auction.getAuctionInfo())
 			}
 		}
 	case cmd == "bid":
