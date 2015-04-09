@@ -44,7 +44,7 @@ func (a *Auction) beginAuction() {
 	for {
 		time.Sleep(time.Second * 2)
 
-		if time.Now().Sub(a.endTime).Seconds() > 0 {
+		if a.isOver() {
 			break
 		}
 	}
@@ -72,8 +72,12 @@ func (a *Auction) determineWinner() *Bid {
 	return highestBid
 }
 
-func (a *Auction) awardItemToWinner(winner *Bid) {
+func (a *Auction) isOver() bool {
+	return time.Now().Sub(a.endTime).Seconds() > 0
+}
 
+func (a *Auction) awardItemToWinner(winner *Bid) {
+	winner.bidder.giveItem(a.itemUp)
 }
 
 func (a *Auction) getAuctionInfo() *ServerMessage {
