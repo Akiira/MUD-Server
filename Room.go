@@ -126,12 +126,17 @@ func (room *Room) getPC(charName string) (*Character, bool) {
 
 func (room *Room) getItem(char *Character, itemName string) []FormattedString {
 
-	item := room.ItemsInRoom[itemName]
-	char.addItemToInventory(*item)
+	item, found := room.ItemsInRoom[itemName]
 
-	delete(room.ItemsInRoom, itemName)
+	if found {
+		char.addItemToInventory(item)
+		delete(room.ItemsInRoom, itemName)
 
-	return newFormattedStringSplice("You succesfully picked up the item and added it to your invenctory")
+		return newFormattedStringSplice("You succesfully picked up the item and added it to your invenctory")
+	} else {
+		return newFormattedStringSplice("That item was not found in the room.")
+	}
+
 }
 
 func (room *Room) getMonster(monsterName string) *Monster {

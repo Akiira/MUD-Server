@@ -104,3 +104,7 @@ func (cc *ClientConnection) getCharactersRoomID() int {
 func (cc *ClientConnection) getCharacter() *Character {
 	return cc.character
 }
+
+func (cc *ClientConnection) giveItem(itm *Item) {
+	cc.character.addItemToInventory(itm)
+}

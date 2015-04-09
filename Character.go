@@ -76,8 +76,8 @@ func (c *Character) takeOffArmor(location string) {
 	}
 }
 
-func (c *Character) addItemToInventory(item Item) {
-	c.PersonalInvetory.items[item.name] = item
+func (c *Character) addItemToInventory(item *Item) {
+	c.PersonalInvetory.addItemToInventory(item)
 }
 
 //TODO
@@ -301,7 +301,6 @@ func getCharacterFromCentral(charName string) *Character {
 	return char
 }
 
-/*
 func saveCharacterToFile(char *Character) {
 	//TODO saveCharacter
 
@@ -312,4 +311,3 @@ func saveCharacterToFile(char *Character) {
 	ch.HP = char.currentHP
 
 }
-*/
