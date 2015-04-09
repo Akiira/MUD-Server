@@ -4,12 +4,29 @@ import (
 	"encoding/xml"
 )
 
+type Item_I interface {
+	getName() string
+	getDescription() string
+	getItemType() int
+	//toXML() *ItemXML_I
+}
+
+type ItemXML_I interface {
+}
+
+const (
+	BASE_ITEM = 0
+	WEAPON    = 1
+	ARMOUR    = 2
+)
+
 type Item struct {
 	name        string
 	description string
 	itemLevel   int
 	itemWorth   int
 	quantity    int
+	typeOfItem  int
 }
 
 type ItemXML struct {
@@ -38,6 +55,10 @@ func (i *Item) getName() string {
 
 func (i *Item) getDescription() string {
 	return i.description
+}
+
+func (i *Item) getItemType() int {
+	return BASE_ITEM
 }
 
 func (i *Item) toXML() *ItemXML {

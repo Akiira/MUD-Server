@@ -31,6 +31,10 @@ func armourFromXML(armourData *ArmourXML) *Armour {
 	return arm
 }
 
+func (arm *Armour) getItemType() int {
+	return ARMOUR
+}
+
 func (arm *Armour) toXML() *ArmourXML {
 	armXML := new(ArmourXML)
 	armXML.ItemInfo = *arm.Item.toXML()

@@ -12,6 +12,10 @@ type Weapon struct {
 	maxDmg int
 }
 
+func (wpn *Weapon) getItemType() int {
+	return WEAPON
+}
+
 func (wpn *Weapon) getAttack() int {
 	return wpn.attack
 }
