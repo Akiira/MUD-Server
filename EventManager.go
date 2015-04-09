@@ -11,6 +11,7 @@ type EventManager struct {
 	queue_lock sync.Mutex
 	eventQue   []Event
 	worldRooms map[int]*Room
+	auction    *Auction
 }
 
 func newEventManager(worldName string) *EventManager {
@@ -85,10 +86,20 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 	var msgType int
 	msgType = GAMEPLAY
 	switch {
+	case cmd == "auction": //This is to start an auction
+		if em.auction == nil {
+			item, found := cc.character.getItemFromInv(event.Value)
+			if found {
+				em.auction = newAuction(item)
+				em.sendMessageToWorld(em.auction.getAuctionInfo())
+			}
+		}
 	case cmd == "bid":
-		//TODO
+		//TODO possibly add mutex around auction
 		// check if there is a running auction
-		// if so then: auction.bidOnItem(event.getBid(), cc, time.Now()) //Or get time from Timestamp?
+		if em.isAuctionRunning() {
+			em.auction.bidOnItem(event.getBid(), cc, time.Now())
+		}
 	case cmd == "inv":
 		output = cc.character.PersonalInvetory.getInventoryDescription()
 	case cmd == "save" || cmd == "exit":
@@ -110,4 +121,8 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 	if len(output) > 0 {
 		cc.sendMsgToClient(newServerMessageTypeFS(msgType, output))
 	}
+}
+
+func (em *EventManager) isAuctionRunning() bool {
+	return em.auction != nil
 }

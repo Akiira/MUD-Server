@@ -7,9 +7,9 @@ import (
 
 //TODO just messing around with interfaces, prolly wont keep it
 type Auctioner interface {
-	newAuction(item *Item, endTime time.Time)
+	newAuction(item *Item) *Auction
 	beginAuction()
-	sendAuctionInfoToWorld()
+	getAuctionInfo() *ServerMessage
 	bidOnItem(amount int, bidder *ClientConnection, timeOfBid time.Time) []FormattedString
 	determineWinner()
 	awardItemToWinner()
@@ -28,12 +28,22 @@ type Bid struct {
 	amount          int
 }
 
-func newAuction(item *Item, endTime time.Time) {
+func newAuction(item *Item) *Auction {
 	a := new(Auction)
-	a.endTime = endTime
+	a.endTime = time.Now().Add(time.Minute * 2) //This could also come in from user
 	a.highestBid = nil
 	a.itemUp = item
 	a.recentBids = make([]*Bid, 5)
+
+	return a
+}
+
+func (a *Auction) beginAuction() {
+
+}
+
+func (a *Auction) getAuctionInfo() *ServerMessage {
+
 }
 
 func (a *Auction) bidOnItem(amount int, bidder *ClientConnection, timeOfBid time.Time) []FormattedString {
