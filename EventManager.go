@@ -59,7 +59,7 @@ func (em *EventManager) executeCombatRound() {
 			output = agent.makeAttack(target)
 		}
 
-		agent.getClientConnection().sendMsgToClient(newServerMessageFS(output))
+		agent.sendMessage(newServerMessageFS(output))
 
 	}
 
@@ -80,8 +80,7 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 	case cmd == "inv":
 		output = cc.character.PersonalInvetory.getInventoryDescription()
 	case cmd == "save" || cmd == "exit":
-		//saveCharacterToFile(cc.getCharacter())
-		//sendCharactersFile(cc.getCharactersName())
+		sendCharactersXML(cc.character.toXML())
 		output = newFormattedStringSplice("Character succesfully saved.\n")
 	case cmd == "stats":
 		output = cc.getCharacter().getStatsPage()
