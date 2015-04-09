@@ -8,7 +8,7 @@ import (
 
 type Auction struct {
 	highestBid *Bid
-	itemUp     *Item
+	itemUp     Item_I
 	endTime    time.Time
 	recentBids []*Bid
 }
@@ -19,7 +19,7 @@ type Bid struct {
 	amount          int
 }
 
-func newAuction(item *Item) *Auction {
+func newAuction(item Item_I) *Auction {
 	a := new(Auction)
 	a.endTime = time.Now().Add(time.Minute * 2) //This could also come in from user
 	a.highestBid = nil
@@ -56,7 +56,7 @@ func (a *Auction) awardItemToWinner(winner *Bid) {
 
 func (a *Auction) getAuctionInfo() ServerMessage {
 	msg := newFormattedStringCollection()
-	msg.addMessage2("\tItem:" + a.itemUp.name)
+	msg.addMessage2("\tItem:" + a.itemUp.getName())
 	msg.addMessage2(fmt.Sprint("\tCurrent Bid: %d", a.highestBid.amount))
 	msg.addMessage2("\tTime left: " + a.endTime.Sub(time.Now()).String())
 

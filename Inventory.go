@@ -6,17 +6,8 @@ import (
 	"strconv"
 )
 
-type InventoryXML struct {
-	XMLName xml.Name    `xml:"Inventory"`
-	Items   []ItemXML   `xml:"Item"`
-	Weapons []WeaponXML `xml:"Weapon"`
-	Armours []ArmourXML `xml:"Armour"`
-}
-
 type Inventory struct {
-	items   map[string]Item
-	weapons map[string]Weapon
-	armours map[string]Armour
+	itemsI map[string]Item_I
 }
 
 //=================== CONSTRUCTORS =====================//
@@ -51,92 +42,61 @@ func inventoryFromXML(invXml *InventoryXML) *Inventory {
 	return inv
 }
 
-//================== CLASS FUNCTIONS =============//
-
 func newInventory() *Inventory {
-
 	i := new(Inventory)
-	i.items = make(map[string]Item)
-	i.weapons = make(map[string]Weapon)
-	i.armours = make(map[string]Armour)
+	i.itemsI = make(map[string]Item_I)
 
 	return i
 }
 
-func (inv *Inventory) addItemToInventory(addItem *Item) {
-	if val, ok := inv.items[addItem.name]; ok { // the item is already there
-		val.quantity++
-		inv.items[addItem.name] = val
+//================== CLASS FUNCTIONS =============//
+
+func (inv *Inventory) addItemToInventory(item Item_I) {
+	if val, ok := inv.itemsI[item.getName()]; ok { // the item is already there
+		val.increaseQuantity()
 	} else {
-		inv.items[addItem.name] = *addItem
+		inv.itemsI[item.getName()] = item
 	}
 }
-func (inv *Inventory) addWeaponToInventory(addWeapon *Weapon) {
-	if val, ok := inv.weapons[addWeapon.Item.name]; ok { // the item is already there
-		val.quantity++
-		inv.weapons[addWeapon.Item.name] = val
+func (inv *Inventory) addWeaponToInventory(weapon *Weapon) {
+	if val, ok := inv.itemsI[weapon.Item.name]; ok { // the item is already there
+		val.increaseQuantity()
 	} else {
-		inv.weapons[addWeapon.Item.name] = *addWeapon
+		inv.itemsI[weapon.name] = weapon
 	}
 }
-func (inv *Inventory) addArmourToInventory(addArmour *Armour) {
-	if val, ok := inv.armours[addArmour.Item.name]; ok { // the item is already there
-		val.quantity++
-		inv.armours[addArmour.Item.name] = val
+func (inv *Inventory) addArmourToInventory(armr *Armour) {
+	if val, ok := inv.itemsI[armr.name]; ok { // the item is already there
+		val.increaseQuantity()
 	} else {
-		inv.armours[addArmour.Item.name] = *addArmour
+		inv.itemsI[armr.name] = armr
 	}
 }
 
-func (inv *Inventory) getItemByName(name string) (*Item, bool) {
-	itm, found := inv.items[name]
-	return &itm, found
+func (inv *Inventory) getItemByName(name string) (Item_I, bool) {
+	itm, found := inv.itemsI[name]
+	return itm, found
 }
 
 func (inv *Inventory) getInventoryDescription() []FormattedString {
-	output := make([]FormattedString, len(inv.items)+len(inv.weapons)+len(inv.armours)+1, len(inv.items)+len(inv.weapons)+len(inv.armours)+1)
-
-	output[0].Color = ct.White
-	output[0].Value = "\nYou are carrying " + strconv.Itoa(len(inv.items)+len(inv.weapons)+len(inv.armours)) + " unique items:\n"
-
-	i := 1
-	for key, item := range inv.items {
-		output[i].Color = ct.Green
-		output[i].Value = "\t" + strconv.Itoa(item.quantity) + "\t" + key + "\n"
-		i++
-	}
-
-	for key, weapon := range inv.weapons {
-		output[i].Color = ct.Green
-		output[i].Value = "\t" + strconv.Itoa(weapon.Item.quantity) + "\t" + key + "\n"
-		i++
-	}
-
-	for key, armour := range inv.armours {
-		output[i].Color = ct.Green
-		output[i].Value = "\t" + strconv.Itoa(armour.Item.quantity) + "\t" + key + "\n"
-		i++
-	}
-
-	return output
+	//TODO getInventoryDescription
+	return nil
 }
 
 func (inv *Inventory) toXML() *InventoryXML {
 	invXML := newInvXML()
 
-	for _, item := range inv.items {
-		invXML.Items = append(invXML.Items, *item.toXML())
-	}
-
-	for _, weapon := range inv.weapons {
-		invXML.Weapons = append(invXML.Weapons, *weapon.toXML())
-	}
-
-	for _, armour := range inv.armours {
-		invXML.Armours = append(invXML.Armours, *armour.toXML())
+	for _, item := range inv.itemsI {
+		invXML.Items = append(invXML.Items, item.toXML())
 	}
 
 	return invXML
 }
 
-//==============="STATIC" FUNCTIONS===================//
+type InventoryXML struct {
+	XMLName xml.Name    `xml:"Inventory"`
+	ItemsI  []ItemXML_I `xml:"ItemsI"`
+	Items   []ItemXML   `xml:"Item"`
+	Weapons []WeaponXML `xml:"Weapon"`
+	Armours []ArmourXML `xml:"Armour"`
+}

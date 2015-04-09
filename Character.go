@@ -76,7 +76,7 @@ func (c *Character) takeOffArmor(location string) {
 	}
 }
 
-func (c *Character) addItemToInventory(item *Item) {
+func (c *Character) addItemToInventory(item Item_I) {
 	c.PersonalInvetory.addItemToInventory(item)
 }
 
@@ -173,7 +173,7 @@ func (c *Character) getClientConnection() *ClientConnection {
 	return c.myClientConn
 }
 
-func (c *Character) getItemFromInv(name string) (*Item, bool) {
+func (c *Character) getItemFromInv(name string) (Item_I, bool) {
 	return c.PersonalInvetory.getItemByName(name)
 }
 
@@ -240,6 +240,8 @@ func (char *Character) toXML() *CharacterXML {
 	ch.ArmSet = *char.equippedArmour.toXML()
 	ch.PersInv = *char.PersonalInvetory.toXML()
 
+	ch.Wpn = char.equipedWeapon.toXML()
+
 	return ch
 }
 
@@ -272,6 +274,7 @@ type CharacterXML struct {
 	EquipedWeapon WeaponXML    `xml:"Weapon"`
 	ArmSet        ArmourSetXML `xml:"ArmourSet"`
 	PersInv       InventoryXML `xml:"Inventory"`
+	Wpn           ItemXML_I    //Testing
 }
 
 func getCharacterFromCentral(charName string) *Character {

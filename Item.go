@@ -8,7 +8,9 @@ type Item_I interface {
 	getName() string
 	getDescription() string
 	getItemType() int
-	//toXML() *ItemXML_I
+	increaseQuantity()
+	decreaseQuantity()
+	toXML() ItemXML_I
 }
 
 type ItemXML_I interface {
@@ -61,7 +63,15 @@ func (i *Item) getItemType() int {
 	return BASE_ITEM
 }
 
-func (i *Item) toXML() *ItemXML {
+func (i *Item) increaseQuantity() {
+	i.quantity++
+}
+
+func (i *Item) decreaseQuantity() {
+	i.quantity--
+}
+
+func (i *Item) toXML() ItemXML_I {
 	xmlItem := new(ItemXML)
 	xmlItem.Name = i.name
 	xmlItem.Description = i.description
@@ -71,3 +81,14 @@ func (i *Item) toXML() *ItemXML {
 
 	return xmlItem
 }
+
+//func (i *Item) toXML() *ItemXML {
+//	xmlItem := new(ItemXML)
+//	xmlItem.Name = i.name
+//	xmlItem.Description = i.description
+//	xmlItem.ItemLevel = i.itemLevel
+//	xmlItem.ItemWorth = i.itemWorth
+//	xmlItem.Quantity = i.quantity
+
+//	return xmlItem
+//}

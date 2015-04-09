@@ -13,7 +13,6 @@ type Armour struct {
 	wearLocation string
 }
 
-//When should constructors return a pointer instead of the object itself?
 func newArmour(name1 string, descr string, def int, wearLoc string) Armour {
 	a := Armour{defense: def, wearLocation: wearLoc}
 	a.name = name1
@@ -24,7 +23,7 @@ func newArmour(name1 string, descr string, def int, wearLoc string) Armour {
 
 func armourFromXML(armourData *ArmourXML) *Armour {
 	arm := new(Armour)
-	arm.Item = *itemFromXML(&(armourData.ItemInfo))
+	arm.Item = *itemFromXML(armourData.ItemInfo.(*ItemXML))
 	arm.defense = armourData.Defense
 	arm.wearLocation = armourData.WearLocation
 
@@ -35,14 +34,23 @@ func (arm *Armour) getItemType() int {
 	return ARMOUR
 }
 
-func (arm *Armour) toXML() *ArmourXML {
+func (arm *Armour) toXML() ItemXML_I {
 	armXML := new(ArmourXML)
-	armXML.ItemInfo = *arm.Item.toXML()
+	armXML.ItemInfo = arm.Item.toXML()
 	armXML.Defense = arm.defense
 	armXML.WearLocation = arm.wearLocation
 
 	return armXML
 }
+
+//func (arm *Armour) toXML() *ArmourXML {
+//	armXML := new(ArmourXML)
+//	armXML.ItemInfo = arm.Item.toXML()
+//	armXML.Defense = arm.defense
+//	armXML.WearLocation = arm.wearLocation
+
+//	return armXML
+//}
 
 //--------------ARMOURSET CLASS----------------
 
@@ -120,7 +128,7 @@ func (as *ArmourSet) toXML() *ArmourSetXML {
 	asXML := new(ArmourSetXML)
 
 	for _, arm := range as.equipedArmour {
-		asXML.ArmSet = append(asXML.ArmSet, *arm.toXML())
+		asXML.ArmSet = append(asXML.ArmSet, arm.toXML().(ArmourXML))
 	}
 
 	return asXML
@@ -134,8 +142,8 @@ type ArmourSetXML struct {
 }
 
 type ArmourXML struct {
-	XMLName      xml.Name `xml:"Armour"`
-	ItemInfo     ItemXML  `xml:"Item"`
-	Defense      int      `xml:"Defense"`
-	WearLocation string   `xml:"Location"`
+	XMLName      xml.Name  `xml:"Armour"`
+	ItemInfo     ItemXML_I `xml:"Item"`
+	Defense      int       `xml:"Defense"`
+	WearLocation string    `xml:"Location"`
 }

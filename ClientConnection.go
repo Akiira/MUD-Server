@@ -105,6 +105,6 @@ func (cc *ClientConnection) getCharacter() *Character {
 	return cc.character
 }
 
-func (cc *ClientConnection) giveItem(itm *Item) {
+func (cc *ClientConnection) giveItem(itm Item_I) {
 	cc.character.addItemToInventory(itm)
 }
