@@ -26,7 +26,7 @@ type Monster struct {
 
 type target struct {
 	aggro        int
-	attackTarget *ClientConnection
+	attackTarget *Character
 }
 
 var monsterTemplatesG map[string]*Monster
@@ -62,7 +62,7 @@ func (m *Monster) fightPlayers() {
 		}
 
 		//Find target with highest aggro
-		var attackTarget *ClientConnection
+		var attackTarget *Character
 		maxAggro := 0
 		for _, targ := range m.targets {
 			if targ.aggro > maxAggro {
@@ -70,22 +70,22 @@ func (m *Monster) fightPlayers() {
 			}
 		}
 
-		event := newEvent(m, "attack", attackTarget.character.Name, attackTarget)
+		event := newEvent(m, "attack", attackTarget.Name)
 		m.em.addEvent(event)
 	}
 }
 
 //TODO implement monsters combat functions
 
-func (m *Monster) addNewTarget(targetCC *ClientConnection, agro int) {
+func (m *Monster) addNewTarget(targetChar *Character, agro int) {
 
-	_, exist := m.targets[targetCC.character.Name]
+	_, exist := m.targets[targetChar.Name]
 
 	if exist {
-		m.targets[targetCC.character.Name].aggro += agro
+		m.targets[targetChar.Name].aggro += agro
 	} else {
-		targ := target{aggro: agro, attackTarget: targetCC}
-		m.targets[targetCC.character.Name] = &targ
+		targ := target{aggro: agro, attackTarget: targetChar}
+		m.targets[targetChar.Name] = &targ
 
 		if len(m.targets) == 1 {
 			go m.fightPlayers()
@@ -138,10 +138,6 @@ func (m *Monster) makeAttack(target Agenter) []FormattedString {
 	}
 
 	return newFormattedStringSplice2(ct.Red, fmt.Sprintf("The %s's attack missed you.\n", m.Name))
-}
-
-func (m *Monster) getClientConnection() *ClientConnection {
-	return m.lastTarget.getClientConnection()
 }
 
 func (m *Monster) getDamage() int {

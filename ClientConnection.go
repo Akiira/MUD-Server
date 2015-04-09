@@ -55,7 +55,7 @@ func (cc *ClientConnection) receiveMsgFromClient() {
 		fmt.Println("Message read: ", clientResponse)
 
 		if clientResponse.CombatAction {
-			event := newEventFromMessage(clientResponse, cc.character, cc)
+			event := newEventFromMessage(clientResponse, cc.character)
 			cc.CurrentEM.addEvent(event)
 		} else if clientResponse.Command == "ping" {
 			cc.pingResponse.Signal()

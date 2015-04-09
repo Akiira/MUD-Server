@@ -9,18 +9,16 @@ type Event struct {
 	action string
 	target string
 	agent  Agenter
-	client *ClientConnection
 }
 
-func newEventFromMessage(msg ClientMessage, agent Agenter, cc *ClientConnection) Event {
-	return newEvent(agent, msg.Command, msg.Value, cc)
+func newEventFromMessage(msg ClientMessage, agent Agenter) Event {
+	return newEvent(agent, msg.Command, msg.Value)
 }
 
-func newEvent(agent Agenter, action string, target string, cc *ClientConnection) Event {
+func newEvent(agent Agenter, action string, target string) Event {
 	event := new(Event)
 	event.agent = agent
 	event.action = action
 	event.target = target
-	event.client = cc
 	return *event
 }
