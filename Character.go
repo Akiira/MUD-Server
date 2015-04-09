@@ -100,13 +100,8 @@ func (char *Character) moveCharacter(direction string) (int, []FormattedString) 
 
 			room.removePCFromRoom(char.Name)
 			newRoom.addPCToRoom(char)
-			//sendCharactersFile(char.Name)
 
-			//TODO sendCharactersXML is what we should do When all the toXML
-			// functions are done because it will be quicker
-			charXML := char.toXML()
-			charXML.CurrentWorld = newRoom.WorldID
-			sendCharactersXML(charXML)
+			sendCharactersXML(char.toXML())
 
 			return REDIRECT, newFormattedStringSplice(servers[newRoom.WorldID])
 		}
