@@ -1,29 +1,67 @@
- <Character>
- 	<Name>test2</Name>
- 	<RoomIN>0</RoomIN>
- 	<HitPoints>30</HitPoints>
- 	<Defense>2</Defense>
- 	<Strength>14</Strength>
- 	<Constitution>15</Constitution>
- 	<Dexterity>18</Dexterity>
- 	<Wisdom>11</Wisdom>
- 	<Charisma>13</Charisma>
- 	<Inteligence>16</Inteligence>
- 	<Level>1</Level>
- 	<CurrentWorld>World1</CurrentWorld>
- 	<!--Equipped Weapon-->
- 	<Weapon>
- 		<Item>
- 			<Name>Short Sword</Name>
- 			<Description>An old short sword.</Description>
- 			<Level>1</Level>
- 			<Worth>10</Worth>
- 			<Quantity>0</Quantity>
- 		</Item>
- 		<Attack>3</Attack>
- 		<MinDmg>1</MinDmg>
- 		<MaxDmg>5</MaxDmg>
- 	</Weapon>
- 	<ArmourSet></ArmourSet>
- 	<Inventory></Inventory>
- </Character>
+<Character>
+	<Name>test2</Name>
+	<RoomIN>0</RoomIN>
+	<HitPoints>30</HitPoints>
+	<Defense>0</Defense>
+	<Strength>14</Strength>
+	<Constitution>15</Constitution>
+	<Dexterity>18</Dexterity>
+	<Wisdom>11</Wisdom>
+	<Charisma>13</Charisma>
+	<Inteligence>16</Inteligence>
+	<Level>1</Level>
+	<CurrentWorld></CurrentWorld>
+	<!--Equipped Weapon-->
+	<Weapon>
+		<Item>
+			<Name>Short Sword</Name>
+			<Description>An old short sword.</Description>
+			<Level>1</Level>
+			<Worth>10</Worth>
+		</Item>
+		<Attack>3</Attack>
+		<MinDmg>1</MinDmg>
+		<MaxDmg>5</MaxDmg>
+	</Weapon>
+	<ArmourSet></ArmourSet>
+	<Inventory>
+		<Armour>
+			<Item>
+				<Name>Silly Hat</Name>
+				<Description>A large hat with many colors</Description>
+				<Level>222</Level>
+				<Worth>2</Worth>
+			</Item>
+			<Defense>1</Defense>
+			<Location>Head</Location>
+		</Armour>
+		<Item>
+			<Name>Lantern</Name>
+			<Description>A sturdy copper lantern</Description>
+			<Level>666</Level>
+			<Worth>5</Worth>
+		</Item>
+		<Weapon>
+			<Item>
+				<Name>Short Sword</Name>
+				<Description>An old short sword.</Description>
+				<Level>1</Level>
+				<Worth>10</Worth>
+			</Item>
+			<Attack>3</Attack>
+			<MinDmg>1</MinDmg>
+			<MaxDmg>5</MaxDmg>
+		</Weapon>
+		<Weapon>
+			<Item>
+				<Name>Short Sword</Name>
+				<Description>An old short sword.</Description>
+				<Level>1</Level>
+				<Worth>10</Worth>
+			</Item>
+			<Attack>3</Attack>
+			<MinDmg>1</MinDmg>
+			<MaxDmg>5</MaxDmg>
+		</Weapon>
+	</Inventory>
+</Character>

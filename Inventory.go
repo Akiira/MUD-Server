@@ -2,11 +2,15 @@ package main
 
 import (
 	"encoding/xml"
-	//"github.com/daviddengcn/go-colortext"
+	"io"
 )
 
+type entry struct {
+	item     Item_I
+	quantity int
+}
 type Inventory struct {
-	items map[string]Item_I
+	items map[string]*entry
 }
 
 //=================== CONSTRUCTORS =====================//
@@ -21,7 +25,6 @@ func newInvXML() *InventoryXML {
 func inventoryFromXML(invXml *InventoryXML) *Inventory {
 	inv := newInventory()
 
-	//loop through items
 	for _, itm := range invXml.Items {
 		inv.addItemToInventory(itm.toItem())
 	}
@@ -31,7 +34,7 @@ func inventoryFromXML(invXml *InventoryXML) *Inventory {
 
 func newInventory() *Inventory {
 	i := new(Inventory)
-	i.items = make(map[string]Item_I)
+	i.items = make(map[string]*entry)
 
 	return i
 }
@@ -40,15 +43,21 @@ func newInventory() *Inventory {
 
 func (inv *Inventory) addItemToInventory(item Item_I) {
 	if val, ok := inv.items[item.getName()]; ok { // the item is already there
-		val.increaseQuantity()
+		val.quantity++
 	} else {
-		inv.items[item.getName()] = item
+		inv.items[item.getName()] = &entry{item: item, quantity: 1}
 	}
 }
 
 func (inv *Inventory) getItemByName(name string) (Item_I, bool) {
-	itm, found := inv.items[name]
-	return itm, found
+	item, found := inv.items[name]
+	if found {
+		item.quantity--
+		if item.quantity == 0 {
+			delete(inv.items, name)
+		}
+	}
+	return item.item, found
 }
 
 func (inv *Inventory) getInventoryDescription() []FormattedString {
@@ -60,7 +69,9 @@ func (inv *Inventory) toXML() *InventoryXML {
 	invXML := newInvXML()
 
 	for _, item := range inv.items {
-		invXML.Items = append(invXML.Items, item.toXML())
+		for i := 0; i < item.quantity; i++ {
+			invXML.Items = append(invXML.Items, item.item.toXML())
+		}
 	}
 
 	return invXML
@@ -68,5 +79,30 @@ func (inv *Inventory) toXML() *InventoryXML {
 
 type InventoryXML struct {
 	XMLName xml.Name    `xml:"Inventory"`
-	Items   []ItemXML_I `xml:"Items"`
+	Items   []ItemXML_I `xml:",any"`
+}
+
+func (c *InventoryXML) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {
+	var item ItemXML_I
+
+	for t, err := d.Token(); err != io.EOF; {
+		switch t1 := t.(type) {
+		case xml.StartElement:
+			if t1.Name.Local == "Armour" {
+				item = new(ArmourXML)
+			} else if t1.Name.Local == "Weapon" {
+				item = new(WeaponXML)
+			} else {
+				item = new(ItemXML)
+			}
+
+			err = d.DecodeElement(item, &t1)
+			checkError(err, true)
+			c.Items = append(c.Items, item)
+		}
+
+		t, err = d.Token()
+	}
+
+	return nil
 }

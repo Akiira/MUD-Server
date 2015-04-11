@@ -19,7 +19,6 @@
 			<Description>An old short sword.</Description>
 			<Level>1</Level>
 			<Worth>10</Worth>
-			<Quantity>1</Quantity>
 		</Item>
 		<Attack>3</Attack>
 		<Damage>5</Damage>

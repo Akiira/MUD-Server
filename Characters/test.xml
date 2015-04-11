@@ -24,4 +24,44 @@
 		<MinDmg>1</MinDmg>
 		<MaxDmg>5</MaxDmg>
 	</Weapon>
+	<Inventory>
+		<Weapon>
+			<Item>
+				<Name>Short Sword</Name>
+				<Description>An old short sword.</Description>
+				<Level>1</Level>
+				<Worth>10</Worth>
+			</Item>
+			<Attack>3</Attack>
+			<MinDmg>1</MinDmg>
+			<MaxDmg>5</MaxDmg>
+		</Weapon>
+		<Armour>
+			<Item>
+				<Name>Silly Hat</Name>
+				<Description>A large hat with many colors</Description>
+				<Level>222</Level>
+				<Worth>2</Worth>
+			</Item>
+			<Defense>1</Defense>
+			<Location>Head</Location>
+		</Armour>
+		<Item>
+			<Name>Lantern</Name>
+			<Description>A sturdy copper lantern</Description>
+			<Level>666</Level>
+			<Worth>5</Worth>
+		</Item>
+		<Weapon>
+			<Item>
+				<Name>Short Sword</Name>
+				<Description>An old short sword.</Description>
+				<Level>1</Level>
+				<Worth>10</Worth>
+			</Item>
+			<Attack>3</Attack>
+			<MinDmg>667</MinDmg>
+			<MaxDmg>5</MaxDmg>
+		</Weapon>
+	</Inventory>
 </Character>

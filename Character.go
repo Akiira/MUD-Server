@@ -239,10 +239,10 @@ func (char *Character) toXML() *CharacterXML {
 
 	ch.WeaponComment = []byte("Equipped Weapon")
 	ch.EquipedWeapon = *char.equipedWeapon.toXML().(*WeaponXML)
-	ch.ArmSet = *char.equippedArmour.toXML()
+	//ch.ArmSet = *char.equippedArmour.toXML()
 	ch.PersInv = *char.PersonalInvetory.toXML()
 
-	ch.Wpn = char.equipedWeapon.toXML()
+	//ch.Wpn = char.equipedWeapon.toXML()
 
 	return ch
 }
@@ -316,4 +316,9 @@ func saveCharacterToFile(char *Character) {
 	ch.Defense = char.Defense
 	ch.HP = char.currentHP
 
+}
+
+//Just for testing, can be removed later
+func (c *CharacterXML) printInv() {
+	//fmt.Println("There are " + len(c.PersInv.Items) + " items.")
 }

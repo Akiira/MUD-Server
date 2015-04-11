@@ -84,15 +84,23 @@ func testNewXMLstiff() {
 
 	data, err := ioutil.ReadAll(file)
 	checkError(err, false)
-
+	_ = data
 	var c CharacterXML
+
 	err = xml.Unmarshal(data, &c)
 	checkError(err, false)
-	fmt.Println(c)
 
+	fmt.Println(c)
+	checkError(err, true)
 	c.Name = name + "2"
 	c.WeaponComment = []byte("Equipped Weapon")
-	saveCharacterFile(&c)
+
+	fmt.Println(c.PersInv.Items[0])
+	fmt.Println()
+	fmt.Println(*characterFromXML(&c).toXML())
+	fmt.Println()
+
+	saveCharacterFile(characterFromXML(&c).toXML())
 }
 
 func saveCharacterFile(char *CharacterXML) {

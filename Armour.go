@@ -3,7 +3,6 @@ package main
 
 import (
 	"encoding/xml"
-	_ "fmt"
 	"github.com/daviddengcn/go-colortext"
 )
 
@@ -18,12 +17,11 @@ func newArmour(name1 string, descr string, def int, wearLoc string) Armour {
 	a.name = name1
 	a.description = descr
 	return a
-	//return &a
 }
 
 func armourFromXML(armourData *ArmourXML) *Armour {
 	arm := new(Armour)
-	arm.Item = *itemFromXML(armourData.ItemInfo.(*ItemXML))
+	arm.Item = *itemFromXML(armourData.ItemInfo)
 	arm.defense = armourData.Defense
 	arm.wearLocation = armourData.WearLocation
 
@@ -36,7 +34,7 @@ func (arm *Armour) getItemType() int {
 
 func (arm *Armour) toXML() ItemXML_I {
 	armXML := new(ArmourXML)
-	armXML.ItemInfo = arm.Item.toXML()
+	armXML.ItemInfo = arm.Item.toXML().(*ItemXML)
 	armXML.Defense = arm.defense
 	armXML.WearLocation = arm.wearLocation
 
@@ -137,8 +135,8 @@ type ArmourSetXML struct {
 }
 
 type ArmourXML struct {
-	XMLName      xml.Name  `xml:"Armour"`
-	ItemInfo     ItemXML_I `xml:"Item"`
-	Defense      int       `xml:"Defense"`
-	WearLocation string    `xml:"Location"`
+	XMLName      xml.Name `xml:"Armour"`
+	ItemInfo     *ItemXML `xml:"Item"`
+	Defense      int      `xml:"Defense"`
+	WearLocation string   `xml:"Location"`
 }
