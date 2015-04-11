@@ -2,21 +2,18 @@ package main
 
 import (
 	"encoding/xml"
-	"github.com/daviddengcn/go-colortext"
-	"strconv"
+	//"github.com/daviddengcn/go-colortext"
 )
 
 type Inventory struct {
-	itemsI map[string]Item_I
+	items map[string]Item_I
 }
 
 //=================== CONSTRUCTORS =====================//
 
 func newInvXML() *InventoryXML {
 	invXML := new(InventoryXML)
-	invXML.Items = make([]ItemXML, 10)
-	invXML.Weapons = make([]WeaponXML, 10)
-	invXML.Armours = make([]ArmourXML, 10)
+	invXML.Items = make([]ItemXML_I, 10)
 
 	return invXML
 }
@@ -26,17 +23,7 @@ func inventoryFromXML(invXml *InventoryXML) *Inventory {
 
 	//loop through items
 	for _, itm := range invXml.Items {
-		inv.addItemToInventory(itemFromXML(&itm))
-	}
-
-	//loop through weapons
-	for _, itm := range invXml.Weapons {
-		inv.addWeaponToInventory(weaponFromXML(&itm))
-	}
-
-	//loop through armours
-	for _, itm := range invXml.Armours {
-		inv.addArmourToInventory(armourFromXML(&itm))
+		inv.addItemToInventory(itm.toItem())
 	}
 
 	return inv
@@ -44,7 +31,7 @@ func inventoryFromXML(invXml *InventoryXML) *Inventory {
 
 func newInventory() *Inventory {
 	i := new(Inventory)
-	i.itemsI = make(map[string]Item_I)
+	i.items = make(map[string]Item_I)
 
 	return i
 }
@@ -52,29 +39,15 @@ func newInventory() *Inventory {
 //================== CLASS FUNCTIONS =============//
 
 func (inv *Inventory) addItemToInventory(item Item_I) {
-	if val, ok := inv.itemsI[item.getName()]; ok { // the item is already there
+	if val, ok := inv.items[item.getName()]; ok { // the item is already there
 		val.increaseQuantity()
 	} else {
-		inv.itemsI[item.getName()] = item
-	}
-}
-func (inv *Inventory) addWeaponToInventory(weapon *Weapon) {
-	if val, ok := inv.itemsI[weapon.Item.name]; ok { // the item is already there
-		val.increaseQuantity()
-	} else {
-		inv.itemsI[weapon.name] = weapon
-	}
-}
-func (inv *Inventory) addArmourToInventory(armr *Armour) {
-	if val, ok := inv.itemsI[armr.name]; ok { // the item is already there
-		val.increaseQuantity()
-	} else {
-		inv.itemsI[armr.name] = armr
+		inv.items[item.getName()] = item
 	}
 }
 
 func (inv *Inventory) getItemByName(name string) (Item_I, bool) {
-	itm, found := inv.itemsI[name]
+	itm, found := inv.items[name]
 	return itm, found
 }
 
@@ -86,7 +59,7 @@ func (inv *Inventory) getInventoryDescription() []FormattedString {
 func (inv *Inventory) toXML() *InventoryXML {
 	invXML := newInvXML()
 
-	for _, item := range inv.itemsI {
+	for _, item := range inv.items {
 		invXML.Items = append(invXML.Items, item.toXML())
 	}
 
@@ -95,8 +68,5 @@ func (inv *Inventory) toXML() *InventoryXML {
 
 type InventoryXML struct {
 	XMLName xml.Name    `xml:"Inventory"`
-	ItemsI  []ItemXML_I `xml:"ItemsI"`
-	Items   []ItemXML   `xml:"Item"`
-	Weapons []WeaponXML `xml:"Weapon"`
-	Armours []ArmourXML `xml:"Armour"`
+	Items   []ItemXML_I `xml:"Items"`
 }

@@ -3,7 +3,9 @@ package main
 import (
 	"bufio"
 	"encoding/gob"
+	"encoding/xml"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net"
 	"os"
@@ -15,13 +17,15 @@ var eventManager *EventManager
 
 func main() {
 
-	if len(os.Args) < 2 {
-		fmt.Println(os.Args[0] + " requires 1 arguments, worldname")
-		os.Exit(1)
-	}
+	testNewXMLstiff()
 
-	readServerList()
-	runServer()
+	//	if len(os.Args) < 2 {
+	//		fmt.Println(os.Args[0] + " requires 1 arguments, worldname")
+	//		os.Exit(1)
+	//	}
+
+	//	readServerList()
+	//	runServer()
 
 	//getCharacterFromCentral("Ragnar")
 	//sendCharactersFile("Tiefling")
@@ -72,7 +76,38 @@ func HandleClientConnection(myConn net.Conn) {
 	clientConnection.receiveMsgFromClient()
 }
 
-/*
+func testNewXMLstiff() {
+	name := "test"
+	file, err := os.Open("Characters/" + name + ".xml")
+	checkError(err, true)
+	defer file.Close()
+
+	data, err := ioutil.ReadAll(file)
+	checkError(err, false)
+
+	var c CharacterXML
+	err = xml.Unmarshal(data, &c)
+	checkError(err, false)
+	fmt.Println(c)
+
+	c.Name = name + "2"
+	c.WeaponComment = []byte("Equipped Weapon")
+	saveCharacterFile(&c)
+}
+
+func saveCharacterFile(char *CharacterXML) {
+	fmt.Println("Saving char: ", char)
+	file, err := os.Create("Characters/" + char.Name + ".xml")
+	checkError(err, true)
+	defer file.Close()
+
+	enc := xml.NewEncoder(file)
+	enc.Indent("", "\t")
+
+	err = enc.Encode(char)
+	checkError(err, false)
+}
+
 func sendCharactersFile(name string) {
 	conn, err := net.Dial("tcp", servers["characterStorage"])
 	checkError(err, true)
@@ -96,10 +131,8 @@ func sendCharactersFile(name string) {
 	err = encdr.Encode(c)
 	checkError(err, false)
 }
-*/
-func sendCharactersXML(charData *CharacterXML) {
 
-	//fmt.Println(charData)
+func sendCharactersXML(charData *CharacterXML) {
 
 	conn, err := net.Dial("tcp", servers["characterStorage"])
 	checkError(err, true)

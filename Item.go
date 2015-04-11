@@ -14,6 +14,7 @@ type Item_I interface {
 }
 
 type ItemXML_I interface {
+	toItem() Item_I
 }
 
 const (
@@ -82,13 +83,6 @@ func (i *Item) toXML() ItemXML_I {
 	return xmlItem
 }
 
-//func (i *Item) toXML() *ItemXML {
-//	xmlItem := new(ItemXML)
-//	xmlItem.Name = i.name
-//	xmlItem.Description = i.description
-//	xmlItem.ItemLevel = i.itemLevel
-//	xmlItem.ItemWorth = i.itemWorth
-//	xmlItem.Quantity = i.quantity
-
-//	return xmlItem
-//}
+func (i *ItemXML) toItem() Item_I {
+	return itemFromXML(i)
+}

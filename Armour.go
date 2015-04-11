@@ -43,14 +43,9 @@ func (arm *Armour) toXML() ItemXML_I {
 	return armXML
 }
 
-//func (arm *Armour) toXML() *ArmourXML {
-//	armXML := new(ArmourXML)
-//	armXML.ItemInfo = arm.Item.toXML()
-//	armXML.Defense = arm.defense
-//	armXML.WearLocation = arm.wearLocation
-
-//	return armXML
-//}
+func (a ArmourXML) toItem() Item_I {
+	return armourFromXML(&a)
+}
 
 //--------------ARMOURSET CLASS----------------
 

@@ -237,7 +237,8 @@ func (char *Character) toXML() *CharacterXML {
 	ch.Level = char.level
 	ch.experience = char.experience
 
-	ch.EquipedWeapon = *char.equipedWeapon.toXML()
+	ch.WeaponComment = []byte("Equipped Weapon")
+	ch.EquipedWeapon = *char.equipedWeapon.toXML().(*WeaponXML)
 	ch.ArmSet = *char.equippedArmour.toXML()
 	ch.PersInv = *char.PersonalInvetory.toXML()
 
@@ -272,6 +273,7 @@ type CharacterXML struct {
 
 	CurrentWorld string `xml:"CurrentWorld"`
 
+	WeaponComment xml.Comment  `xml:",comment"`
 	EquipedWeapon WeaponXML    `xml:"Weapon"`
 	ArmSet        ArmourSetXML `xml:"ArmourSet"`
 	PersInv       InventoryXML `xml:"Inventory"`

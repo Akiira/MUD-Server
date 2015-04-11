@@ -29,16 +29,16 @@ func (wpn *Weapon) getDamageRange() int {
 }
 
 type WeaponXML struct {
-	XMLName  xml.Name  `xml:"Weapon"`
-	ItemInfo ItemXML_I `xml:"Item"`
-	Attack   int       `xml:"Attack"`
-	MinDmg   int       `xml:"MinDmg"`
-	MaxDmg   int       `xml:"MaxDmg"`
+	XMLName  xml.Name `xml:"Weapon"`
+	ItemInfo *ItemXML `xml:"Item"`
+	Attack   int      `xml:"Attack"`
+	MinDmg   int      `xml:"MinDmg"`
+	MaxDmg   int      `xml:"MaxDmg"`
 }
 
 func weaponFromXML(weaponData *WeaponXML) *Weapon {
 	wpn := new(Weapon)
-	wpn.Item = *itemFromXML(weaponData.ItemInfo.(*ItemXML))
+	wpn.Item = *itemFromXML(weaponData.ItemInfo)
 	wpn.attack = weaponData.Attack
 	wpn.minDmg = weaponData.MinDmg
 	wpn.maxDmg = weaponData.MaxDmg
@@ -48,7 +48,7 @@ func weaponFromXML(weaponData *WeaponXML) *Weapon {
 
 func (w *Weapon) toXML() ItemXML_I {
 	wpnXML := new(WeaponXML)
-	wpnXML.ItemInfo = w.Item.toXML()
+	wpnXML.ItemInfo = w.Item.toXML().(*ItemXML)
 	wpnXML.Attack = w.attack
 	wpnXML.MinDmg = w.minDmg
 	wpnXML.MaxDmg = w.maxDmg
@@ -56,12 +56,6 @@ func (w *Weapon) toXML() ItemXML_I {
 	return wpnXML
 }
 
-//func (w *Weapon) toXML() *WeaponXML {
-//	wpnXML := new(WeaponXML)
-//	wpnXML.ItemInfo = *w.Item.toXML()
-//	wpnXML.Attack = w.attack
-//	wpnXML.MinDmg = w.minDmg
-//	wpnXML.MaxDmg = w.maxDmg
-
-//	return wpnXML
-//}
+func (w *WeaponXML) toItem() Item_I {
+	return weaponFromXML(w)
+}
