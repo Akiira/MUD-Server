@@ -299,7 +299,7 @@ type RoomsXML struct {
 
 func loadRooms(worldName string) map[int]*Room {
 	xmlFile, err := os.Open(worldName + ".xml")
-	checkError(err, true)
+	checkErrorWithMessage(err, true, " In load rooms function.")
 	defer xmlFile.Close()
 
 	XMLdata, _ := ioutil.ReadAll(xmlFile)

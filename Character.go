@@ -277,7 +277,6 @@ type CharacterXML struct {
 	EquipedWeapon WeaponXML    `xml:"Weapon"`
 	ArmSet        ArmourSetXML `xml:"ArmourSet"`
 	PersInv       InventoryXML `xml:"Inventory"`
-	Wpn           ItemXML_I    //Testing
 }
 
 func getCharacterFromCentral(charName string) *Character {
@@ -297,10 +296,9 @@ func getCharacterFromCentral(charName string) *Character {
 	err = enc.Encode(serverMsg)
 	checkError(err, true)
 	err = dec.Decode(&queriedChar)
+	fmt.Println("this is received char: ", queriedChar)
+	fmt.Println("INV: ", queriedChar.PersInv)
 	checkError(err, true)
-
-	fmt.Println("this is received char")
-	fmt.Println(queriedChar)
 
 	char := characterFromXML(&queriedChar)
 

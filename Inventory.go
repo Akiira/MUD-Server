@@ -17,7 +17,7 @@ type Inventory struct {
 
 func newInvXML() *InventoryXML {
 	invXML := new(InventoryXML)
-	invXML.Items = make([]ItemXML_I, 10)
+	invXML.Items = make([]interface{}, 10)
 
 	return invXML
 }
@@ -26,7 +26,7 @@ func inventoryFromXML(invXml *InventoryXML) *Inventory {
 	inv := newInventory()
 
 	for _, itm := range invXml.Items {
-		inv.addItemToInventory(itm.toItem())
+		inv.addItemToInventory(itm.(ItemXML_I).toItem())
 	}
 
 	return inv
@@ -77,9 +77,11 @@ func (inv *Inventory) toXML() *InventoryXML {
 	return invXML
 }
 
+//================== XML STUFF =============//
+
 type InventoryXML struct {
-	XMLName xml.Name    `xml:"Inventory"`
-	Items   []ItemXML_I `xml:",any"`
+	XMLName xml.Name      `xml:"Inventory"`
+	Items   []interface{} `xml:",any"`
 }
 
 func (c *InventoryXML) UnmarshalXML(d *xml.Decoder, start xml.StartElement) error {

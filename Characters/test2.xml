@@ -25,16 +25,6 @@
 	</Weapon>
 	<ArmourSet></ArmourSet>
 	<Inventory>
-		<Armour>
-			<Item>
-				<Name>Silly Hat</Name>
-				<Description>A large hat with many colors</Description>
-				<Level>222</Level>
-				<Worth>2</Worth>
-			</Item>
-			<Defense>1</Defense>
-			<Location>Head</Location>
-		</Armour>
 		<Item>
 			<Name>Lantern</Name>
 			<Description>A sturdy copper lantern</Description>
@@ -63,5 +53,15 @@
 			<MinDmg>1</MinDmg>
 			<MaxDmg>5</MaxDmg>
 		</Weapon>
+		<Armour>
+			<Item>
+				<Name>Silly Hat</Name>
+				<Description>A large hat with many colors</Description>
+				<Level>222</Level>
+				<Worth>2</Worth>
+			</Item>
+			<Defense>1</Defense>
+			<Location>Head</Location>
+		</Armour>
 	</Inventory>
 </Character>

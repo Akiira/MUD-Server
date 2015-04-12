@@ -16,16 +16,21 @@ var servers map[string]string
 var eventManager *EventManager
 
 func main() {
+	gob.Register(WeaponXML{})
+	gob.Register(ArmourXML{})
+	gob.Register(ArmourSetXML{})
+	gob.Register(ItemXML{})
+	gob.Register(CharacterXML{})
 
-	testNewXMLstiff()
+	//testNewXMLstiff()
 
-	//	if len(os.Args) < 2 {
-	//		fmt.Println(os.Args[0] + " requires 1 arguments, worldname")
-	//		os.Exit(1)
-	//	}
+	if len(os.Args) < 2 {
+		fmt.Println(os.Args[0] + " requires 1 arguments, worldname")
+		os.Exit(1)
+	}
 
-	//	readServerList()
-	//	runServer()
+	readServerList()
+	runServer()
 
 	//getCharacterFromCentral("Ragnar")
 	//sendCharactersFile("Tiefling")

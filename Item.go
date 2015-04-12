@@ -69,6 +69,6 @@ func (i *Item) toXML() ItemXML_I {
 	return xmlItem
 }
 
-func (i *ItemXML) toItem() Item_I {
-	return itemFromXML(i)
+func (i ItemXML) toItem() Item_I {
+	return itemFromXML(&i)
 }

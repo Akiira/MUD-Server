@@ -93,7 +93,6 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 			item, found := cc.character.getItemFromInv(event.Value)
 			if found {
 				em.auction = newAuction(item)
-				em.sendMessageToWorld(em.auction.getAuctionInfo())
 				go em.runAuction()
 				output = newFormattedStringSplice("Your auction was succesfully started.")
 			} else {
@@ -132,6 +131,7 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 
 func (em *EventManager) runAuction() {
 	for {
+		em.sendMessageToWorld(em.auction.getAuctionInfo())
 		time.Sleep(time.Second * 2)
 
 		em.auctn_mutx.Lock()
