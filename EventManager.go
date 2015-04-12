@@ -2,6 +2,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/daviddengcn/go-colortext"
 	"sync"
 	"time"
@@ -83,12 +84,14 @@ func (em *EventManager) executeCombatRound() {
 func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *ClientMessage) {
 	var output []FormattedString
 	eventRoom := em.worldRooms[cc.character.RoomIN]
-	cmd := event.Command
+	cmd := event.getCommand()
 	var msgType int
 	msgType = GAMEPLAY
 	switch {
 	case cmd == "auction": //This is to start an auction
 		em.auctn_mutx.Lock()
+		defer em.auctn_mutx.Unlock()
+
 		if em.auction == nil {
 			item, found := cc.character.getItemFromInv(event.Value)
 			if found {
@@ -99,13 +102,19 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 				output = newFormattedStringSplice("Could not start the auction because you do not have that item.")
 			}
 		}
-		em.auctn_mutx.Unlock()
 	case cmd == "bid":
+		fmt.Println("Executing bid command")
 		em.auctn_mutx.Lock()
-		if em.isAuctionRunning() {
-			em.auction.bidOnItem(event.getBid(), cc, time.Now())
+		defer em.auctn_mutx.Unlock()
+
+		if em.auction != nil {
+			fmt.Println("Bidding on item")
+			output = em.auction.bidOnItem(event.getBid(), cc, time.Now())
+			fmt.Println("Done Bidding on item")
+		} else {
+			output = newFormattedStringSplice("There are not currently any auctions happening.\n")
 		}
-		em.auctn_mutx.Unlock()
+		fmt.Println("Done Executing bid command")
 	case cmd == "inv":
 		output = cc.character.PersonalInvetory.getInventoryDescription()
 	case cmd == "save" || cmd == "exit":
@@ -129,13 +138,27 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 	}
 }
 
-func (em *EventManager) runAuction() {
+func (em *EventManager) sendPeriodicAuctionInfo() {
 	for {
-		em.sendMessageToWorld(em.auction.getAuctionInfo())
-		time.Sleep(time.Second * 2)
+		time.Sleep(time.Second * 5)
+		if em.auction.timeTillOver() > time.Second*5 {
+			em.sendMessageToWorld(em.auction.getAuctionInfo())
+		} else {
+			break
+		}
+	}
+}
+
+func (em *EventManager) runAuction() {
+
+	go em.sendPeriodicAuctionInfo()
+
+	for {
+
+		time.Sleep(time.Second * 3)
 
 		em.auctn_mutx.Lock()
-		if em.auction.isOver() {
+		if em.auction.timeTillOver() < -time.Second*2 {
 			break
 		}
 		em.auctn_mutx.Unlock()

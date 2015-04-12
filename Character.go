@@ -44,7 +44,7 @@ func characterFromXML(charData *CharacterXML) *Character {
 	char := new(Character)
 	char.setAgentStatsFromXML(charData)
 	char.equipedWeapon = *weaponFromXML(&charData.EquipedWeapon)
-	char.equippedArmour = *armourSetFromXML(charData.ArmSet)
+	char.equippedArmour = *armourSetFromXML(&charData.ArmSet)
 	char.level = charData.Level
 	char.experience = charData.experience
 
@@ -175,6 +175,9 @@ func (c *Character) getClientConnection() *ClientConnection {
 }
 
 func (c *Character) getItemFromInv(name string) (Item_I, bool) {
+	fmt.Println("Char: ", c)
+	fmt.Println("Inv: ", c.PersonalInvetory)
+	fmt.Println("Inv Items: ", c.PersonalInvetory.items)
 	return c.PersonalInvetory.getItemByName(name)
 }
 
@@ -296,8 +299,8 @@ func getCharacterFromCentral(charName string) *Character {
 	err = enc.Encode(serverMsg)
 	checkError(err, true)
 	err = dec.Decode(&queriedChar)
-	fmt.Println("this is received char: ", queriedChar)
-	fmt.Println("INV: ", queriedChar.PersInv)
+	//fmt.Println("this is received char: ", queriedChar)
+	//fmt.Println("INV: ", queriedChar.PersInv)
 	checkError(err, true)
 
 	char := characterFromXML(&queriedChar)

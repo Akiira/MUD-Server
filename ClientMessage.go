@@ -17,7 +17,13 @@ type ClientMessage struct {
 func newClientMessage(cmd string, val string) ClientMessage {
 	return ClientMessage{CombatAction: false, Command: cmd, Value: val}
 }
-
+func (msg *ClientMessage) getCommand() string {
+	if strings.Contains(msg.Command, ";") {
+		return strings.Split(msg.Command, ";")[0]
+	} else {
+		return msg.Command
+	}
+}
 func (msg *ClientMessage) setCommand(cmd string) {
 	msg.CombatAction = false
 	msg.Command = cmd

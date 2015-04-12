@@ -20,7 +20,6 @@ func main() {
 	gob.Register(ArmourXML{})
 	gob.Register(ArmourSetXML{})
 	gob.Register(ItemXML{})
-	gob.Register(CharacterXML{})
 
 	//testNewXMLstiff()
 

@@ -21,7 +21,7 @@ type Bid struct {
 
 func newAuction(item Item_I) *Auction {
 	a := new(Auction)
-	a.endTime = time.Now().Add(time.Minute * 2) //This could also come in from user
+	a.endTime = time.Now().Add(time.Minute * 1) //This could also come in from user
 	a.highestBid = nil
 	a.itemUp = item
 	a.recentBids = make([]*Bid, 5)
@@ -45,6 +45,9 @@ func (a *Auction) determineWinner() *Bid {
 	return highestBid
 }
 
+func (a *Auction) timeTillOver() time.Duration {
+	return a.endTime.Sub(time.Now())
+}
 func (a *Auction) isOver() bool {
 	return time.Now().Sub(a.endTime).Seconds() > 0
 }
@@ -56,29 +59,32 @@ func (a *Auction) awardItemToWinner(winner *Bid) {
 
 func (a *Auction) getAuctionInfo() ServerMessage {
 	msg := newFormattedStringCollection()
-	msg.addMessage2("\tItem:" + a.itemUp.getName())
-	msg.addMessage2(fmt.Sprint("\tCurrent Bid: %d", a.highestBid.amount))
-	msg.addMessage2("\tTime left: " + a.endTime.Sub(time.Now()).String())
+	msg.addMessage2("\n\tItem:" + a.itemUp.getName())
+	if a.highestBid != nil {
+		msg.addMessage2(fmt.Sprint("\tCurrent Bid: %d", a.highestBid.amount))
+	}
+	msg.addMessage2("\tTime left: " + a.endTime.Sub(time.Now()).String() + "\n")
 
 	return newServerMessageFS(msg.fmtedStrings)
 }
 
 func (a *Auction) bidOnItem(amount int, bidder *ClientConnection, timeOfBid time.Time) []FormattedString {
 
-	if !a.isOver() && a.highestBid.amount <= amount {
+	estimatedTime := timeOfBid.Add(-1 * bidder.getAverageRoundTripTime())
+	distance := a.endTime.Sub(estimatedTime)
+
+	if distance > 0 {
 		bid := new(Bid)
 		bid.bidder = bidder
-
-		estimatedTime := timeOfBid.Add(-1 * bidder.getAverageRoundTripTime())
-		bid.durationFromEnd = a.endTime.Sub(estimatedTime)
-
-		a.highestBid = bid
+		bid.durationFromEnd = distance
 		a.recentBids = append(a.recentBids, bid)
 
-		msg := "Your bid was recorded for time: " + estimatedTime.String() + "\n"
-		return newFormattedStringSplice2(ct.Green, msg)
-	} else if a.highestBid.amount > amount {
-		return newFormattedStringSplice2(ct.Green, "Your bid was too low.")
+		if a.highestBid == nil || a.highestBid.amount <= amount {
+			a.highestBid = bid
+			return newFormattedStringSplice2(ct.Green, "Your bid was recorded for time: "+estimatedTime.String()+"\n")
+		} else {
+			return newFormattedStringSplice2(ct.Green, "Your bid was too low.")
+		}
 	} else {
 		return newFormattedStringSplice2(ct.Green, "The auction ended before you could place your bid.")
 	}

@@ -46,6 +46,8 @@ func newClientConnection(conn net.Conn, em *EventManager) *ClientConnection {
 }
 
 func (cc *ClientConnection) receiveMsgFromClient() {
+	defer cc.myConn.Close()
+
 	for {
 		var clientResponse ClientMessage
 
@@ -57,7 +59,8 @@ func (cc *ClientConnection) receiveMsgFromClient() {
 		if clientResponse.CombatAction {
 			event := newEventFromMessage(clientResponse, cc.character)
 			cc.CurrentEM.addEvent(event)
-		} else if clientResponse.Command == "ping" {
+		} else if clientResponse.getCommand() == "ping" {
+			fmt.Println("\t\tReceived ping from user.")
 			cc.pingResponse.Signal()
 		} else {
 			cc.CurrentEM.executeNonCombatEvent(cc, &clientResponse)
@@ -68,8 +71,6 @@ func (cc *ClientConnection) receiveMsgFromClient() {
 			break
 		}
 	}
-
-	cc.myConn.Close()
 }
 
 func (cc *ClientConnection) sendMsgToClient(msg ServerMessage) {
@@ -81,16 +82,22 @@ func (cc *ClientConnection) sendMsgToClient(msg ServerMessage) {
 }
 
 func (cc *ClientConnection) getAverageRoundTripTime() time.Duration {
-	cc.net_lock.Lock()
+	fmt.Println("\tGetting average round trip time.")
+
 	var avg time.Duration
 	for i := 0; i < 10; i++ {
+		fmt.Println("\t\tPing: ", i)
 		now := time.Now()
 		cc.sendMsgToClient(newServerMessageTypeS(PING, "ping"))
+		fmt.Println("\t\tWaiting for response ping")
+		cc.pingResponse.L.Lock()
 		cc.pingResponse.Wait()
+		cc.pingResponse.L.Unlock()
+
 		then := time.Now()
 		avg += then.Sub(now)
 	}
-
+	fmt.Println("\tDone getting average round trip time.")
 	return ((avg / 10) / 2)
 }
 func (cc *ClientConnection) getCharactersName() string {

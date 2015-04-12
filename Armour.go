@@ -59,7 +59,7 @@ func newArmourSet() *ArmourSet {
 	return as
 }
 
-func armourSetFromXML(armourSetData ArmourSetXML) *ArmourSet {
+func armourSetFromXML(armourSetData *ArmourSetXML) *ArmourSet {
 	as := newArmourSet()
 
 	for _, arm := range armourSetData.ArmSet {
