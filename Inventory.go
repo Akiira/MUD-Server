@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/xml"
+	"fmt"
 	"io"
 )
 
@@ -26,6 +27,8 @@ func inventoryFromXML(invXml *InventoryXML) *Inventory {
 	inv := newInventory()
 
 	for _, itm := range invXml.Items {
+		fmt.Println("Adding item1: ", itm)
+		fmt.Println("Adding item2: ", itm.(ItemXML_I).toItem())
 		inv.addItemToInventory(itm.(ItemXML_I).toItem())
 	}
 
@@ -50,14 +53,18 @@ func (inv *Inventory) addItemToInventory(item Item_I) {
 }
 
 func (inv *Inventory) getItemByName(name string) (Item_I, bool) {
+
 	item, found := inv.items[name]
 	if found {
 		item.quantity--
 		if item.quantity == 0 {
 			delete(inv.items, name)
 		}
+
+		return item.item, true
+	} else {
+		return nil, false
 	}
-	return item.item, found
 }
 
 func (inv *Inventory) getInventoryDescription() []FormattedString {
