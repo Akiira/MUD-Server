@@ -91,6 +91,15 @@ func (room *Room) setRoomLink(roomLink map[int]*Room) {
 	}
 }
 
+func (room *Room) isPlayerAggroed(name string) bool {
+	for _, monster := range room.MonstersInRoom {
+		if monster.isPlayerAggroed(name) {
+			return true
+		}
+	}
+	return false
+}
+
 func (room *Room) isValidDirection(dir int) bool {
 	return dir < 10 && dir >= 0 && room.Exits[dir] >= 0
 }

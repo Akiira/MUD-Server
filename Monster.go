@@ -125,6 +125,15 @@ func (m *Monster) isDead() bool {
 	return m.currentHP < 0
 }
 
+func (m *Monster) isPlayerAggroed(name string) bool {
+	for _, targets := range m.targets {
+		if targets.attackTarget.Name == name {
+			return true
+		}
+	}
+	return false
+}
+
 func (m *Monster) makeAttack(target Agenter) []FormattedString {
 	a1 := m.getAttackRoll()
 	if a1 >= target.getDefense() {
