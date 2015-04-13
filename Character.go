@@ -128,31 +128,24 @@ func (c *Character) addItemToInventory(item Item_I) {
 	c.PersonalInvetory.addItemToInventory(item)
 }
 
-//TODO
-//func (char *Character) moveCharacter(direction string, source *Room, destination *Room) []FormattedString
+func (char *Character) moveCharacter(source *Room, destination *Room) (int, []FormattedString) {
 
-func (char *Character) moveCharacter(direction string) (int, []FormattedString) {
+	if destination != nil {
 
-	dirAsInt := convertDirectionToInt(direction)
-	room := char.myClientConn.CurrentEM.worldRooms[char.RoomIN] //TODO this is just a temporary fix
+		if destination.isLocal() {
+			source.removePCFromRoom(char.Name)
+			destination.addPCToRoom(char)
 
-	if room.isValidDirection(dirAsInt) {
-		newRoom := room.getConnectedRoom(dirAsInt)
-
-		if newRoom.isLocal() {
-			room.removePCFromRoom(char.Name)
-			newRoom.addPCToRoom(char)
-
-			return GAMEPLAY, room.ExitLinksToRooms[dirAsInt].getRoomDescription()
+			return GAMEPLAY, destination.getRoomDescription()
 		} else {
 
-			room.removePCFromRoom(char.Name)
-			newRoom.addPCToRoom(char)
+			source.removePCFromRoom(char.Name)
+			destination.addPCToRoom(char)
 			charXML := char.toXML()
-			charXML.CurrentWorld = newRoom.WorldID
+			charXML.CurrentWorld = destination.WorldID
 			sendCharactersXML(charXML)
 
-			return REDIRECT, newFormattedStringSplice(servers[newRoom.WorldID])
+			return REDIRECT, newFormattedStringSplice(servers[destination.WorldID])
 		}
 	} else {
 		return GAMEPLAY, newFormattedStringSplice("No exit in that direction\n")

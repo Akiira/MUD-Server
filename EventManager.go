@@ -136,7 +136,10 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 	case cmd == "get":
 		output = eventRoom.getItem(cc.character, event.Value)
 	case cmd == "move":
-		msgType, output = cc.character.moveCharacter(event.Value)
+		src := em.worldRooms[cc.getCharactersRoomID()]
+		dest := src.getConnectedRoom(convertDirectionToInt(event.Value))
+
+		msgType, output = cc.character.moveCharacter(src, dest)
 	case cmd == "yell":
 		em.sendMessageToWorld(newServerMessageFS(newFormattedStringSplice2(ct.Blue, cc.character.Name+" says \""+event.Value+"\"")))
 	case cmd == "say":
