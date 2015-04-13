@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/xml"
 	"fmt"
+	"github.com/daviddengcn/go-colortext"
 	"io"
 )
 
@@ -27,8 +28,6 @@ func inventoryFromXML(invXml *InventoryXML) *Inventory {
 	inv := newInventory()
 
 	for _, itm := range invXml.Items {
-		fmt.Println("Adding item1: ", itm)
-		fmt.Println("Adding item2: ", itm.(ItemXML_I).toItem())
 		inv.addItemToInventory(itm.(ItemXML_I).toItem())
 	}
 
@@ -68,8 +67,15 @@ func (inv *Inventory) getItemByName(name string) (Item_I, bool) {
 }
 
 func (inv *Inventory) getInventoryDescription() []FormattedString {
-	//TODO getInventoryDescription
-	return nil
+	desc := newFormattedStringCollection()
+	desc.addMessage2("\nInventory\n")
+	desc.addMessage(ct.Green, "-----------------------------------------\n")
+
+	for name, itemEntry := range inv.items {
+		desc.addMessage(ct.Green, fmt.Sprintf("\t%-20s   %3d", name, itemEntry.quantity)+"\n")
+	}
+	desc.addMessage2("\n")
+	return desc.fmtedStrings
 }
 
 func (inv *Inventory) toXML() *InventoryXML {
