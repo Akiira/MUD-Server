@@ -47,6 +47,9 @@ type Room struct {
 	//NonCharactersInRoom map[string]*NPC
 
 	ItemsInRoom map[string]*Item
+
+	//This is for the monsters native to this room
+	monsterTemplateNames []string
 }
 
 //This is a constructor that creates a room from xml data
@@ -70,6 +73,7 @@ func newRoomFromXML(roomData RoomXML) *Room {
 		room.CharactersInRoom = make(map[string]*Character)
 		room.MonstersInRoom = make(map[string]*Monster)
 		room.ItemsInRoom = make(map[string]*Item)
+		room.monsterTemplateNames = roomData.Monsters
 
 		room.populateRoomWithMonsters()
 		go room.repopulateRoomTick(15)
@@ -141,7 +145,6 @@ func (room *Room) getItem(char *Character, itemName string) []FormattedString {
 
 func (room *Room) getMonster(monsterName string) *Monster {
 
-	//check for the existence of the monster first
 	if val, ok := room.MonstersInRoom[monsterName]; ok {
 		//fmt.Println(room.MonstersInRoom[monsterName])
 		return val
@@ -152,7 +155,6 @@ func (room *Room) getMonster(monsterName string) *Monster {
 
 func (room *Room) getAgentInRoom(name string) Agenter {
 
-	//check for the existence of the monster first
 	if val := room.getMonster(name); val != nil {
 		return val
 	} else if val, found := room.getPC(name); found {
@@ -176,11 +178,13 @@ func (room *Room) repopulateRoomTick(timeInMinutes time.Duration) {
 	}
 }
 
-func (room *Room) populateRoomWithMonsters() { //TODO remove hardcoding, maybe load from xml file
+func (room *Room) populateRoomWithMonsters() {
 
-	room.MonstersInRoom["Rabbit"] = newMonsterFromName("Rabbit", room.ID)
-	room.MonstersInRoom["Fox"] = newMonsterFromName("Fox", room.ID)
-	room.MonstersInRoom["Deer"] = newMonsterFromName("Deer", room.ID)
+	for _, monsterName := range room.monsterTemplateNames {
+		if _, found := room.MonstersInRoom[monsterName]; found == false {
+			room.MonstersInRoom[monsterName] = newMonsterFromName(monsterName, room.ID)
+		}
+	}
 }
 
 func (room *Room) getRoomDescription() []FormattedString {
@@ -289,6 +293,7 @@ type RoomXML struct {
 	Name        string    `xml:"Name"`
 	Description string    `xml:"Description"`
 	WorldID     string    `xml:"WorldID"`
+	Monsters    []string  `xml:"Monster"`
 	Exits       []ExitXML `xml:"Exit"`
 }
 
