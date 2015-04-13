@@ -185,11 +185,11 @@ func (char *Character) makeAttack(target Agenter) []FormattedString {
 func (c *Character) takeDamage(amount int, typeOfDamge int) []FormattedString {
 
 	c.currentHP -= amount
-	s := "You got hit for " + fmt.Sprintf("%i", amount) + " damage.\n"
+	s := "You got hit for " + fmt.Sprintf("%d", amount) + " damage.\n"
 	return newFormattedStringSplice2(ct.Red, s)
 }
 func (c *Character) isDead() bool {
-	return c.currentHP >= 0
+	return c.currentHP <= 0 || c.myClientConn.isConnectionClosed()
 }
 
 func (c *Character) getName() string {
@@ -260,7 +260,7 @@ func (char *Character) toXML() *CharacterXML {
 	ch := new(CharacterXML)
 	ch.Name = char.Name
 	ch.RoomIN = char.RoomIN
-	ch.HP = char.currentHP
+	ch.HP = char.MaxHitPoints
 
 	ch.Strength = char.Strength
 	ch.Constitution = char.Constitution

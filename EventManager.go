@@ -46,8 +46,6 @@ func (em *EventManager) sendMessageToRoom(roomID int, msg ServerMessage) {
 func (em *EventManager) addEvent(event Event) {
 	em.queue_lock.Lock()
 	em.eventQue = append(em.eventQue, event)
-	fmt.Println(em.eventQue)
-	fmt.Println("\tLength: ", len(em.eventQue))
 	em.queue_lock.Unlock()
 }
 
@@ -59,18 +57,17 @@ func (em *EventManager) waitForTick() {
 }
 
 func (em *EventManager) executeCombatRound() {
-	fmt.Println("\tExecuting a combat round.")
 	em.queue_lock.Lock()
 	var output []FormattedString
 	alreadyActed := make(map[string]bool)
-	fmt.Println("\tNumber of events: ", len(em.eventQue))
+
 	for _, event := range em.eventQue {
 		//TODO sort events by initiative stat before executing them
 		action := event.action
 		agent := event.agent
 
 		target := em.worldRooms[agent.getRoomID()].getAgentInRoom(event.target)
-		fmt.Println("\tCurrent actor: ", agent)
+
 		if _, found := alreadyActed[agent.getName()]; !found {
 			alreadyActed[agent.getName()] = true
 

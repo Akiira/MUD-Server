@@ -22,8 +22,10 @@ type ServerMessage struct {
 }
 
 type CharacterInfo struct {
+	Name      string
 	CurrentHP int
 	MaxHP     int
+	Exp       int
 }
 
 func newServerMessageFS(msgs []FormattedString) ServerMessage {
@@ -42,12 +44,18 @@ func newServerMessageTypeS(typeOfMsg int, msg string) ServerMessage {
 	return ServerMessage{MsgType: typeOfMsg, Value: newFormattedStringSplice(msg)}
 }
 
-func (msg *ServerMessage) addCharInfo(hp int, maxHP int) {
-	msg.CharInfo = CharacterInfo{CurrentHP: hp, MaxHP: maxHP}
+func (msg *ServerMessage) addCharInfo(char *Character) {
+	msg.CharInfo = CharacterInfo{CurrentHP: char.currentHP, MaxHP: char.MaxHitPoints, Name: char.Name, Exp: char.experience}
 }
 
 func (msg *ServerMessage) getFormattedCharInfo() []FormattedString {
-	return newFormattedStringSplice2(ct.Red, fmt.Sprintf("\n%d/%d> ", msg.getCurrentHP(), msg.getMaxHP()))
+	fs := newFormattedStringCollection()
+	fs.addMessage(ct.Red, fmt.Sprintf("\n%d/%d", msg.getCurrentHP(), msg.getMaxHP()))
+	fs.addMessage2("|")
+	fs.addMessage(ct.Green, fmt.Sprintf("%d", msg.CharInfo.Exp))
+	fs.addMessage2("|")
+	fs.addMessage(ct.Blue, msg.CharInfo.Name)
+	return fs.fmtedStrings
 }
 
 func (msg *ServerMessage) getCurrentHP() int {

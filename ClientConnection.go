@@ -46,7 +46,6 @@ func newClientConnection(conn net.Conn, em *EventManager) *ClientConnection {
 }
 
 func (cc *ClientConnection) receiveMsgFromClient() {
-	defer cc.myConn.Close()
 
 	for {
 		var clientResponse ClientMessage
@@ -71,12 +70,15 @@ func (cc *ClientConnection) receiveMsgFromClient() {
 			break
 		}
 	}
+
+	cc.myConn.Close()
+	cc.myConn = nil
 }
 
 func (cc *ClientConnection) sendMsgToClient(msg ServerMessage) {
 
 	cc.net_lock.Lock()
-	msg.addCharInfo(cc.character.currentHP, cc.character.MaxHitPoints)
+	msg.addCharInfo(cc.character)
 	err := cc.myEncoder.Encode(msg)
 	cc.net_lock.Unlock()
 	checkError(err, false)
@@ -130,6 +132,10 @@ func (cc *ClientConnection) getCharactersRoomID() int {
 
 func (cc *ClientConnection) getCharacter() *Character {
 	return cc.character
+}
+
+func (cc *ClientConnection) isConnectionClosed() bool {
+	return cc.myConn == nil
 }
 
 func (cc *ClientConnection) giveItem(itm Item_I) {

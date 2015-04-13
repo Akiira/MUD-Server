@@ -78,7 +78,10 @@ func (m *Monster) fightPlayers() {
 	for {
 		time.Sleep(2 * time.Second)
 
+		m.fightingPlayersMutex.Lock()
 		if m.currentHP <= 0 || len(m.targets) <= 0 {
+			m.fightingPlayers = false
+			m.fightingPlayersMutex.Unlock()
 			break
 		}
 
@@ -86,19 +89,23 @@ func (m *Monster) fightPlayers() {
 		var attackTarget *Character
 		maxAggro := 0
 		for _, targ := range m.targets { //TODO handle targets that moved rooms or logged off.
-			//TODO handle when player dies.
+
+			if targ.attackTarget.isDead() {
+				delete(m.targets, targ.attackTarget.getName())
+				continue
+			}
+
 			if targ.aggro > maxAggro {
 				attackTarget = targ.attackTarget
 			}
 		}
-		fmt.Println("\tMonster is attack player.")
-		event := newEvent(m, "attack", attackTarget.Name)
-		eventManager.addEvent(event)
-	}
 
-	m.fightingPlayersMutex.Lock()
-	m.fightingPlayers = false
-	m.fightingPlayersMutex.Unlock()
+		if attackTarget != nil {
+			event := newEvent(m, "attack", attackTarget.Name)
+			eventManager.addEvent(event)
+		}
+		m.fightingPlayersMutex.Unlock()
+	}
 }
 
 func (m *Monster) addTarget(targetChar Agenter) {
