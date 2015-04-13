@@ -37,6 +37,8 @@ type loot struct {
 
 var monsterTemplatesG map[string]*Monster
 
+//------------------MONSTER CONSTRUCTORS------------------------------
+
 func newMonsterFromXML(monsterData MonsterXML) *Monster {
 	m := new(Monster)
 	m.Name = monsterData.Name
@@ -66,6 +68,8 @@ func newMonsterFromName(name string, roomID int) *Monster {
 
 	return m
 }
+
+//------------------MONSTER ATTACK FUNCTIONS------------------------------
 
 func (m *Monster) fightPlayers() {
 	for {
@@ -107,14 +111,33 @@ func (m *Monster) addNewTarget(targetChar *Character, agro int) {
 	}
 }
 
-func (m *Monster) getAttackRoll() int {
-	return (rand.Int() % 20) + m.weapon.attack + m.Strength
+func (m *Monster) makeAttack(target Agenter) []FormattedString {
+	a1 := m.getAttackRoll()
+	if a1 >= target.getDefense() {
+		target.takeDamage(m.getDamage(), 0)
+		output := newFormattedStringCollection()
+		output.addMessage(ct.Red, fmt.Sprintf("The %s hit you for %i damage\n", m.Name, m.getDamage()))
+
+		if target.isDead() {
+			output.addMessage(ct.Red, "\nYou died!.\n")
+		}
+		return output.fmtedStrings
+	}
+
+	return newFormattedStringSplice2(ct.Red, fmt.Sprintf("The %s's attack missed you.\n", m.Name))
 }
 
 func (m *Monster) takeDamage(amount int, typeOfDamge int) []FormattedString {
 	m.currentHP -= amount
 	return nil
 }
+
+//------------------MONSTER GETTERS------------------------------
+
+func (m *Monster) getAttackRoll() int {
+	return (rand.Int() % 20) + m.weapon.attack + m.Strength
+}
+
 func (c *Monster) getRoomID() int {
 	return c.RoomIN
 }
@@ -148,6 +171,14 @@ func (m *Monster) getLoot() []Item_I {
 	return lootItems
 }
 
+func (m *Monster) getDamage() int {
+	return m.weapon.getDamage() + m.Strength
+}
+
+func (m *Monster) getLookDescription() []FormattedString {
+	return newFormattedStringSplice2(ct.Yellow, m.description)
+}
+
 func (m *Monster) sendMessage(msg ServerMessage) {
 	//Do nothing.
 }
@@ -163,30 +194,6 @@ func (m *Monster) isPlayerAggroed(name string) bool {
 		}
 	}
 	return false
-}
-
-func (m *Monster) makeAttack(target Agenter) []FormattedString {
-	a1 := m.getAttackRoll()
-	if a1 >= target.getDefense() {
-		target.takeDamage(m.getDamage(), 0)
-		output := newFormattedStringCollection()
-		output.addMessage(ct.Red, fmt.Sprintf("The %s hit you for %i damage\n", m.Name, m.getDamage()))
-
-		if target.isDead() {
-			output.addMessage(ct.Red, "\nYou died!.\n")
-		}
-		return output.fmtedStrings
-	}
-
-	return newFormattedStringSplice2(ct.Red, fmt.Sprintf("The %s's attack missed you.\n", m.Name))
-}
-
-func (m *Monster) getDamage() int {
-	return m.weapon.getDamage() + m.Strength
-}
-
-func (m *Monster) getLookDescription() []FormattedString {
-	return newFormattedStringSplice2(ct.Yellow, m.description)
 }
 
 //------------------Loading Stuff------------------------------
