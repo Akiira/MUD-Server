@@ -85,21 +85,60 @@ func (cc *ClientConnection) getAverageRoundTripTime() time.Duration {
 	fmt.Println("\tGetting average round trip time.")
 
 	var avg time.Duration
+	addr, _, err := net.SplitHostPort(cc.myConn.RemoteAddr().String())
+	checkError(err, true)
+	conn, err := net.Dial("tcp", addr+pingPort)
+	defer conn.Close()
+
+	encoder := gob.NewEncoder(conn)
+	decoder := gob.NewDecoder(conn)
+
 	for i := 0; i < 10; i++ {
 		fmt.Println("\t\tPing: ", i)
 		now := time.Now()
-		cc.sendMsgToClient(newServerMessageTypeS(PING, "ping"))
+		err = encoder.Encode(newServerMessageS("ping"))
+		checkError(err, false)
+		if err != nil {
+			avg += time.Minute * 10
+			break
+		}
 		fmt.Println("\t\tWaiting for response ping")
-		cc.pingResponse.L.Lock()
-		cc.pingResponse.Wait()
-		cc.pingResponse.L.Unlock()
-
+		err = decoder.Decode(newClientMessage("", ""))
+		checkError(err, false)
 		then := time.Now()
+
+		if err != nil {
+			avg += time.Minute * 10
+			break
+		}
+		fmt.Println("Time diff: ", then.Sub(now))
 		avg += then.Sub(now)
 	}
+	encoder.Encode(newServerMessageS("done"))
 	fmt.Println("\tDone getting average round trip time.")
 	return ((avg / 10) / 2)
 }
+
+//func (cc *ClientConnection) getAverageRoundTripTime() time.Duration {
+//	fmt.Println("\tGetting average round trip time.")
+
+//	var avg time.Duration
+//	for i := 0; i < 10; i++ {
+//		fmt.Println("\t\tPing: ", i)
+//		now := time.Now()
+//		cc.sendMsgToClient(newServerMessageTypeS(PING, "ping"))
+//		fmt.Println("\t\tWaiting for response ping")
+//		cc.pingResponse.L.Lock()
+//		cc.pingResponse.Wait()
+//		cc.pingResponse.L.Unlock()
+
+//		then := time.Now()
+//		avg += then.Sub(now)
+//	}
+//	fmt.Println("\tDone getting average round trip time.")
+//	return ((avg / 10) / 2)
+//}
+
 func (cc *ClientConnection) getCharactersName() string {
 	return cc.character.Name
 }

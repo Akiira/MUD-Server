@@ -12,8 +12,11 @@ import (
 	"strings"
 )
 
-var servers map[string]string
-var eventManager *EventManager
+var (
+	servers      map[string]string = make(map[string]string)
+	eventManager *EventManager
+	pingPort     string = ":1600"
+)
 
 func main() {
 	gob.Register(WeaponXML{})
@@ -54,8 +57,6 @@ func runServer() {
 }
 
 func readServerList() {
-	//this should be the one that read list of servers, including central server
-	servers = make(map[string]string)
 	file, err := os.Open("serverConfig/serverList.txt")
 	if err != nil {
 		log.Fatal(err)
