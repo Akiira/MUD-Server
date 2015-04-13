@@ -46,7 +46,7 @@ type Room struct {
 	//May have a third mapping to friendly NPCs like shopkeepers
 	//NonCharactersInRoom map[string]*NPC
 
-	ItemsInRoom map[string]*Item
+	ItemsInRoom map[string]Item_I
 
 	//This is for the monsters native to this room
 	monsterTemplateNames []string
@@ -72,7 +72,7 @@ func newRoomFromXML(roomData RoomXML) *Room {
 	if room.isLocal() {
 		room.CharactersInRoom = make(map[string]*Character)
 		room.MonstersInRoom = make(map[string]*Monster)
-		room.ItemsInRoom = make(map[string]*Item)
+		room.ItemsInRoom = make(map[string]Item_I)
 		room.monsterTemplateNames = roomData.Monsters
 
 		room.populateRoomWithMonsters()
@@ -174,8 +174,8 @@ func (room *Room) getAgentInRoom(name string) Agenter {
 }
 
 func (room *Room) killOffMonster(monsterName string) {
+	room.ItemsInRoom[monsterName] = room.MonstersInRoom[monsterName].getCorpse()
 	delete(room.MonstersInRoom, monsterName)
-	room.ItemsInRoom[monsterName] = &Item{name: monsterName + " corpse", description: "A freshly kill " + monsterName + " corpse."}
 }
 
 func (room *Room) repopulateRoomTick(timeInMinutes time.Duration) {
@@ -215,7 +215,7 @@ func (room *Room) getRoomDescription() []FormattedString {
 	output = ""
 
 	for _, itemPtr := range room.ItemsInRoom {
-		output += "\n\t" + itemPtr.description
+		output += "\n\t" + itemPtr.getDescription()
 	}
 	fs.addMessage(ct.Yellow, output)
 	output = ""
