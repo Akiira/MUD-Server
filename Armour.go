@@ -63,7 +63,7 @@ func armourSetFromXML(armourSetData *ArmourSetXML) *ArmourSet {
 	as := newArmourSet()
 
 	for _, arm := range armourSetData.ArmSet {
-		as.equipArmour(arm.WearLocation, armourFromXML(&arm))
+		as.equipArmour(armourFromXML(&arm))
 	}
 
 	return as
@@ -82,7 +82,7 @@ func (as *ArmourSet) getArmoursDefense() int {
 }
 
 func (as *ArmourSet) takeOffArmourByLocation(loc string) *Armour {
-	//TODO add check for no armour worn at location
+
 	arm := as.equipedArmour[loc]
 
 	delete(as.equipedArmour, loc)
@@ -90,8 +90,20 @@ func (as *ArmourSet) takeOffArmourByLocation(loc string) *Armour {
 	return arm
 }
 
-func (as *ArmourSet) equipArmour(location string, arm *Armour) {
-	as.equipedArmour[location] = arm
+func (as *ArmourSet) takeOffArmourByName(name string) *Armour {
+
+	for loc, armr := range as.equipedArmour {
+		if armr.name == name {
+			as.takeOffArmourByLocation(loc)
+			return armr
+		}
+	}
+
+	return nil
+}
+
+func (as *ArmourSet) equipArmour(arm *Armour) {
+	as.equipedArmour[arm.wearLocation] = arm
 }
 
 func (as *ArmourSet) getListOfArmourWorn() []FormattedString {

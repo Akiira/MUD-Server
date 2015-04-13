@@ -20,7 +20,7 @@ type Character struct {
 
 	//Equipment fields
 	PersonalInvetory Inventory
-	equipedWeapon    Weapon
+	equipedWeapon    *Weapon
 	equippedArmour   ArmourSet
 
 	myClientConn *ClientConnection
@@ -46,7 +46,7 @@ func characterFromXML(charData *CharacterXML) *Character {
 	char.level = charData.Level
 	char.experience = charData.experience
 
-	char.equipedWeapon = *weaponFromXML(&charData.EquipedWeapon)
+	char.equipedWeapon = weaponFromXML(&charData.EquipedWeapon)
 	char.equippedArmour = *armourSetFromXML(&charData.ArmSet)
 	char.PersonalInvetory = *inventoryFromXML(&charData.PersInv)
 
@@ -55,15 +55,65 @@ func characterFromXML(charData *CharacterXML) *Character {
 
 //================== CLASS FUNCTIONS =============//
 
-//TODO change some of these functions so that they return []FormatterString
-// 		so the client can see the effects.
+func (c *Character) EquipArmorByName(name string) []FormattedString {
+	if item, found := c.getItemFromInv(name); found {
+		if item.getItemType() == ARMOUR {
+			return c.EquipArmour(item.(*Armour))
+		}
 
-func (c *Character) wearArmor(location string, armr Armour) {
-	if c.equippedArmour.isArmourEquippedAtLocation(location) { // already an item present
-		//TODO
-	} else {
-		c.equippedArmour.equipArmour(location, armr)
+		return newFormattedStringSplice("\nThat item is not armour.\n")
 	}
+	return newFormattedStringSplice("\nYou don't have that item. If it is on the ground try 'get'ing it first.\n")
+}
+
+func (c *Character) EquipArmour(armr *Armour) []FormattedString {
+	if c.equippedArmour.isArmourEquippedAtLocation(armr.wearLocation) { // already an item present
+		return newFormattedStringSplice("\nYou already have a peice of armour equiped there.\n")
+	} else {
+		c.equippedArmour.equipArmour(armr)
+		return newFormattedStringSplice("\nYou equiped " + armr.name + "\n")
+	}
+}
+
+func (c *Character) UnEquipArmourByName(name string) []FormattedString {
+	armr := c.equippedArmour.takeOffArmourByName(name)
+	if armr == nil {
+		return newFormattedStringSplice("\nYou are not wearing a peice of armour with that name. \n")
+	}
+	c.addItemToInventory(armr)
+	return newFormattedStringSplice("\nYou took off the " + armr.name + ".\n")
+}
+
+func (c *Character) UnWieldWeapon() []FormattedString {
+	weapon := c.equipedWeapon
+
+	if weapon == nil {
+		return newFormattedStringSplice("\nYou are not wielding any weapons at this time\n")
+	}
+	c.addItemToInventory(weapon)
+	c.equipedWeapon = nil
+	return newFormattedStringSplice("\nYou put the " + weapon.name + " back in your bag.\n")
+}
+
+func (c *Character) WieldWeaponByName(name string) []FormattedString {
+
+	if item, found := c.getItemFromInv(name); found {
+		if item.getItemType() == WEAPON {
+			return c.WieldWeapon(item.(*Weapon))
+		}
+
+		return newFormattedStringSplice("\nThat item is not a weapon.\n")
+	}
+
+	return newFormattedStringSplice("\nYou don't have that item. If it is on the ground try 'get'ing it first.\n")
+}
+
+func (c *Character) WieldWeapon(weapon *Weapon) []FormattedString {
+	if c.equipedWeapon == nil {
+		c.equipedWeapon = weapon
+		return newFormattedStringSplice("\nYou equiped " + weapon.name + "\n")
+	}
+	return newFormattedStringSplice("\nYou already have a weapon equiped.\n")
 }
 
 func (c *Character) takeOffArmor(location string) {

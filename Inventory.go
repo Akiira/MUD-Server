@@ -51,6 +51,11 @@ func (inv *Inventory) addItemToInventory(item Item_I) {
 	}
 }
 
+func (inv *Inventory) PossesItem(name string) bool {
+	_, found := inv.getItemByName(name)
+	return found
+}
+
 func (inv *Inventory) getItemByName(name string) (Item_I, bool) {
 
 	item, found := inv.items[name]

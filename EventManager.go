@@ -115,6 +115,15 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 			output = newFormattedStringSplice("There are not currently any auctions happening.\n")
 		}
 		fmt.Println("Done Executing bid command")
+
+	case cmd == "unwield":
+		output = cc.character.UnWieldWeapon()
+	case cmd == "wield":
+		output = cc.character.WieldWeaponByName(event.Value)
+	case cmd == "unequip":
+		output = cc.character.UnEquipArmourByName(event.Value)
+	case cmd == "equip":
+		output = cc.character.EquipArmorByName(event.Value)
 	case cmd == "inv":
 		output = cc.character.PersonalInvetory.getInventoryDescription()
 	case cmd == "save" || cmd == "exit":
@@ -128,6 +137,8 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 		output = eventRoom.getItem(cc.character, event.Value)
 	case cmd == "move":
 		msgType, output = cc.character.moveCharacter(event.Value)
+	case cmd == "yell":
+		em.sendMessageToWorld(newServerMessageFS(newFormattedStringSplice2(ct.Blue, cc.character.Name+" says \""+event.Value+"\"")))
 	case cmd == "say":
 		formattedOutput := newFormattedStringSplice2(ct.Blue, cc.character.Name+" says \""+event.Value+"\"")
 		em.sendMessageToRoom(cc.character.RoomIN, ServerMessage{Value: formattedOutput})
