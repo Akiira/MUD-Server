@@ -48,14 +48,14 @@ func (a ArmourXML) toItem() Item_I {
 //--------------ARMOURSET CLASS----------------
 
 type ArmourSet struct {
-	equipedArmour map[string]Armour
+	equipedArmour map[string]*Armour
 }
 
 //=================== CONSTRUCTORS =====================//
 
 func newArmourSet() *ArmourSet {
 	as := new(ArmourSet)
-	as.equipedArmour = make(map[string]Armour, 5)
+	as.equipedArmour = make(map[string]*Armour, 5)
 	return as
 }
 
@@ -63,7 +63,7 @@ func armourSetFromXML(armourSetData *ArmourSetXML) *ArmourSet {
 	as := newArmourSet()
 
 	for _, arm := range armourSetData.ArmSet {
-		as.equipArmour(arm.WearLocation, *armourFromXML(&arm))
+		as.equipArmour(arm.WearLocation, armourFromXML(&arm))
 	}
 
 	return as
@@ -81,7 +81,7 @@ func (as *ArmourSet) getArmoursDefense() int {
 	return defense
 }
 
-func (as *ArmourSet) takeOffArmourByLocation(loc string) Armour {
+func (as *ArmourSet) takeOffArmourByLocation(loc string) *Armour {
 	//TODO add check for no armour worn at location
 	arm := as.equipedArmour[loc]
 
@@ -90,9 +90,7 @@ func (as *ArmourSet) takeOffArmourByLocation(loc string) Armour {
 	return arm
 }
 
-func (as *ArmourSet) equipArmour(location string, arm Armour) {
-
-	//TODO add check for armour already being worn
+func (as *ArmourSet) equipArmour(location string, arm *Armour) {
 	as.equipedArmour[location] = arm
 }
 
