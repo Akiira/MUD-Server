@@ -8,6 +8,7 @@ type Item_I interface {
 	getName() string
 	getDescription() string
 	getItemType() int
+	getCopy() Item_I
 	toXML() ItemXML_I
 }
 
@@ -57,6 +58,12 @@ func (i *Item) getDescription() string {
 
 func (i *Item) getItemType() int {
 	return BASE_ITEM
+}
+
+func (i *Item) getCopy() Item_I {
+	itm := new(Item)
+	*itm = *i
+	return itm
 }
 
 func (i *Item) toXML() ItemXML_I {

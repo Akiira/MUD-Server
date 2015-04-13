@@ -32,6 +32,13 @@ func (arm *Armour) getItemType() int {
 	return ARMOUR
 }
 
+func (arm *Armour) getCopy() Item_I {
+	armr := new(Armour)
+	*armr = *arm
+
+	return armr
+}
+
 func (arm *Armour) toXML() ItemXML_I {
 	armXML := new(ArmourXML)
 	armXML.ItemInfo = arm.Item.toXML().(*ItemXML)

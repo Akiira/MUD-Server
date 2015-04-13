@@ -28,6 +28,12 @@ func (wpn *Weapon) getDamageRange() int {
 	return wpn.maxDmg - wpn.minDmg + 1
 }
 
+func (w *Weapon) getCopy() Item_I {
+	wpn := new(Weapon)
+	*wpn = *w
+	return wpn
+}
+
 type WeaponXML struct {
 	XMLName  xml.Name `xml:"Weapon"`
 	ItemInfo *ItemXML `xml:"Item"`
