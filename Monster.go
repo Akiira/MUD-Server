@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"os"
+	"sync"
 	"time"
 )
 
@@ -20,7 +21,9 @@ type Monster struct {
 	weapon      *Weapon
 	lootDrops   []loot
 
-	lastTarget Agenter
+	fightingPlayersMutex sync.Mutex
+	fightingPlayers      bool
+	lastTarget           Agenter
 }
 
 //TODO add mutex around targets?
@@ -69,7 +72,7 @@ func newMonsterFromName(name string, roomID int) *Monster {
 	return m
 }
 
-//------------------MONSTER ATTACK FUNCTIONS------------------------------
+//------------------MONSTER COMBAT FUNCTIONS------------------------------
 
 func (m *Monster) fightPlayers() {
 	for {
@@ -91,23 +94,28 @@ func (m *Monster) fightPlayers() {
 		event := newEvent(m, "attack", attackTarget.Name)
 		m.em.addEvent(event)
 	}
+
+	m.fightingPlayersMutex.Lock()
+	m.fightingPlayers = false
+	m.fightingPlayersMutex.Unlock()
 }
 
-//TODO implement monsters combat functions
+func (m *Monster) addTarget(targetChar Agenter) {
 
-func (m *Monster) addNewTarget(targetChar *Character, agro int) {
-
-	_, exist := m.targets[targetChar.Name]
+	_, exist := m.targets[targetChar.getName()]
 
 	if exist {
-		m.targets[targetChar.Name].aggro += agro
+		m.targets[targetChar.getName()].aggro += 5
 	} else {
-		targ := target{aggro: agro, attackTarget: targetChar}
-		m.targets[targetChar.Name] = &targ
+		targ := target{aggro: 5, attackTarget: targetChar.(*Character)}
+		m.targets[targetChar.getName()] = &targ
 
-		if len(m.targets) == 1 {
+		m.fightingPlayersMutex.Lock()
+		if len(m.targets) == 1 && m.fightingPlayers == false {
+			m.fightingPlayers = true
 			go m.fightPlayers()
 		}
+		m.fightingPlayersMutex.Unlock()
 	}
 }
 

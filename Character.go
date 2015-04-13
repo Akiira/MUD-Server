@@ -281,6 +281,9 @@ func (char *Character) toXML() *CharacterXML {
 	return ch
 }
 
+func (c *Character) addTarget(target Agenter) {
+	//Do nothing
+}
 func (char *Character) sendMessage(msg ServerMessage) {
 	char.myClientConn.sendMsgToClient(msg)
 }

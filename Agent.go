@@ -3,10 +3,14 @@ package main
 type Agenter interface {
 	makeAttack(target Agenter) []FormattedString
 	takeDamage(amount int, typeOfDamge int) []FormattedString
+	addTarget(target Agenter)
+
 	getName() string
 	getDefense() int
-	isDead() bool
 	getRoomID() int
+
+	isDead() bool
+
 	sendMessage(ServerMessage)
 }
 
