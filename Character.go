@@ -10,14 +10,13 @@ import (
 )
 
 type Character struct {
+	Agent
+
 	Race  string
 	Class string
 
-	Defense    int
 	level      int
 	experience int
-
-	Agent
 
 	//Equipment fields
 	PersonalInvetory Inventory
@@ -33,7 +32,6 @@ func newCharacter(name string, room int, hp int, def int) *Character {
 	char := new(Character)
 	char.Name = name
 	char.currentHP = hp
-	char.Defense = def
 	char.PersonalInvetory = *newInventory()
 	char.equippedArmour = *newArmourSet()
 
@@ -42,15 +40,15 @@ func newCharacter(name string, room int, hp int, def int) *Character {
 
 func characterFromXML(charData *CharacterXML) *Character {
 	char := new(Character)
+
 	char.setAgentStatsFromXML(charData)
-	char.equipedWeapon = *weaponFromXML(&charData.EquipedWeapon)
-	char.equippedArmour = *armourSetFromXML(&charData.ArmSet)
+
 	char.level = charData.Level
 	char.experience = charData.experience
 
+	char.equipedWeapon = *weaponFromXML(&charData.EquipedWeapon)
+	char.equippedArmour = *armourSetFromXML(&charData.ArmSet)
 	char.PersonalInvetory = *inventoryFromXML(&charData.PersInv)
-
-	//TODO still not finished
 
 	return char
 }
@@ -113,10 +111,8 @@ func (char *Character) moveCharacter(direction string) (int, []FormattedString) 
 
 func (char *Character) makeAttack(target Agenter) []FormattedString {
 
-	output := make([]FormattedString, 2, 2)
-
-	if target != nil { // check that the target is still there, not dead from the previous round
-		return newFormattedStringSplice("\nYour target is not exist any more!\n")
+	if target == nil { // check that the target is still there, not dead from the previous round
+		return newFormattedStringSplice("\nYour target does not exist any more!\n")
 	}
 
 	if !target.isDead() {
@@ -124,24 +120,22 @@ func (char *Character) makeAttack(target Agenter) []FormattedString {
 		a1 := char.getAttackRoll()
 		if a1 >= target.getDefense() {
 			target.takeDamage(char.getDamage(), 0)
-			output[0].Value = "\nYou hit the " + target.getName() + "!\n"
+			return newFormattedStringSplice("\nYou hit the " + target.getName() + "!\n")
 		} else {
-			output[0].Value = "\nYou missed the " + target.getName() + "!\n"
+			return newFormattedStringSplice("\nYou missed the " + target.getName() + "!\n")
 		}
 
 		if target.isDead() {
 			// TODO  reward player exp
-			output[1].Value = "The " + target.getName() + " drops over dead.\n"
 			room := char.myClientConn.CurrentEM.worldRooms[char.RoomIN] //TODO fix this line
 			room.killOffMonster(target.getName())
+
+			return newFormattedStringSplice("The " + target.getName() + " drops over dead.\n")
 		}
 
-	} else {
-		output[0].Value = "\nthe " + target.getName() + " is already dead!\n"
 	}
 
-	return output
-
+	return newFormattedStringSplice("\nthe " + target.getName() + " is already dead!\n")
 }
 
 func (c *Character) takeDamage(amount int, typeOfDamge int) []FormattedString {
@@ -153,7 +147,7 @@ func (c *Character) takeDamage(amount int, typeOfDamge int) []FormattedString {
 	return newFormattedStringSplice2(ct.Red, s)
 }
 func (c *Character) isDead() bool {
-	return c.currentHP > 0
+	return c.currentHP >= 0
 }
 
 func (c *Character) getName() string {
@@ -167,7 +161,7 @@ func (c *Character) getAttackRoll() int {
 }
 
 func (c *Character) getDefense() int {
-	return c.Defense
+	return c.equippedArmour.getArmoursDefense()
 }
 
 func (c *Character) getClientConnection() *ClientConnection {
@@ -175,9 +169,6 @@ func (c *Character) getClientConnection() *ClientConnection {
 }
 
 func (c *Character) getItemFromInv(name string) (Item_I, bool) {
-	fmt.Println("Char: ", c)
-	fmt.Println("Inv: ", c.PersonalInvetory)
-	fmt.Println("Inv Items: ", c.PersonalInvetory.items)
 	return c.PersonalInvetory.getItemByName(name)
 }
 
@@ -227,7 +218,6 @@ func (char *Character) toXML() *CharacterXML {
 	ch := new(CharacterXML)
 	ch.Name = char.Name
 	ch.RoomIN = char.RoomIN
-	ch.Defense = char.Defense
 	ch.HP = char.currentHP
 
 	ch.Strength = char.Strength
@@ -242,10 +232,8 @@ func (char *Character) toXML() *CharacterXML {
 
 	ch.WeaponComment = []byte("Equipped Weapon")
 	ch.EquipedWeapon = *char.equipedWeapon.toXML().(*WeaponXML)
-	//ch.ArmSet = *char.equippedArmour.toXML()
+	ch.ArmSet = *char.equippedArmour.toXML()
 	ch.PersInv = *char.PersonalInvetory.toXML()
-
-	//ch.Wpn = char.equipedWeapon.toXML()
 
 	return ch
 }
@@ -314,12 +302,6 @@ func saveCharacterToFile(char *Character) {
 	var ch CharacterXML
 	ch.Name = char.Name
 	ch.RoomIN = char.RoomIN
-	ch.Defense = char.Defense
 	ch.HP = char.currentHP
 
-}
-
-//Just for testing, can be removed later
-func (c *CharacterXML) printInv() {
-	//fmt.Println("There are " + len(c.PersInv.Items) + " items.")
 }
