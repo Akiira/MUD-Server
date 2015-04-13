@@ -85,14 +85,15 @@ func (m *Monster) fightPlayers() {
 		//Find target with highest aggro
 		var attackTarget *Character
 		maxAggro := 0
-		for _, targ := range m.targets {
+		for _, targ := range m.targets { //TODO handle targets that moved rooms or logged off.
+			//TODO handle when player dies.
 			if targ.aggro > maxAggro {
 				attackTarget = targ.attackTarget
 			}
 		}
-
+		fmt.Println("\tMonster is attack player.")
 		event := newEvent(m, "attack", attackTarget.Name)
-		m.em.addEvent(event)
+		eventManager.addEvent(event)
 	}
 
 	m.fightingPlayersMutex.Lock()
@@ -107,6 +108,7 @@ func (m *Monster) addTarget(targetChar Agenter) {
 	if exist {
 		m.targets[targetChar.getName()].aggro += 5
 	} else {
+		fmt.Println("\tAdding player to target list.")
 		targ := target{aggro: 5, attackTarget: targetChar.(*Character)}
 		m.targets[targetChar.getName()] = &targ
 
@@ -120,19 +122,23 @@ func (m *Monster) addTarget(targetChar Agenter) {
 }
 
 func (m *Monster) makeAttack(target Agenter) []FormattedString {
+	fmt.Println("\t\tMonster making attack against player.")
+	output := newFormattedStringCollection()
 	a1 := m.getAttackRoll()
 	if a1 >= target.getDefense() {
 		target.takeDamage(m.getDamage(), 0)
-		output := newFormattedStringCollection()
-		output.addMessage(ct.Red, fmt.Sprintf("The %s hit you for %i damage\n", m.Name, m.getDamage()))
+
+		output.addMessage(ct.Red, fmt.Sprintf("The %s hit you for %d damage\n", m.Name, m.getDamage()))
 
 		if target.isDead() {
 			output.addMessage(ct.Red, "\nYou died!.\n")
 		}
+		target.sendMessage(newServerMessageFS(output.fmtedStrings))
 		return output.fmtedStrings
 	}
-
-	return newFormattedStringSplice2(ct.Red, fmt.Sprintf("The %s's attack missed you.\n", m.Name))
+	output.addMessage(ct.Red, fmt.Sprintf("The %s's attack missed you.\n", m.Name))
+	target.sendMessage(newServerMessageFS(output.fmtedStrings))
+	return output.fmtedStrings
 }
 
 func (m *Monster) takeDamage(amount int, typeOfDamge int) []FormattedString {
@@ -166,7 +172,7 @@ func (m *Monster) getLootAndCorpse() []Item_I {
 }
 
 func (m *Monster) getLoot() []Item_I {
-	lootItems := make([]Item_I, 1)
+	lootItems := make([]Item_I, 0)
 	if len(m.lootDrops) > 0 {
 		roll := rand.Intn(1000)
 

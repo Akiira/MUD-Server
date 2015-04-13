@@ -1,6 +1,41 @@
 <?xml version="1.0"?>
 <Monsters>
 	<Monster>
+		<Name>Skeleton</Name>
+		<HP>40</HP>
+		<Defense>10</Defense>
+		<Description>A dusty old skeleton</Description>
+		<!--Equipped Weapon-->
+		<Weapon>
+			<Item>
+				<Name>Rust Short Sword</Name>
+				<Description>A rusty short sword.</Description>
+				<Level>1</Level>
+				<Worth>10</Worth>
+			</Item>
+			<Attack>8</Attack>
+			<MinDmg>2</MinDmg>
+			<MaxDmg>10</MaxDmg>
+		</Weapon>
+		<!--Monsters Loot-->
+		<Loot>
+			<Inventory>
+				<Weapon>
+					<Item>
+						<Name>Short Sword+1</Name>
+						<Description>An old short sword that is humming softly.</Description>
+						<Level>1</Level>
+						<Worth>20</Worth>
+					</Item>
+					<Attack>4</Attack>
+					<MinDmg>2</MinDmg>
+					<MaxDmg>6</MaxDmg>
+				</Weapon>
+			</Inventory>
+			<DropRate>10</DropRate>
+		</Loot>
+	</Monster>
+	<Monster>
 		<Name>Rabbit</Name>
 		<HP>5</HP>
 		<Defense>1</Defense>

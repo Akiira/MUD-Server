@@ -40,7 +40,7 @@ func main() {
 
 func runServer() {
 	loadMonsterData()
-
+	fmt.Println("Monster Data Loaded.")
 	eventManager = newEventManager(os.Args[1])
 
 	listener := setUpServerWithAddress(servers[os.Args[1]])

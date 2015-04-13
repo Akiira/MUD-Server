@@ -163,28 +163,27 @@ func (char *Character) makeAttack(target Agenter) []FormattedString {
 		a1 := char.getAttackRoll()
 		if a1 >= target.getDefense() {
 			target.takeDamage(char.getDamage(), 0)
-			return newFormattedStringSplice("\nYou hit the " + target.getName() + "!\n")
+			fmt.Printf("\tPlayer did %d damage.\n", char.getDamage())
+			if target.isDead() {
+				// TODO  reward player exp
+				room := char.myClientConn.CurrentEM.worldRooms[char.RoomIN] //TODO fix this line
+				room.killOffMonster(target.getName())
+
+				return newFormattedStringSplice("The hit the " + target.getName() + " and it drops over dead.\n")
+			} else {
+				target.addTarget(char)
+				return newFormattedStringSplice("\nYou hit the " + target.getName() + "!\n")
+			}
 		} else {
 			return newFormattedStringSplice("\nYou missed the " + target.getName() + "!\n")
 		}
-
-		if target.isDead() {
-			// TODO  reward player exp
-			room := char.myClientConn.CurrentEM.worldRooms[char.RoomIN] //TODO fix this line
-			room.killOffMonster(target.getName())
-
-			return newFormattedStringSplice("The " + target.getName() + " drops over dead.\n")
-		}
-
 	}
 
 	return newFormattedStringSplice("\nthe " + target.getName() + " is already dead!\n")
 }
 
 func (c *Character) takeDamage(amount int, typeOfDamge int) []FormattedString {
-	//	if amount-c.equippedArmour.getArmoursDefense() > 0 {
-	//		c.currentHP -= (amount - c.equippedArmour.getArmoursDefense())
-	//	}
+
 	c.currentHP -= amount
 	s := "You got hit for " + fmt.Sprintf("%i", amount) + " damage.\n"
 	return newFormattedStringSplice2(ct.Red, s)

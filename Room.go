@@ -113,7 +113,9 @@ func (room *Room) getConnectedRoom(exit int) *Room {
 }
 
 func (room *Room) addItemToRoom(itm Item_I) {
-	room.ItemsInRoom[itm.getName()] = itm
+	if itm != nil {
+		room.ItemsInRoom[itm.getName()] = itm
+	}
 }
 
 func (room *Room) addPCToRoom(char *Character) {

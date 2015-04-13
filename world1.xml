@@ -42,6 +42,7 @@ hill of the crossroads in the distance to the southwest, while the top
 of the mountain is very near to the north.</Description>
 		<WorldID>local</WorldID>
 		<Monster>Deer</Monster>
+		<Monster>Skeleton</Monster>
 		<Exit> 
 			<Direction>s</Direction>
 			<RoomID>1001</RoomID>

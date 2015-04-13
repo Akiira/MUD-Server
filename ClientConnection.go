@@ -76,6 +76,7 @@ func (cc *ClientConnection) receiveMsgFromClient() {
 func (cc *ClientConnection) sendMsgToClient(msg ServerMessage) {
 
 	cc.net_lock.Lock()
+	msg.addCharInfo(cc.character.currentHP, cc.character.MaxHitPoints)
 	err := cc.myEncoder.Encode(msg)
 	cc.net_lock.Unlock()
 	checkError(err, false)
