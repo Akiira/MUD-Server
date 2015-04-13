@@ -119,26 +119,6 @@ func (cc *ClientConnection) getAverageRoundTripTime() time.Duration {
 	return ((avg / 10) / 2)
 }
 
-//func (cc *ClientConnection) getAverageRoundTripTime() time.Duration {
-//	fmt.Println("\tGetting average round trip time.")
-
-//	var avg time.Duration
-//	for i := 0; i < 10; i++ {
-//		fmt.Println("\t\tPing: ", i)
-//		now := time.Now()
-//		cc.sendMsgToClient(newServerMessageTypeS(PING, "ping"))
-//		fmt.Println("\t\tWaiting for response ping")
-//		cc.pingResponse.L.Lock()
-//		cc.pingResponse.Wait()
-//		cc.pingResponse.L.Unlock()
-
-//		then := time.Now()
-//		avg += then.Sub(now)
-//	}
-//	fmt.Println("\tDone getting average round trip time.")
-//	return ((avg / 10) / 2)
-//}
-
 func (cc *ClientConnection) getCharactersName() string {
 	return cc.character.Name
 }

@@ -131,7 +131,7 @@ func (as *ArmourSet) toXML() *ArmourSetXML {
 	asXML := new(ArmourSetXML)
 
 	for _, arm := range as.equipedArmour {
-		asXML.ArmSet = append(asXML.ArmSet, arm.toXML().(ArmourXML))
+		asXML.ArmSet = append(asXML.ArmSet, *arm.toXML().(*ArmourXML))
 	}
 
 	return asXML

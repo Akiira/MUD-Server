@@ -223,25 +223,25 @@ func (room *Room) getRoomDescription() []FormattedString {
 func convertDirectionToInt(direction string) int {
 
 	switch strings.ToLower(direction) {
-	case "n", "n\r\n", "n\n":
+	case "n", "n\r\n", "n\n", "north":
 		return NORTH
-	case "s", "s\r\n", "s\n":
+	case "s", "s\r\n", "s\n", "south":
 		return SOUTH
-	case "e", "e\r\n", "e\n":
+	case "e", "e\r\n", "e\n", "east":
 		return EAST
-	case "w", "w\r\n", "w\n":
+	case "w", "w\r\n", "w\n", "west":
 		return WEST
-	case "nw", "nw\r\n", "nw\n":
+	case "nw", "nw\r\n", "nw\n", "northwest":
 		return NORTH_WEST
-	case "ne", "ne\r\n", "ne\n":
+	case "ne", "ne\r\n", "ne\n", "northeast":
 		return NORTH_EAST
-	case "sw", "sw\r\n", "sw\n":
+	case "sw", "sw\r\n", "sw\n", "southwest":
 		return SOUTH_WEST
-	case "se", "se\r\n", "se\n":
+	case "se", "se\r\n", "se\n", "southeast":
 		return SOUTH_EAST
-	case "u", "u\r\n", "u\n":
+	case "u", "u\r\n", "u\n", "up":
 		return UP
-	case "d", "d\r\n", "d\n":
+	case "d", "d\r\n", "d\n", "down":
 		return DOWN
 	}
 
