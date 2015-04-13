@@ -17,16 +17,22 @@ type Monster struct {
 	description string
 	targets     map[string]*target
 	em          EventManager
-	weapon      Weapon
+	weapon      *Weapon
+	lootDrops   []loot
 
 	lastTarget Agenter
 }
 
-//TODO add mutex around targets field
+//TODO add mutex around targets?
 
 type target struct {
 	aggro        int
 	attackTarget *Character
+}
+
+type loot struct {
+	item     Item_I
+	dropRate int
 }
 
 var monsterTemplatesG map[string]*Monster
@@ -38,18 +44,25 @@ func newMonsterFromXML(monsterData MonsterXML) *Monster {
 	m.Defense = monsterData.Defense
 	m.description = monsterData.Description
 	m.targets = make(map[string]*target)
+	m.weapon = monsterData.EquipedWeapon.toItem().(*Weapon)
+
+	for index, itm := range monsterData.Loot.LootItem.Items {
+		drop := loot{item: (itm).(ItemXML_I).toItem(), dropRate: monsterData.Loot.DropRates[index]}
+		m.lootDrops = append(m.lootDrops, drop)
+	}
 
 	return m
 }
 
 func newMonsterFromName(name string, roomID int) *Monster {
 	m := new(Monster)
-	m.Name = monsterTemplatesG[name].Name
-	m.currentHP = monsterTemplatesG[name].currentHP
-	m.Defense = monsterTemplatesG[name].Defense
-	m.description = monsterTemplatesG[name].description
-	m.RoomIN = roomID
+	*m = *monsterTemplatesG[name]
 	m.targets = make(map[string]*target)
+	m.RoomIN = roomID
+
+	for _, lootItem := range monsterTemplatesG[name].lootDrops {
+		m.lootDrops = append(m.lootDrops, lootItem)
+	}
 
 	return m
 }
@@ -114,6 +127,10 @@ func (m *Monster) getName() string {
 }
 
 func (m *Monster) getCorpse() *Item {
+	return &Item{name: m.Name + " corpse", description: "A freshly kill " + m.Name + " corpse."}
+}
+
+func (m *Monster) getLoot() []Item_I {
 	return nil //TODO
 }
 
@@ -165,15 +182,23 @@ func (m *Monster) getLookDescription() []FormattedString {
 
 //------------------Loading Stuff------------------------------
 type MonsterXML struct {
-	Name        string `xml:"Name"`
-	HP          int    `xml:"HP"`
-	Defense     int    `xml:"Defense"`
-	Description string `xml:"Description"`
+	Name          string    `xml:"Name"`
+	HP            int       `xml:"HP"`
+	Defense       int       `xml:"Defense"`
+	Description   string    `xml:"Description"`
+	EquipedWeapon WeaponXML `xml:"Weapon"`
+	Loot          LootXML   `xml:"Loot"`
 }
 
 type MonstersXML struct {
 	XMLName  xml.Name     `xml:"Monsters"`
 	Monsters []MonsterXML `xml:"Monster"`
+}
+
+type LootXML struct {
+	XMLName   xml.Name     `xml:"Loot"`
+	LootItem  InventoryXML `xml:"Inventory"`
+	DropRates []int        `xml:"DropRate"`
 }
 
 func loadMonsterData() {
@@ -185,7 +210,8 @@ func loadMonsterData() {
 	XMLdata, _ := ioutil.ReadAll(xmlFile)
 
 	var monstersData MonstersXML
-	xml.Unmarshal(XMLdata, &monstersData)
+	err = xml.Unmarshal(XMLdata, &monstersData)
+	checkErrorWithMessage(err, true, " In load Monster Data function.")
 
 	for _, element := range monstersData.Monsters {
 		monsterTemplatesG[element.Name] = newMonsterFromXML(element)

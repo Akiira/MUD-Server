@@ -59,6 +59,7 @@ func (w *Weapon) toXML() ItemXML_I {
 //func (w *WeaponXML) toItem() Item_I {
 //	return weaponFromXML(w)
 //}
+
 func (w WeaponXML) toItem() Item_I {
 	return weaponFromXML(&w)
 }

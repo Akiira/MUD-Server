@@ -5,17 +5,123 @@
 		<HP>5</HP>
 		<Defense>1</Defense>
 		<Description>A harmless little bunny rabbit</Description>
+		<!--Equipped Weapon-->
+		<Weapon>
+			<Item>
+				<Name>Tiny Teeth</Name>
+				<Description>Tiny Teeth.</Description>
+				<Level>1</Level>
+				<Worth>10</Worth>
+			</Item>
+			<Attack>4</Attack>
+			<MinDmg>2</MinDmg>
+			<MaxDmg>6</MaxDmg>
+		</Weapon>
+		<!--Monsters Loot-->
+		<Loot>
+			<Inventory>
+				<Weapon>
+					<Item>
+						<Name>Short Sword+1</Name>
+						<Description>An old short sword that is humming softly.</Description>
+						<Level>1</Level>
+						<Worth>20</Worth>
+					</Item>
+					<Attack>4</Attack>
+					<MinDmg>2</MinDmg>
+					<MaxDmg>6</MaxDmg>
+				</Weapon>
+				<Item>
+					<Name>Rabbit Fur</Name>
+					<Description>Nice and soft.</Description>
+					<Level>1</Level>
+					<Worth>20</Worth>
+				</Item>
+			</Inventory>
+			<DropRate>10</DropRate>
+			<DropRate>100</DropRate>
+		</Loot>
 	</Monster>
 	<Monster>
 		<Name>Deer</Name>
 		<HP>10</HP>
 		<Defense>3</Defense>
 		<Description>An elegant young buck with golden fur</Description>
+		<Weapon>
+			<Item>
+				<Name>Tiny Teeth</Name>
+				<Description>Tiny Teeth.</Description>
+				<Level>1</Level>
+				<Worth>10</Worth>
+			</Item>
+			<Attack>4</Attack>
+			<MinDmg>2</MinDmg>
+			<MaxDmg>6</MaxDmg>
+		</Weapon>
+		<!--Monsters Loot-->
+		<Loot>
+			<Inventory>
+				<Weapon>
+					<Item>
+						<Name>Short Sword+1</Name>
+						<Description>An old short sword that is humming softly.</Description>
+						<Level>1</Level>
+						<Worth>20</Worth>
+					</Item>
+					<Attack>4</Attack>
+					<MinDmg>2</MinDmg>
+					<MaxDmg>6</MaxDmg>
+				</Weapon>
+				<Item>
+					<Name>Deer Hide</Name>
+					<Description>Strong and supple, could make for some nice leather armour.</Description>
+					<Level>1</Level>
+					<Worth>20</Worth>
+				</Item>
+			</Inventory>
+			<DropRate>10</DropRate>
+			<DropRate>100</DropRate>
+		</Loot>
 	</Monster>
 	<Monster>
 		<Name>Fox</Name>
 		<HP>7</HP>
 		<Defense>4</Defense>
 		<Description>A quick brown fox with little whiskers</Description>
+		<Weapon>
+			<Item>
+				<Name>Tiny Teeth</Name>
+				<Description>Tiny Teeth.</Description>
+				<Level>1</Level>
+				<Worth>10</Worth>
+			</Item>
+			<Attack>4</Attack>
+			<MinDmg>2</MinDmg>
+			<MaxDmg>6</MaxDmg>
+		</Weapon>
+		<!--Monsters Loot-->
+		<Loot>
+			<Inventory>
+				<Weapon>
+					<Item>
+						<Name>Short Sword+1</Name>
+						<Description>An old short sword that is humming softly.</Description>
+						<Level>1</Level>
+						<Worth>20</Worth>
+					</Item>
+					<Attack>4</Attack>
+					<MinDmg>2</MinDmg>
+					<MaxDmg>6</MaxDmg>
+				</Weapon>
+				<Item>
+					<Name>Fox Paw</Name>
+					<Description>Provides good luck.</Description>
+					<Level>1</Level>
+					<Worth>20</Worth>
+				</Item>
+			</Inventory>
+			<DropRate>10</DropRate>
+			<DropRate>100</DropRate>
+		</Loot>
 	</Monster>
 </Monsters>
