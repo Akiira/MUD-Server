@@ -130,8 +130,22 @@ func (m *Monster) getCorpse() *Item {
 	return &Item{name: m.Name + " corpse", description: "A freshly kill " + m.Name + " corpse."}
 }
 
+func (m *Monster) getLootAndCorpse() []Item_I {
+	return append(m.getLoot(), m.getCorpse())
+}
+
 func (m *Monster) getLoot() []Item_I {
-	return nil //TODO
+	lootItems := make([]Item_I, 1)
+	if len(m.lootDrops) > 0 {
+		roll := rand.Intn(1000)
+
+		for _, itm := range m.lootDrops {
+			if roll <= itm.dropRate {
+				lootItems = append(lootItems, itm.item.getCopy())
+			}
+		}
+	}
+	return lootItems
 }
 
 func (m *Monster) sendMessage(msg ServerMessage) {
@@ -172,12 +186,7 @@ func (m *Monster) getDamage() int {
 }
 
 func (m *Monster) getLookDescription() []FormattedString {
-	output := make([]FormattedString, 1, 1)
-
-	output[0].Color = ct.Yellow
-	output[0].Value = m.description
-
-	return output
+	return newFormattedStringSplice2(ct.Yellow, m.description)
 }
 
 //------------------Loading Stuff------------------------------

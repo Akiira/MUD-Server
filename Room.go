@@ -112,6 +112,10 @@ func (room *Room) getConnectedRoom(exit int) *Room {
 	return room.ExitLinksToRooms[exit]
 }
 
+func (room *Room) addItemToRoom(itm Item_I) {
+	room.ItemsInRoom[itm.getName()] = itm
+}
+
 func (room *Room) addPCToRoom(char *Character) {
 
 	if room.isLocal() {
@@ -174,7 +178,10 @@ func (room *Room) getAgentInRoom(name string) Agenter {
 }
 
 func (room *Room) killOffMonster(monsterName string) {
-	room.ItemsInRoom[monsterName] = room.MonstersInRoom[monsterName].getCorpse()
+	drops := room.MonstersInRoom[monsterName].getLootAndCorpse()
+	for _, drop := range drops {
+		room.addItemToRoom(drop)
+	}
 	delete(room.MonstersInRoom, monsterName)
 }
 
