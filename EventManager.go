@@ -130,7 +130,9 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 	case cmd == "inv":
 		output = cc.character.PersonalInvetory.getInventoryDescription()
 	case cmd == "save" || cmd == "exit":
-		sendCharactersXML(cc.character.toXML())
+		ccXML := cc.character.toXML()
+		ccXML.CurrentWorld = serverName
+		sendCharactersXML(ccXML)
 		output = newFormattedStringSplice("Character succesfully saved.\n")
 	case cmd == "stats":
 		output = cc.getCharacter().getStatsPage()

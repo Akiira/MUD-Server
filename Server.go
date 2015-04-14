@@ -16,6 +16,7 @@ var (
 	servers      map[string]string = make(map[string]string)
 	eventManager *EventManager
 	pingPort     string = ":1600"
+	serverName   string
 )
 
 func main() {
@@ -41,9 +42,12 @@ func main() {
 func runServer() {
 	loadMonsterData()
 	fmt.Println("Monster Data Loaded.")
-	eventManager = newEventManager(os.Args[1])
 
-	listener := setUpServerWithAddress(servers[os.Args[1]])
+	serverName = os.Args[1]
+
+	eventManager = newEventManager(serverName)
+
+	listener := setUpServerWithAddress(servers[serverName])
 
 	for {
 		conn, err := listener.Accept()
