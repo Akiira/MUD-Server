@@ -11,7 +11,8 @@
 	<Charisma>13</Charisma>
 	<Inteligence>16</Inteligence>
 	<Level>1</Level>
-	<experience>0</experience>
+	<Experience>0</Experience>
+	<Gold>256</Gold>
 	<CurrentWorld>World1</CurrentWorld>
 	<Weapon>
 		<Item>

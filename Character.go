@@ -12,11 +12,14 @@ import (
 type Character struct {
 	Agent
 
-	Race  string
-	Class string
+	Race      string
+	Class     string
+	Age       int
+	Alignment int
 
 	level      int
 	experience int
+	gold       int
 
 	//Equipment fields
 	PersonalInvetory Inventory
@@ -44,7 +47,7 @@ func characterFromXML(charData *CharacterXML) *Character {
 	char.setAgentStatsFromXML(charData)
 
 	char.level = charData.Level
-	char.experience = charData.experience
+	char.experience = charData.Experience
 
 	char.equipedWeapon = weaponFromXML(&charData.EquipedWeapon)
 	char.equippedArmour = *armourSetFromXML(&charData.ArmSet)
@@ -160,7 +163,7 @@ func (char *Character) makeAttack(target Agenter) []FormattedString {
 
 	if !target.isDead() {
 
-		a1 := char.getAttackRoll()
+		a1 := char.getAttack()
 		if a1 >= target.getDefense() {
 			target.takeDamage(char.getDamage(), 0)
 			fmt.Printf("\tPlayer did %d damage.\n", char.getDamage())
@@ -198,7 +201,7 @@ func (c *Character) getName() string {
 func (c *Character) getRoomID() int {
 	return c.RoomIN
 }
-func (c *Character) getAttackRoll() int {
+func (c *Character) getAttack() int {
 	return (rand.Int() % 20) + c.equipedWeapon.attack + c.Strength
 }
 
@@ -214,8 +217,24 @@ func (c *Character) getItemFromInv(name string) (Item_I, bool) {
 	return c.PersonalInvetory.getItemByName(name)
 }
 
+func (c *Character) getAlignment() string {
+	return "Not implemented" //TODO
+}
+
+func (c *Character) getAttackRoll() string {
+	return "Not implemented" //TODO
+}
+
+func (c *Character) getDamageRoll() string {
+	return "Not implemented" //TODO
+}
+
 func (c *Character) getDamage() int {
 	return c.equipedWeapon.getDamage() + c.Strength
+}
+
+func (c *Character) getGoldAmount() int {
+	return c.gold
 }
 
 func (c *Character) getStatsPage() []FormattedString {
@@ -226,15 +245,15 @@ func (c *Character) getStatsPage() []FormattedString {
 	output.addMessage(ct.Green, "LEVEL:")
 	output.addMessage(ct.White, fmt.Sprintf("%2d %8s", c.level, ""))
 	output.addMessage(ct.Green, "RACE :")
-	output.addMessage(ct.White, fmt.Sprintf("%8s\n", "Human")) //TODO
+	output.addMessage(ct.White, fmt.Sprintf("%8s\n", c.Race))
 	output.addMessage(ct.Green, "AGE  :")
-	output.addMessage(ct.White, fmt.Sprintf("%4d %6s", 123, "")) //TODO
+	output.addMessage(ct.White, fmt.Sprintf("%4d %6s", c.Age, ""))
 	output.addMessage(ct.Green, "CLASS:")
-	output.addMessage(ct.White, fmt.Sprintf("%8s\n", "Wizard")) //TODO
+	output.addMessage(ct.White, fmt.Sprintf("%8s\n", c.Class))
 	output.addMessage(ct.Green, "STR  :")
 	output.addMessage(ct.White, fmt.Sprintf("%2d %8s", c.Strength, ""))
 	output.addMessage(ct.Green, "HitRoll:")
-	output.addMessage(ct.White, fmt.Sprintf("%8s\n", "66")) //TODO
+	output.addMessage(ct.White, fmt.Sprintf("%8s\n", c.getAttackRoll()))
 	output.addMessage(ct.Green, "INT  :")
 	output.addMessage(ct.White, fmt.Sprintf("%2d %8s", c.Inteligence, ""))
 	output.addMessage(ct.Green, "DmgRoll:")
@@ -242,13 +261,15 @@ func (c *Character) getStatsPage() []FormattedString {
 	output.addMessage(ct.Green, "WIS  :")
 	output.addMessage(ct.White, fmt.Sprintf("%2d %8s", c.Wisdom, ""))
 	output.addMessage(ct.Green, "Alignment:")
-	output.addMessage(ct.White, fmt.Sprintf("%8s\n", "Paragon")) //TODO
+	output.addMessage(ct.White, fmt.Sprintf("%8s\n", c.getAlignment()))
 	output.addMessage(ct.Green, "DEX  :")
 	output.addMessage(ct.White, fmt.Sprintf("%2d %8s", c.Dexterity, ""))
 	output.addMessage(ct.Green, "Armour:")
-	output.addMessage(ct.White, fmt.Sprintf("%8s\n", "-500")) //TODO
+	output.addMessage(ct.White, fmt.Sprintf("%8d\n", c.getDefense()))
 	output.addMessage(ct.Green, "CON  :")
 	output.addMessage(ct.White, fmt.Sprintf("%2d %8s", c.Constitution, ""))
+	output.addMessage(ct.Green, "Gold:")
+	output.addMessage(ct.White, fmt.Sprintf("%8d\n", c.getGoldAmount()))
 	output.addMessage(ct.Green, "CHA  :")
 	output.addMessage(ct.White, fmt.Sprintf("%2d %8s", c.Charisma, ""))
 
@@ -270,7 +291,7 @@ func (char *Character) toXML() *CharacterXML {
 	ch.Inteligence = char.Inteligence
 
 	ch.Level = char.level
-	ch.experience = char.experience
+	ch.Experience = char.experience
 
 	ch.WeaponComment = []byte("Equipped Weapon")
 	ch.EquipedWeapon = *char.equipedWeapon.toXML().(*WeaponXML)
@@ -296,6 +317,8 @@ type CharacterXML struct {
 	RoomIN  int      `xml:"RoomIN"`
 	HP      int      `xml:"HitPoints"`
 	Defense int      `xml:"Defense"`
+	Race    string   `xml:"Race"`
+	Class   string   `xml:"Class"`
 
 	Strength     int `xml:"Strength"`
 	Constitution int `xml:"Constitution"`
@@ -305,7 +328,8 @@ type CharacterXML struct {
 	Inteligence  int `xml:"Inteligence"`
 
 	Level      int `xml:"Level"`
-	experience int `xml:"experience"`
+	Experience int `xml:"Experience"`
+	Gold       int `xml:"Gold"`
 
 	CurrentWorld string `xml:"CurrentWorld"`
 
@@ -332,8 +356,7 @@ func getCharacterFromCentral(charName string) *Character {
 	err = enc.Encode(serverMsg)
 	checkError(err, true)
 	err = dec.Decode(&queriedChar)
-	//fmt.Println("this is received char: ", queriedChar)
-	//fmt.Println("INV: ", queriedChar.PersInv)
+
 	checkError(err, true)
 
 	char := characterFromXML(&queriedChar)
@@ -341,12 +364,12 @@ func getCharacterFromCentral(charName string) *Character {
 	return char
 }
 
-func saveCharacterToFile(char *Character) {
-	//TODO saveCharacter
+//func saveCharacterToFile(char *Character) {
+//	//TODO saveCharacter
 
-	var ch CharacterXML
-	ch.Name = char.Name
-	ch.RoomIN = char.RoomIN
-	ch.HP = char.currentHP
+//	var ch CharacterXML
+//	ch.Name = char.Name
+//	ch.RoomIN = char.RoomIN
+//	ch.HP = char.currentHP
 
-}
+//}
