@@ -46,6 +46,10 @@ func characterFromXML(charData *CharacterXML) *Character {
 
 	char.setAgentStatsFromXML(charData)
 
+	char.gold = charData.Gold
+	char.Race = charData.Race
+	char.Class = charData.Class
+
 	char.level = charData.Level
 	char.experience = charData.Experience
 
@@ -218,15 +222,25 @@ func (c *Character) getItemFromInv(name string) (Item_I, bool) {
 }
 
 func (c *Character) getAlignment() string {
-	return "Not implemented" //TODO
+	if c.Alignment > 400 {
+		return "Good"
+	} else if c.Alignment < -400 {
+		return "Evil"
+	} else {
+		return "Nuetral"
+	}
 }
 
 func (c *Character) getAttackRoll() string {
-	return "Not implemented" //TODO
+	min := c.equipedWeapon.attack + c.Strength
+	max := 20 + c.equipedWeapon.attack + c.Strength
+	return fmt.Sprintf("%d to %d", min, max)
 }
 
 func (c *Character) getDamageRoll() string {
-	return "Not implemented" //TODO
+	min := c.equipedWeapon.minDmg + c.Strength
+	max := c.equipedWeapon.maxDmg + c.Strength
+	return fmt.Sprintf("%d to %d", min, max)
 }
 
 func (c *Character) getDamage() int {
@@ -257,7 +271,7 @@ func (c *Character) getStatsPage() []FormattedString {
 	output.addMessage(ct.Green, "INT  :")
 	output.addMessage(ct.White, fmt.Sprintf("%2d %8s", c.Inteligence, ""))
 	output.addMessage(ct.Green, "DmgRoll:")
-	output.addMessage(ct.White, fmt.Sprintf("%8s\n", "66")) //TODO
+	output.addMessage(ct.White, fmt.Sprintf("%8s\n", c.getDamageRoll()))
 	output.addMessage(ct.Green, "WIS  :")
 	output.addMessage(ct.White, fmt.Sprintf("%2d %8s", c.Wisdom, ""))
 	output.addMessage(ct.Green, "Alignment:")
@@ -282,6 +296,10 @@ func (char *Character) toXML() *CharacterXML {
 	ch.Name = char.Name
 	ch.RoomIN = char.RoomIN
 	ch.HP = char.MaxHitPoints
+
+	ch.Gold = char.gold
+	ch.Class = char.Class
+	ch.Race = char.Race
 
 	ch.Strength = char.Strength
 	ch.Constitution = char.Constitution
