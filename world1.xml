@@ -1,5 +1,6 @@
  <?xml version="1.0"?>
  <Rooms>
+	<RespawnRoomID>1000</RespawnRoomID>
 	<Room>
 		<ID>1000</ID>
 		<Name>The Path to the Dwarven Village</Name>

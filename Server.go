@@ -13,10 +13,11 @@ import (
 )
 
 var (
-	servers      map[string]string = make(map[string]string)
-	eventManager *EventManager
-	pingPort     string = ":1600"
-	serverName   string
+	servers            map[string]string = make(map[string]string)
+	eventManager       *EventManager
+	pingPort           string = ":1600"
+	serverName         string
+	worldRespawnRoomID int
 )
 
 func main() {

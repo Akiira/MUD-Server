@@ -189,11 +189,22 @@ func (char *Character) makeAttack(target Agenter) []FormattedString {
 	return newFormattedStringSplice("\nthe " + target.getName() + " is already dead!\n")
 }
 
-func (c *Character) takeDamage(amount int, typeOfDamge int) []FormattedString {
+func (c *Character) takeDamage(amount int, typeOfDamge int) {
 
 	c.currentHP -= amount
-	s := "You got hit for " + fmt.Sprintf("%d", amount) + " damage.\n"
-	return newFormattedStringSplice2(ct.Red, s)
+	//s := "You got hit for " + fmt.Sprintf("%d", amount) + " damage.\n"
+	//return newFormattedStringSplice2(ct.Red, s)
+}
+
+func (c *Character) respawn() *FmtStrCollection {
+	output := newFormattedStringCollection()
+	output.addMessage(ct.Red, "\nYou died!\n")
+	output.addMessage2("\nYou were respawned.\n")
+	src := c.getClientConnection().CurrentEM.worldRooms[c.getClientConnection().getCharactersRoomID()]
+	dest := c.getClientConnection().CurrentEM.worldRooms[worldRespawnRoomID]
+	c.moveCharacter(src, dest)
+	c.currentHP = c.MaxHitPoints
+	return output
 }
 func (c *Character) isDead() bool {
 	return c.currentHP <= 0 || c.myClientConn.isConnectionClosed()

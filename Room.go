@@ -316,8 +316,9 @@ type RoomXML struct {
 }
 
 type RoomsXML struct {
-	XMLName xml.Name  `xml:"Rooms"`
-	Rooms   []RoomXML `xml:"Room"`
+	XMLName       xml.Name  `xml:"Rooms"`
+	Rooms         []RoomXML `xml:"Room"`
+	respawnRoomID int       `xml:"RespawnRoomID"`
 }
 
 func loadRooms(worldName string) map[int]*Room {
@@ -330,6 +331,7 @@ func loadRooms(worldName string) map[int]*Room {
 	var roomsData RoomsXML
 	xml.Unmarshal(XMLdata, &roomsData)
 
+	worldRespawnRoomID = roomsData.respawnRoomID
 	rooms := make(map[int]*Room)
 
 	for _, roomData := range roomsData.Rooms {

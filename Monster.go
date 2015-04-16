@@ -133,12 +133,14 @@ func (m *Monster) makeAttack(target Agenter) []FormattedString {
 	output := newFormattedStringCollection()
 	a1 := m.getAttackRoll()
 	if a1 >= target.getDefense() {
-		target.takeDamage(m.getDamage(), 0)
 
 		output.addMessage(ct.Red, fmt.Sprintf("The %s hit you for %d damage\n", m.Name, m.getDamage()))
+		target.takeDamage(m.getDamage(), 0)
 
 		if target.isDead() {
-			output.addMessage(ct.Red, "\nYou died!.\n")
+			output.addMessages(target.respawn())
+			delete(m.targets, target.getName())
+
 		}
 		target.sendMessage(newServerMessageFS(output.fmtedStrings))
 		return output.fmtedStrings
@@ -148,9 +150,12 @@ func (m *Monster) makeAttack(target Agenter) []FormattedString {
 	return output.fmtedStrings
 }
 
-func (m *Monster) takeDamage(amount int, typeOfDamge int) []FormattedString {
+func (m *Monster) takeDamage(amount int, typeOfDamge int) {
 	m.currentHP -= amount
-	return nil
+}
+
+func (m *Monster) respawn() *FmtStrCollection {
+	return new(FmtStrCollection)
 }
 
 //------------------MONSTER GETTERS------------------------------
