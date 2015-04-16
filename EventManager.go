@@ -150,6 +150,8 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 	case cmd == "say":
 		formattedOutput := newFormattedStringSplice2(ct.Blue, cc.character.Name+" says \""+event.Value+"\"")
 		em.sendMessageToRoom(cc.character.RoomIN, ServerMessage{Value: formattedOutput})
+	case cmd == "trade":
+		cc.beginTrade(event.Value)
 	}
 
 	if len(output) > 0 {

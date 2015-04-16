@@ -4,6 +4,8 @@ import (
 	"encoding/gob"
 	"fmt"
 	"net"
+	"strconv"
+	"strings"
 	"sync"
 	"time"
 )
@@ -17,6 +19,10 @@ type ClientConnection struct {
 	pingResponse *sync.Cond
 	character    *Character
 	CurrentEM    *EventManager
+	isTrading    bool
+	isOfferer    bool
+	myTrader     *Trader
+	dealerTrader *Trader
 }
 
 //CliecntConnection constructor
@@ -120,6 +126,37 @@ func (cc *ClientConnection) getAverageRoundTripTime() time.Duration {
 	encoder.Encode(newServerMessageS("done"))
 	fmt.Println("\tDone getting average round trip time.")
 	return ((avg / 10) / 2)
+}
+
+func (cc *ClientConnection) beginTrade(detail string) {
+	if !cc.isTrading {
+		fmt.Println(detail)
+		if cc.character.PersonalInvetory.isValidTradeCmd(detail) {
+
+			arguments := strings.Split(detail, " ")
+			dealerName := arguments[1]
+			var itemNum int
+			dealer, found := cc.CurrentEM.worldRooms[cc.getCharactersRoomID()].CharactersInRoom[dealerName]
+			if len(arguments) == 3 {
+				itemNum, _ = strconv.Atoi(arguments[2])
+			} else {
+				itemNum = 1
+			}
+			if found && !dealer.getClientConnection().isTrading {
+				fmt.Println("valid")
+				cc.isTrading = true
+				dealer.getClientConnection().isTrading = true
+				cc.myTrader = &Trader{itemName: arguments[0], quantity: itemNum, dealer: dealer.getClientConnection()}
+				dealer.getClientConnection().dealerTrader = &Trader{itemName: arguments[0], quantity: itemNum, dealer: cc}
+			} else {
+				fmt.Println("invalid")
+			}
+
+		} else {
+			fmt.Println("invalid")
+		}
+
+	}
 }
 
 func (cc *ClientConnection) getCharactersName() string {
