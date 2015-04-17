@@ -121,6 +121,7 @@ func (room *Room) addItemToRoom(itm Item_I) {
 func (room *Room) addPCToRoom(char *Character) {
 
 	if room.isLocal() {
+		eventManager.sendMessageToRoom(room.ID, newServerMessageFS(newFormattedStringSplice2(ct.Blue, "\n"+char.Name+" has entered this room.")))
 		room.CharactersInRoom[char.Name] = char
 	}
 	char.RoomIN = room.ID
