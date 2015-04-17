@@ -56,7 +56,7 @@ func (inv *Inventory) AddItems(items []Item_I) {
 //AddItem will add the supplied item to the inventory.
 func (inv *Inventory) AddItem(item Item_I) {
 	if val, ok := inv.items[item.getName()]; ok { // the item is already there
-		val = append(val, item)
+		inv.items[item.getName()] = append(val, item)
 	} else {
 		inv.items[item.getName()] = make([]Item_I, 0)
 		inv.AddItem(item)
@@ -90,7 +90,7 @@ func (inv *Inventory) RemoveItem(name string) {
 
 	if found {
 		items := inv.items[name]
-		inv.items[name] = items[0 : len(items)-2]
+		inv.items[name] = items[0 : len(items)-1]
 	}
 }
 
