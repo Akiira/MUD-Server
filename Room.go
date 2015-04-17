@@ -127,13 +127,13 @@ func (room *Room) addPCToRoom(char *Character) {
 }
 
 func (room *Room) removePCFromRoom(charName string) {
-	if char, found := room.getPC(charName); found {
+	if char, found := room.GetPC(charName); found {
 		char.RoomIN = -1
 		delete(room.CharactersInRoom, charName)
 	}
 }
 
-func (room *Room) getPC(charName string) (*Character, bool) {
+func (room *Room) GetPC(charName string) (*Character, bool) {
 	if room.CharactersInRoom != nil {
 		char, found := room.CharactersInRoom[charName]
 
@@ -172,7 +172,7 @@ func (room *Room) getAgentInRoom(name string) Agenter {
 
 	if val := room.getMonster(name); val != nil {
 		return val
-	} else if val, found := room.getPC(name); found {
+	} else if val, found := room.GetPC(name); found {
 		return val
 	} else { // in case, it's already dead, return nil
 		return nil
