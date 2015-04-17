@@ -7,12 +7,8 @@ import (
 	"io"
 )
 
-type entry struct {
-	item     Item_I
-	quantity int
-}
 type Inventory struct {
-	items map[string]*entry
+	items map[string][]Item_I
 }
 
 //=================== CONSTRUCTORS =====================//
@@ -28,7 +24,7 @@ func inventoryFromXML(invXml *InventoryXML) *Inventory {
 	inv := newInventory()
 
 	for _, itm := range invXml.Items {
-		inv.addItemToInventory(itm.(ItemXML_I).toItem())
+		inv.AddItem(itm.(ItemXML_I).toItem())
 	}
 
 	return inv
@@ -36,18 +32,34 @@ func inventoryFromXML(invXml *InventoryXML) *Inventory {
 
 func newInventory() *Inventory {
 	i := new(Inventory)
-	i.items = make(map[string]*entry)
+	i.items = make(map[string][]Item_I)
 
 	return i
 }
 
 //================== CLASS FUNCTIONS =============//
 
-func (inv *Inventory) addItemToInventory(item Item_I) {
+//AddInventory will ad all items from the given inventory into this one.
+func (inv *Inventory) AddInventory(otherInv Inventory) {
+	for _, items := range otherInv.items {
+		inv.AddItems(items)
+	}
+}
+
+//AddItems will add all items in the provided splice to the inventory.
+func (inv *Inventory) AddItems(items []Item_I) {
+	for _, item := range items {
+		inv.AddItem(item)
+	}
+}
+
+//AddItem will add the supplied item to the inventory.
+func (inv *Inventory) AddItem(item Item_I) {
 	if val, ok := inv.items[item.getName()]; ok { // the item is already there
-		val.quantity++
+		val = append(val, item)
 	} else {
-		inv.items[item.getName()] = &entry{item: item, quantity: 1}
+		inv.items[item.getName()] = make([]Item_I, 0)
+		inv.AddItem(item)
 	}
 }
 
@@ -61,17 +73,24 @@ func (inv *Inventory) PossesItem(name string) bool {
 //name and removes it from the inventory.
 //If the item is not found the pointer is nil and bool is false.
 func (inv *Inventory) GetAndRemoveItem(name string) (Item_I, bool) {
+	item, found := inv.GetItem(name)
 
-	item, found := inv.items[name]
 	if found {
-		item.quantity--
-		if item.quantity == 0 {
-			delete(inv.items, name)
-		}
-
-		return item.item, true
+		inv.RemoveItem(name)
+		return item, true
 	} else {
 		return nil, false
+	}
+}
+
+//RemoveItem removes an item with the specified name from the inventory.
+//If the item was not present then no change is made.
+func (inv *Inventory) RemoveItem(name string) {
+	_, found := inv.GetItem(name)
+
+	if found {
+		items := inv.items[name]
+		inv.items[name] = items[0 : len(items)-2]
 	}
 }
 
@@ -79,9 +98,12 @@ func (inv *Inventory) GetAndRemoveItem(name string) (Item_I, bool) {
 //If the item is found it is not removed from the inventory.
 //If the item is not found the pointer is nil and bool is false.
 func (inv *Inventory) GetItem(name string) (Item_I, bool) {
-	item, found := inv.items[name]
+	items, _ := inv.items[name]
 
-	return item.item, found
+	if len(items) > 0 {
+		return items[len(items)-1], true
+	}
+	return nil, false
 }
 
 func (inv *Inventory) getInventoryDescription() []FormattedString {
@@ -90,7 +112,7 @@ func (inv *Inventory) getInventoryDescription() []FormattedString {
 	desc.addMessage(ct.Green, "-----------------------------------------\n")
 
 	for name, itemEntry := range inv.items {
-		desc.addMessage(ct.Green, fmt.Sprintf("\t%-20s   %3d", name, itemEntry.quantity)+"\n")
+		desc.addMessage(ct.Green, fmt.Sprintf("\t%-20s   %3d", name, len(itemEntry))+"\n")
 	}
 	desc.addMessage2("\n")
 	return desc.fmtedStrings
@@ -99,9 +121,9 @@ func (inv *Inventory) getInventoryDescription() []FormattedString {
 func (inv *Inventory) toXML() *InventoryXML {
 	invXML := newInvXML()
 
-	for _, item := range inv.items {
-		for i := 0; i < item.quantity; i++ {
-			invXML.Items = append(invXML.Items, item.item.toXML())
+	for _, items := range inv.items {
+		for _, item := range items {
+			invXML.Items = append(invXML.Items, item.toXML())
 		}
 	}
 
