@@ -7,6 +7,8 @@ import (
 	"github.com/daviddengcn/go-colortext"
 	"math/rand"
 	"net"
+	"os"
+	"sync"
 )
 
 type Character struct {
@@ -63,7 +65,7 @@ func characterFromXML(charData *CharacterXML) *Character {
 //================== CLASS FUNCTIONS =============//
 
 func (c *Character) EquipArmorByName(name string) []FormattedString {
-	if item, found := c.getItemFromInv(name); found {
+	if item, found := c.GetItem(name); found {
 		if item.getItemType() == ARMOUR {
 			return c.EquipArmour(item.(*Armour))
 		}
@@ -104,7 +106,7 @@ func (c *Character) UnWieldWeapon() []FormattedString {
 
 func (c *Character) WieldWeaponByName(name string) []FormattedString {
 
-	if item, found := c.getItemFromInv(name); found {
+	if item, found := c.GetItem(name); found {
 		if item.getItemType() == WEAPON {
 			return c.WieldWeapon(item.(*Weapon))
 		}
@@ -132,7 +134,7 @@ func (c *Character) takeOffArmor(location string) {
 }
 
 func (c *Character) addItemToInventory(item Item_I) {
-	c.PersonalInvetory.addItemToInventory(item)
+	c.PersonalInvetory.AddItem(item)
 }
 
 func (char *Character) moveCharacter(source *Room, destination *Room) (int, []FormattedString) {
@@ -145,11 +147,12 @@ func (char *Character) moveCharacter(source *Room, destination *Room) (int, []Fo
 
 			return GAMEPLAY, destination.getRoomDescription()
 		} else {
-
 			source.removePCFromRoom(char.Name)
 			destination.addPCToRoom(char)
+
 			charXML := char.toXML()
 			charXML.CurrentWorld = destination.WorldID
+
 			sendCharactersXML(charXML)
 
 			return REDIRECT, newFormattedStringSplice(servers[destination.WorldID])
@@ -191,7 +194,6 @@ func (char *Character) makeAttack(target Agenter) []FormattedString {
 }
 
 func (c *Character) takeDamage(amount int, typeOfDamge int) {
-
 	c.currentHP -= amount
 }
 
@@ -231,8 +233,21 @@ func (c *Character) getClientConnection() *ClientConnection {
 	return c.myClientConn
 }
 
-func (c *Character) getItemFromInv(name string) (Item_I, bool) {
-	return c.PersonalInvetory.getItemByName(name)
+func (c *Character) GetAndRemoveItems(names []string) (items []Item_I) {
+	for _, name := range names {
+		items = append(items, c.GetAndRemoveItem(name))
+	}
+
+	return items
+}
+
+func (c *Character) GetAndRemoveItem(name string) Item_I {
+	item, _ := c.PersonalInvetory.GetAndRemoveItem(name)
+	return item
+}
+
+func (c *Character) GetItem(name string) (Item_I, bool) {
+	return c.PersonalInvetory.GetItem(name)
 }
 
 func (c *Character) getAlignment() string {
@@ -261,8 +276,40 @@ func (c *Character) getDamage() int {
 	return c.equipedWeapon.getDamage() + c.Strength
 }
 
-func (c *Character) getGoldAmount() int {
+func (c *Character) GetGoldAmount() int {
 	return c.gold
+}
+
+func (c *Character) GetItemsToTrade(items *[]string, wg sync.WaitGroup) {
+	defer wg.Done()
+
+	for {
+		response := c.myClientConn.GetItemsToTrade()
+
+		if response == "timeout" || response == "done" {
+			break
+		} else {
+			*items = append(*items, response)
+		}
+	}
+}
+
+func (c *Character) GetTradeResponse() string {
+	return c.myClientConn.GetResponseToTrade()
+}
+
+func (c *Character) HasItems(itemNames []string) bool {
+	for _, name := range itemNames {
+		if !c.HasItem(name) {
+			return false
+		}
+	}
+
+	return true
+}
+
+func (c *Character) HasItem(name string) bool {
+	return c.PersonalInvetory.PossesItem(name)
 }
 
 func (c *Character) getStatsPage() []FormattedString {
@@ -297,7 +344,7 @@ func (c *Character) getStatsPage() []FormattedString {
 	output.addMessage(ct.Green, "CON  :")
 	output.addMessage(ct.White, fmt.Sprintf("%2d %8s", c.Constitution, ""))
 	output.addMessage(ct.Green, "Gold:")
-	output.addMessage(ct.White, fmt.Sprintf("%8d\n", c.getGoldAmount()))
+	output.addMessage(ct.White, fmt.Sprintf("%8d\n", c.GetGoldAmount()))
 	output.addMessage(ct.Green, "CHA  :")
 	output.addMessage(ct.White, fmt.Sprintf("%2d %8s", c.Charisma, ""))
 
@@ -329,6 +376,8 @@ func (char *Character) toXML() *CharacterXML {
 	ch.EquipedWeapon = *char.equipedWeapon.toXML().(*WeaponXML)
 	ch.ArmSet = *char.equippedArmour.toXML()
 	ch.PersInv = *char.PersonalInvetory.toXML()
+
+	ch.CurrentWorld = os.Args[1]
 
 	return ch
 }
