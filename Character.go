@@ -171,6 +171,7 @@ func (char *Character) makeAttack(target Agenter) []FormattedString {
 		if a1 >= target.getDefense() {
 			target.takeDamage(char.getDamage(), 0)
 			fmt.Printf("\tPlayer did %d damage.\n", char.getDamage())
+
 			if target.isDead() {
 				// TODO  reward player exp
 				room := char.myClientConn.CurrentEM.worldRooms[char.RoomIN] //TODO fix this line
@@ -192,16 +193,18 @@ func (char *Character) makeAttack(target Agenter) []FormattedString {
 func (c *Character) takeDamage(amount int, typeOfDamge int) {
 
 	c.currentHP -= amount
-	//s := "You got hit for " + fmt.Sprintf("%d", amount) + " damage.\n"
-	//return newFormattedStringSplice2(ct.Red, s)
 }
 
 func (c *Character) respawn() *FmtStrCollection {
 	output := newFormattedStringCollection()
 	output.addMessage(ct.Red, "\nYou died!\n")
 	output.addMessage2("\nYou were respawned.\n")
+
+	//These two lines are kinda ugly, maybe when a player dies the monster adds a respawn event to em
+	// and then the even manager passes the respawn room to the characters respawn function.
 	src := c.getClientConnection().CurrentEM.worldRooms[c.getClientConnection().getCharactersRoomID()]
 	dest := c.getClientConnection().CurrentEM.worldRooms[worldRespawnRoomID]
+
 	c.moveCharacter(src, dest)
 	c.currentHP = c.MaxHitPoints
 	return output

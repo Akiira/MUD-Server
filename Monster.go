@@ -88,7 +88,7 @@ func (m *Monster) fightPlayers() {
 		//Find target with highest aggro
 		var attackTarget *Character
 		maxAggro := 0
-		for _, targ := range m.targets { //TODO handle targets that moved rooms or logged off.
+		for _, targ := range m.targets {
 
 			if targ.attackTarget.isDead() {
 				delete(m.targets, targ.attackTarget.getName())
