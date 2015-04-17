@@ -178,7 +178,7 @@ func (char *Character) makeAttack(target Agenter) []FormattedString {
 				room := char.myClientConn.CurrentEM.worldRooms[char.RoomIN] //TODO fix this line
 				room.killOffMonster(target.getName())
 
-				return newFormattedStringSplice("You hit " + target.getName() + " and it drops over dead.\n")
+				return newFormattedStringSplice("You hit " + target.getName() + " for " + strconv.Itoa(dmg) + " damage and it drops over dead.\n")
 			} else {
 				target.addTarget(char)
 				var output []FormattedString
