@@ -64,7 +64,9 @@ func (cc *ClientConnection) receiveMsgFromClient() {
 			fmt.Println("\t\tReceived ping from user.")
 			cc.pingResponse.Signal()
 		} else if clientResponse.getCommand() == "opentrade" {
-			cc.tradeChannel <- clientResponse.Command
+			cc.tradeChannel <- clientResponse.getCommand()
+		} else if clientResponse.getCommand() == "add" {
+			cc.tradeChannel <- clientResponse.Value
 		} else {
 			cc.CurrentEM.executeNonCombatEvent(cc, &clientResponse)
 		}
@@ -79,6 +81,9 @@ func (cc *ClientConnection) receiveMsgFromClient() {
 	cc.myConn = nil
 }
 
+func (cc *ClientConnection) GetItemsToTrade() string {
+	return cc.GetResponseToTrade()
+}
 func (cc *ClientConnection) GetResponseToTrade() (response string) {
 	timeoutChan := make(chan string)
 	go func() {
