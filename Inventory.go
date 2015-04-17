@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"github.com/daviddengcn/go-colortext"
 	"io"
-	"strconv"
-	"strings"
 )
 
 type entry struct {
@@ -82,7 +80,7 @@ func (inv *Inventory) removeItemMapFromInventory(itemMap map[string]int) []entry
 
 		tradeItem, _ := inv.items[key]
 
-		deductedItem = append(deductedItem, entry{item: tradeItem.item, quantity: itemQuan})
+		deductedItem = append(deductedItem, entry{item: tradeItem.item.getCopy(), quantity: itemQuan})
 
 		if tradeItem.quantity > itemQuan {
 			tradeItem.quantity -= itemQuan
@@ -160,32 +158,6 @@ func (inv *Inventory) toXML() *InventoryXML {
 	}
 
 	return invXML
-}
-
-func (inv *Inventory) isValidTradeCmd(value string) bool {
-	arguments := strings.Split(value, " ")
-	argumentNum := len(arguments)
-	if argumentNum == 2 {
-		item, found := inv.items[arguments[0]]
-		if found && item.quantity >= 1 {
-			return true
-		} else {
-			return false
-		}
-	} else if argumentNum == 3 {
-		if quantity, err := strconv.Atoi(arguments[2]); err == nil {
-
-			item, found := inv.items[arguments[0]]
-			if found && item.quantity >= quantity {
-				return true
-			} else {
-				return false
-			}
-		}
-	}
-
-	return false
-
 }
 
 //================== XML STUFF =============//

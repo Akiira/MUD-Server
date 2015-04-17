@@ -250,10 +250,10 @@ func (cc *ClientConnection) rejectTrading() []FormattedString {
 	var output []FormattedString
 	if cc.isTrading {
 
-		output = append(output, newFormattedString("\nYou have canceled trading with "+cc.myTrader.dealerCC.getCharactersName()+".\n"))
+		output = append(output, newFormattedString("\nYou have canceled a trade with "+cc.myTrader.dealerCC.getCharactersName()+".\n"))
 
 		var rejectDeclare []FormattedString
-		rejectDeclare = append(rejectDeclare, newFormattedString2(ct.White, "\n"+cc.getCharactersName()+" have cenceled trafing with you.\n"))
+		rejectDeclare = append(rejectDeclare, newFormattedString2(ct.White, "\n"+cc.getCharactersName()+" have cenceled a trade with you.\n"))
 		cc.myTrader.dealerCC.sendMsgToClient(newServerMessageTypeFS(GAMEPLAY, rejectDeclare))
 
 		cc.myTrader.dealerCC.isTrading = false
@@ -301,6 +301,11 @@ func (cc *ClientConnection) acceptTrading() []FormattedString {
 		} else {
 			cc.myTrader.isConfirmed = true
 			output = append(output, newFormattedString("Please wait for "+cc.myTrader.dealerCC.getCharactersName()+" to confirm this trade.\n"))
+
+			var acceptDeclare []FormattedString
+			acceptDeclare = append(acceptDeclare, newFormattedString2(ct.White, "\n"+cc.getCharactersName()+" have confirmed this trade with you.\nPlease confirm or reject this trade.\n"))
+			cc.myTrader.dealerCC.sendMsgToClient(newServerMessageTypeFS(GAMEPLAY, acceptDeclare))
+
 			return output
 		}
 	} else {
