@@ -9,14 +9,16 @@ import (
 )
 
 type ClientConnection struct {
-	myConn       net.Conn
-	myEncoder    *gob.Encoder
-	myDecoder    *gob.Decoder
-	net_lock     sync.Mutex
+	myConn    net.Conn
+	myEncoder *gob.Encoder
+	myDecoder *gob.Decoder
+
 	ping_lock    sync.Mutex
 	pingResponse *sync.Cond
-	character    *Character
-	CurrentEM    *EventManager
+	tradeChannel chan string
+
+	character *Character
+	CurrentEM *EventManager
 }
 
 //CliecntConnection constructor
@@ -61,6 +63,8 @@ func (cc *ClientConnection) receiveMsgFromClient() {
 		} else if clientResponse.getCommand() == "ping" {
 			fmt.Println("\t\tReceived ping from user.")
 			cc.pingResponse.Signal()
+		} else if clientResponse.getCommand() == "opentrade" {
+			cc.tradeChannel <- clientResponse.Command
 		} else {
 			cc.CurrentEM.executeNonCombatEvent(cc, &clientResponse)
 		}
@@ -75,29 +79,41 @@ func (cc *ClientConnection) receiveMsgFromClient() {
 	cc.myConn = nil
 }
 
-func (cc *ClientConnection) sendMsgToClient(msg ServerMessage) {
+func (cc *ClientConnection) GetResponseToTrade() (response string) {
+	timeoutChan := make(chan string)
+	go func() {
+		time.Sleep(time.Second * 3)
+		timeoutChan <- "timeout"
+	}()
 
-	cc.net_lock.Lock()
+	select {
+	case msg := <-cc.tradeChannel:
+		response = msg
+	case msg := <-timeoutChan:
+		response = msg
+	}
+
+	return response
+}
+
+func (cc *ClientConnection) sendMsgToClient(msg ServerMessage) {
 	msg.addCharInfo(cc.character)
 	err := cc.myEncoder.Encode(msg)
-	cc.net_lock.Unlock()
 	checkError(err, false)
 }
 
-func (cc *ClientConnection) getAverageRoundTripTime() time.Duration {
-	fmt.Println("\tGetting average round trip time.")
-
-	var avg time.Duration
+func (cc *ClientConnection) getAverageRoundTripTime() (avg time.Duration) {
 	addr, _, err := net.SplitHostPort(cc.myConn.RemoteAddr().String())
 	checkError(err, true)
+
 	conn, err := net.Dial("tcp", addr+pingPort)
+	checkErrorWithMessage(err, true, "Trying to open connection to client to get average round trip time.")
 	defer conn.Close()
 
 	encoder := gob.NewEncoder(conn)
 	decoder := gob.NewDecoder(conn)
 
 	for i := 0; i < 10; i++ {
-		fmt.Println("\t\tPing: ", i)
 		now := time.Now()
 		err = encoder.Encode(newServerMessageS("ping"))
 		checkError(err, false)
