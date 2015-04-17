@@ -51,12 +51,16 @@ func (inv *Inventory) addItemToInventory(item Item_I) {
 	}
 }
 
+//PossesItem returns true if the inventory contains an item with the given name, else false.
 func (inv *Inventory) PossesItem(name string) bool {
-	_, found := inv.getItemByName(name)
+	_, found := inv.GetItem(name)
 	return found
 }
 
-func (inv *Inventory) getItemByName(name string) (Item_I, bool) {
+//GetAndRemoveItem returns a pointer to the item in the inventory with the specified
+//name and removes it from the inventory.
+//If the item is not found the pointer is nil and bool is false.
+func (inv *Inventory) GetAndRemoveItem(name string) (Item_I, bool) {
 
 	item, found := inv.items[name]
 	if found {
@@ -69,6 +73,15 @@ func (inv *Inventory) getItemByName(name string) (Item_I, bool) {
 	} else {
 		return nil, false
 	}
+}
+
+//GetItem returns a pointer to the item in the inventory with the name in name.
+//If the item is found it is not removed from the inventory.
+//If the item is not found the pointer is nil and bool is false.
+func (inv *Inventory) GetItem(name string) (Item_I, bool) {
+	item, found := inv.items[name]
+
+	return item.item, found
 }
 
 func (inv *Inventory) getInventoryDescription() []FormattedString {
