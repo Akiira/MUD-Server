@@ -23,7 +23,6 @@ type ClientConnection struct {
 	isTrading    bool
 	isOfferer    bool
 	myTrader     *Trader
-	dealerTrader *Trader
 }
 
 //CliecntConnection constructor
@@ -78,6 +77,8 @@ func (cc *ClientConnection) receiveMsgFromClient() {
 		}
 	}
 
+	//send
+
 	cc.myConn.Close()
 	cc.myConn = nil
 }
@@ -131,17 +132,19 @@ func (cc *ClientConnection) getAverageRoundTripTime() time.Duration {
 
 func (cc *ClientConnection) beginTrade(detail string) []FormattedString {
 	var output []FormattedString
-	if !cc.isTrading && !cc.myTrader.isSelected {
+	if !cc.isTrading {
 		fmt.Println(detail)
 		dealerName := strings.Trim(detail, " ")
 		dealer, found := cc.CurrentEM.worldRooms[cc.getCharactersRoomID()].CharactersInRoom[dealerName]
 
 		if found && !dealer.getClientConnection().isTrading {
 			fmt.Println("valid")
+
 			cc.isTrading = true
 			dealer.getClientConnection().isTrading = true
-			cc.myTrader = &Trader{dealer: dealer.getClientConnection()}
-			dealer.getClientConnection().dealerTrader = &Trader{dealer: cc}
+			cc.myTrader = &Trader{isSelected: false, dealerCC: dealer.getClientConnection()}
+			dealer.getClientConnection().myTrader = &Trader{isSelected: false, dealerCC: cc}
+
 			output = cc.character.PersonalInvetory.getInventoryDescription()
 			str1 := "\nSelect item(s) to trade with command\n\"select itemIndex#1 quantity#1, itemIndex#2 quantity#2,..\""
 			str2 := "\nEx. \"select 1 2, 4, 3 2\""
@@ -153,11 +156,11 @@ func (cc *ClientConnection) beginTrade(detail string) []FormattedString {
 			str5 := "\nYou were invite to trade with " + cc.character.getName()
 			invitation = append(invitation, newFormattedString(str5+str1+str2+str3+str4))
 			dealer.getClientConnection().sendMsgToClient(newServerMessageTypeFS(GAMEPLAY, invitation))
-			cc.myTrader.isSelected = true
+
 			return output
 		} else {
 			fmt.Println("invalid")
-			output = append(output, newFormattedString("\nCannot find "+dealerName+" in this room!\n"))
+			output = append(output, newFormattedString("\nCannot find player \""+dealerName+"\" in this room!\n"))
 			return output
 		}
 
@@ -171,17 +174,23 @@ func (cc *ClientConnection) beginTrade(detail string) []FormattedString {
 
 func (cc *ClientConnection) selectItems(detail string) []FormattedString {
 	var output []FormattedString
-	if cc.isTrading {
+	fmt.Println(cc.isTrading)
+	fmt.Println(cc.myTrader)
+	fmt.Println(cc.myTrader.isSelected)
+	if cc.isTrading && cc.myTrader != nil && !cc.myTrader.isSelected {
 		itemlist := strings.Split(detail, ",")
 		var quan int
 		var itemIndex int
 		var validItem bool
 		var name string
-		var itemList []string
-		var quanList []int
+		itemMap := make(map[string]int)
 		for _, item := range itemlist {
+
 			//fmt.Println(item)
 			info := strings.Trim(item, " ")
+			if info == "" {
+				continue
+			}
 			//fmt.Println(info)
 			arguments := strings.Split(info, " ")
 			if len(arguments) == 2 {
@@ -196,8 +205,7 @@ func (cc *ClientConnection) selectItems(detail string) []FormattedString {
 
 			validItem, name = cc.character.PersonalInvetory.checkAvailableItem(itemIndex, quan)
 			if validItem {
-				itemList = append(itemList, name)
-				quanList = append(quanList, quan)
+				itemMap[name] = quan
 			} else {
 				output = append(output, newFormattedString("\nYour item(s) selection is not valid. Please select again or reject\n"))
 				return output
@@ -205,15 +213,27 @@ func (cc *ClientConnection) selectItems(detail string) []FormattedString {
 		}
 
 		output = append(output, newFormattedString("\nYou have selected the following item(s) to trade.\n"))
+		output = append(output, newFormattedString("\n---------------------------------------------------\n"))
 		var selectDeclare []FormattedString
 		selectDeclare = append(selectDeclare, newFormattedString("\n"+cc.character.getName()+" have selected the following item(s) to trade.\n"))
-
-		for i := 0; i < len(itemList); i++ {
-			output = append(output, newFormattedString2(ct.Green, fmt.Sprintf("%d\t%-20s   %3d\n", (i+1), itemList[i], quanList[i])))
-			selectDeclare = append(selectDeclare, newFormattedString2(ct.Green, fmt.Sprintf("%d\t%-20s   %3d\n", (i+1), itemList[i], quanList[i])))
+		selectDeclare = append(selectDeclare, newFormattedString("\n--------------------------------------------------------------------------\n"))
+		i := 1
+		for key, itemQuan := range itemMap {
+			output = append(output, newFormattedString2(ct.Green, fmt.Sprintf("%d\t%-20s   %3d\n", i, key, itemQuan)))
+			selectDeclare = append(selectDeclare, newFormattedString2(ct.Green, fmt.Sprintf("%d\t%-20s   %3d\n", i, key, itemQuan)))
+			i++
 		}
 
-		cc.dealerTrader.dealer.sendMsgToClient(newServerMessageTypeFS(GAMEPLAY, selectDeclare))
+		output = append(output, newFormattedString("\n---------------------------------------------------\n"))
+		selectDeclare = append(selectDeclare, newFormattedString("\n--------------------------------------------------------------------------\n"))
+
+		selectDeclare = append(selectDeclare, newFormattedString2(ct.White, "You can \"accept\" or \"reject\"."))
+
+		cc.myTrader.dealerCC.sendMsgToClient(newServerMessageTypeFS(GAMEPLAY, selectDeclare))
+
+		cc.myTrader.itemMap = itemMap
+
+		cc.myTrader.isSelected = true
 
 		return output
 
@@ -224,6 +244,70 @@ func (cc *ClientConnection) selectItems(detail string) []FormattedString {
 	}
 	return output
 
+}
+
+func (cc *ClientConnection) rejectTrading() []FormattedString {
+	var output []FormattedString
+	if cc.isTrading {
+
+		output = append(output, newFormattedString("\nYou have canceled trading with "+cc.myTrader.dealerCC.getCharactersName()+".\n"))
+
+		var rejectDeclare []FormattedString
+		rejectDeclare = append(rejectDeclare, newFormattedString2(ct.White, "\n"+cc.getCharactersName()+" have cenceled trafing with you.\n"))
+		cc.myTrader.dealerCC.sendMsgToClient(newServerMessageTypeFS(GAMEPLAY, rejectDeclare))
+
+		cc.myTrader.dealerCC.isTrading = false
+		cc.myTrader.dealerCC.myTrader = nil
+
+		cc.isTrading = false
+		cc.myTrader = nil
+
+		return output
+	} else {
+		fmt.Println("invalid")
+		output = append(output, newFormattedString("\nYou are not trading.\n"))
+		return output
+	}
+}
+
+func (cc *ClientConnection) acceptTrading() []FormattedString {
+	var output []FormattedString
+	if cc.isTrading && cc.myTrader.isSelected {
+
+		if cc.myTrader.dealerCC.myTrader.isConfirmed {
+			//TODO finalize trading
+			result := Trading(cc.myTrader, cc.myTrader.dealerCC.myTrader)
+
+			if result {
+				output = append(output, newFormattedString("Your trade with "+cc.myTrader.dealerCC.getCharactersName()+" has been confirmed.\n"))
+			} else {
+				output = append(output, newFormattedString("Your trade with "+cc.myTrader.dealerCC.getCharactersName()+" has been canceled.\n"))
+			}
+
+			ccXML := cc.character.toXML()
+			ccXML.CurrentWorld = serverName
+			sendCharactersXML(ccXML)
+
+			ccXML2 := cc.myTrader.dealerCC.character.toXML()
+			ccXML2.CurrentWorld = serverName
+			sendCharactersXML(ccXML2)
+
+			cc.myTrader.dealerCC.isTrading = false
+			cc.myTrader.dealerCC.myTrader = nil
+			cc.isTrading = false
+			cc.myTrader = nil
+
+			return output
+		} else {
+			cc.myTrader.isConfirmed = true
+			output = append(output, newFormattedString("Please wait for "+cc.myTrader.dealerCC.getCharactersName()+" to confirm this trade.\n"))
+			return output
+		}
+	} else {
+		fmt.Println("invalid")
+		output = append(output, newFormattedString("\nYou cannot accept yet. You need to select zero or more items to trade first.\n"))
+		return output
+	}
 }
 
 func (cc *ClientConnection) getCharactersName() string {

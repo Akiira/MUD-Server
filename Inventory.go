@@ -59,6 +59,54 @@ func (inv *Inventory) checkAvailableItem(itemIndex int, quantity int) (bool, str
 	}
 
 }
+
+func (inv *Inventory) checkAvailableItemMap(itemMap map[string]int) bool {
+
+	for key, itemQuan := range itemMap {
+		item, found := inv.items[key]
+		if !found {
+			return false
+		} else if item.quantity < itemQuan {
+			return false
+		}
+	}
+	return true
+
+}
+
+func (inv *Inventory) removeItemMapFromInventory(itemMap map[string]int) []entry {
+
+	var deductedItem []entry
+
+	for key, itemQuan := range itemMap {
+
+		tradeItem, _ := inv.items[key]
+
+		deductedItem = append(deductedItem, entry{item: tradeItem.item, quantity: itemQuan})
+
+		if tradeItem.quantity > itemQuan {
+			tradeItem.quantity -= itemQuan
+			inv.items[key] = tradeItem
+		} else {
+			delete(inv.items, key)
+		}
+
+	}
+	return deductedItem
+}
+
+func (inv *Inventory) addItemListToInventory(entryList []entry) {
+	for _, itemEntry := range entryList {
+		tradeItem, found := inv.items[itemEntry.item.getName()]
+		if found {
+			tradeItem.quantity += itemEntry.quantity
+			inv.items[itemEntry.item.getName()] = tradeItem
+		} else {
+			inv.items[itemEntry.item.getName()] = &itemEntry
+		}
+	}
+}
+
 func (inv *Inventory) addItemToInventory(item Item_I) {
 	if val, ok := inv.items[item.getName()]; ok { // the item is already there
 		val.quantity++

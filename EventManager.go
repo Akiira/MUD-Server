@@ -154,6 +154,10 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 		output = cc.beginTrade(event.Value)
 	case cmd == "select":
 		output = cc.selectItems(event.Value)
+	case cmd == "reject":
+		output = cc.rejectTrading()
+	case cmd == "accept":
+		output = cc.acceptTrading()
 	}
 
 	if len(output) > 0 {
