@@ -109,7 +109,12 @@ func (room *Room) isLocal() bool {
 }
 
 func (room *Room) getConnectedRoom(exit int) *Room {
-	return room.ExitLinksToRooms[exit]
+	if exit != -1 {
+		return room.ExitLinksToRooms[exit]
+	} else {
+		return nil
+	}
+
 }
 
 func (room *Room) addItemToRoom(itm Item_I) {

@@ -153,7 +153,7 @@ func (cc *ClientConnection) beginTrade(detail string) []FormattedString {
 			output = append(output, newFormattedString(str1+str2+str3+str4))
 
 			invitation := dealer.PersonalInvetory.getInventoryDescription()
-			str5 := "\nYou were invite to trade with " + cc.character.getName()
+			str5 := "\nYou were invited to trade with " + cc.character.getName()
 			invitation = append(invitation, newFormattedString(str5+str1+str2+str3+str4))
 			dealer.getClientConnection().sendMsgToClient(newServerMessageTypeFS(GAMEPLAY, invitation))
 

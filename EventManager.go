@@ -157,6 +157,8 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 		output = cc.rejectTrading()
 	case cmd == "accept":
 		output = cc.acceptTrading()
+	case cmd == "help":
+		output = newFormattedStringSplice("\nYou can use the following commands\nattack\ninv\nlook\nyell\nsay\ntrade\nbid\nwield\nunwield\nequip\nget\nmove\nauction\n")
 	}
 
 	if len(output) > 0 {
