@@ -44,7 +44,21 @@ func newInventory() *Inventory {
 }
 
 //================== CLASS FUNCTIONS =============//
+func (inv *Inventory) checkAvailableItem(itemIndex int, quantity int) (bool, string) {
+	if itemIndex <= len(inv.items) {
+		i := 1
+		for key, entryItem := range inv.items {
+			if i == itemIndex && entryItem.quantity >= quantity {
+				return true, key
+			}
+			i++
+		}
+		return false, " "
+	} else {
+		return false, " "
+	}
 
+}
 func (inv *Inventory) addItemToInventory(item Item_I) {
 	if val, ok := inv.items[item.getName()]; ok { // the item is already there
 		val.quantity++
@@ -78,10 +92,13 @@ func (inv *Inventory) getInventoryDescription() []FormattedString {
 	desc.addMessage2("\nInventory\n")
 	desc.addMessage(ct.Green, "-----------------------------------------\n")
 
+	i := 1
 	for name, itemEntry := range inv.items {
-		desc.addMessage(ct.Green, fmt.Sprintf("\t%-20s   %3d", name, itemEntry.quantity)+"\n")
+		desc.addMessage(ct.Green, fmt.Sprintf("%d\t%-20s   %3d", i, name, itemEntry.quantity)+"\n")
+		i++
 	}
 	desc.addMessage2("\n")
+
 	return desc.fmtedStrings
 }
 

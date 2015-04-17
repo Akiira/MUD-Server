@@ -3,7 +3,9 @@ package main
 import ()
 
 type Trader struct {
-	itemName string
-	quantity int
-	dealer   *ClientConnection
+	isSelected  bool
+	isConfirmed bool
+	itemList    []string
+	quanList    []int
+	dealer      *ClientConnection
 }

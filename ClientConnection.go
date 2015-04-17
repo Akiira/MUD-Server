@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/gob"
 	"fmt"
+	"github.com/daviddengcn/go-colortext"
 	"net"
 	"strconv"
 	"strings"
@@ -128,35 +129,101 @@ func (cc *ClientConnection) getAverageRoundTripTime() time.Duration {
 	return ((avg / 10) / 2)
 }
 
-func (cc *ClientConnection) beginTrade(detail string) {
-	if !cc.isTrading {
+func (cc *ClientConnection) beginTrade(detail string) []FormattedString {
+	var output []FormattedString
+	if !cc.isTrading && !cc.myTrader.isSelected {
 		fmt.Println(detail)
-		if cc.character.PersonalInvetory.isValidTradeCmd(detail) {
+		dealerName := strings.Trim(detail, " ")
+		dealer, found := cc.CurrentEM.worldRooms[cc.getCharactersRoomID()].CharactersInRoom[dealerName]
 
-			arguments := strings.Split(detail, " ")
-			dealerName := arguments[1]
-			var itemNum int
-			dealer, found := cc.CurrentEM.worldRooms[cc.getCharactersRoomID()].CharactersInRoom[dealerName]
-			if len(arguments) == 3 {
-				itemNum, _ = strconv.Atoi(arguments[2])
-			} else {
-				itemNum = 1
-			}
-			if found && !dealer.getClientConnection().isTrading {
-				fmt.Println("valid")
-				cc.isTrading = true
-				dealer.getClientConnection().isTrading = true
-				cc.myTrader = &Trader{itemName: arguments[0], quantity: itemNum, dealer: dealer.getClientConnection()}
-				dealer.getClientConnection().dealerTrader = &Trader{itemName: arguments[0], quantity: itemNum, dealer: cc}
-			} else {
-				fmt.Println("invalid")
-			}
+		if found && !dealer.getClientConnection().isTrading {
+			fmt.Println("valid")
+			cc.isTrading = true
+			dealer.getClientConnection().isTrading = true
+			cc.myTrader = &Trader{dealer: dealer.getClientConnection()}
+			dealer.getClientConnection().dealerTrader = &Trader{dealer: cc}
+			output = cc.character.PersonalInvetory.getInventoryDescription()
+			str1 := "\nSelect item(s) to trade with command\n\"select itemIndex#1 quantity#1, itemIndex#2 quantity#2,..\""
+			str2 := "\nEx. \"select 1 2, 4, 3 2\""
+			str3 := "\nfor trade item#1 quantity:2, item#4 quantity:1, item#3 quantity:2"
+			str4 := "\nYou can also reject with \"reject\" command"
+			output = append(output, newFormattedString(str1+str2+str3+str4))
 
+			invitation := dealer.PersonalInvetory.getInventoryDescription()
+			str5 := "\nYou were invite to trade with " + cc.character.getName()
+			invitation = append(invitation, newFormattedString(str5+str1+str2+str3+str4))
+			dealer.getClientConnection().sendMsgToClient(newServerMessageTypeFS(GAMEPLAY, invitation))
+			cc.myTrader.isSelected = true
+			return output
 		} else {
 			fmt.Println("invalid")
+			output = append(output, newFormattedString("\nCannot find "+dealerName+" in this room!\n"))
+			return output
 		}
 
+	} else {
+		fmt.Println("invalid")
+		output = append(output, newFormattedString("\nYou are trading. You need to complete the current trade or reject it before start the new trading.\n"))
+		return output
 	}
+
+}
+
+func (cc *ClientConnection) selectItems(detail string) []FormattedString {
+	var output []FormattedString
+	if cc.isTrading {
+		itemlist := strings.Split(detail, ",")
+		var quan int
+		var itemIndex int
+		var validItem bool
+		var name string
+		var itemList []string
+		var quanList []int
+		for _, item := range itemlist {
+			//fmt.Println(item)
+			info := strings.Trim(item, " ")
+			//fmt.Println(info)
+			arguments := strings.Split(info, " ")
+			if len(arguments) == 2 {
+				//fmt.Println("[" + arguments[0] + "],[" + arguments[1] + "]")
+				itemIndex, _ = strconv.Atoi(arguments[0])
+				quan, _ = strconv.Atoi(arguments[1])
+			} else {
+				//fmt.Println("[" + arguments[0] + "]")
+				itemIndex, _ = strconv.Atoi(arguments[0])
+				quan = 1
+			}
+
+			validItem, name = cc.character.PersonalInvetory.checkAvailableItem(itemIndex, quan)
+			if validItem {
+				itemList = append(itemList, name)
+				quanList = append(quanList, quan)
+			} else {
+				output = append(output, newFormattedString("\nYour item(s) selection is not valid. Please select again or reject\n"))
+				return output
+			}
+		}
+
+		output = append(output, newFormattedString("\nYou have selected the following item(s) to trade.\n"))
+		var selectDeclare []FormattedString
+		selectDeclare = append(selectDeclare, newFormattedString("\n"+cc.character.getName()+" have selected the following item(s) to trade.\n"))
+
+		for i := 0; i < len(itemList); i++ {
+			output = append(output, newFormattedString2(ct.Green, fmt.Sprintf("%d\t%-20s   %3d\n", (i+1), itemList[i], quanList[i])))
+			selectDeclare = append(selectDeclare, newFormattedString2(ct.Green, fmt.Sprintf("%d\t%-20s   %3d\n", (i+1), itemList[i], quanList[i])))
+		}
+
+		cc.dealerTrader.dealer.sendMsgToClient(newServerMessageTypeFS(GAMEPLAY, selectDeclare))
+
+		return output
+
+	} else {
+		fmt.Println("invalid")
+		output = append(output, newFormattedString("\nYou are not trading. You need to initiate trading with command \"trade\" first.\n"))
+		return output
+	}
+	return output
+
 }
 
 func (cc *ClientConnection) getCharactersName() string {
