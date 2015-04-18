@@ -280,7 +280,7 @@ func (c *Character) GetGoldAmount() int {
 	return c.gold
 }
 
-func (c *Character) GetItemsToTrade(items *[]string, wg *sync.WaitGroup) {
+func (c *Character) GetItemsToTrade(items *[]Item_I, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	for {
@@ -289,7 +289,11 @@ func (c *Character) GetItemsToTrade(items *[]string, wg *sync.WaitGroup) {
 		if response == "timeout" || response == "done" {
 			break
 		} else {
-			*items = append(*items, response)
+			if c.HasItem(response) {
+				*items = append(*items, c.GetAndRemoveItem(response))
+			} else {
+				c.sendMessageS("You do not have any more of the item: " + response + ".\n")
+			}
 		}
 	}
 }
