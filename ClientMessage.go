@@ -17,6 +17,40 @@ type ClientMessage struct {
 func newClientMessage(cmd string, val string) *ClientMessage {
 	return &ClientMessage{CombatAction: false, Command: cmd, Value: val}
 }
+
+func (msg *ClientMessage) IsTradeCommand() bool {
+	switch msg.Command {
+	case "accept", "done", "add":
+		return true
+	}
+
+	return false
+}
+
+func (msg *ClientMessage) GetItemQuantity() int {
+	firstValue := strings.Split(msg.Value, " ")[0]
+
+	if val, err := strconv.Atoi(firstValue); err == nil {
+		return val
+	} else {
+		return 1
+	}
+}
+
+func (msg *ClientMessage) GetItem() string {
+	firstValue := strings.Split(msg.Value, " ")[0]
+
+	if _, err := strconv.Atoi(firstValue); err == nil {
+		return strings.TrimSpace(strings.TrimPrefix(msg.Value, firstValue+" "))
+	} else {
+		return strings.TrimSpace(msg.Value)
+	}
+}
+
+func (msg *ClientMessage) GetValue() string {
+	return msg.Value
+}
+
 func (msg *ClientMessage) getCommand() string {
 	if strings.Contains(msg.Command, ";") {
 		return strings.Split(msg.Command, ";")[0]
@@ -24,6 +58,7 @@ func (msg *ClientMessage) getCommand() string {
 		return msg.Command
 	}
 }
+
 func (msg *ClientMessage) setCommand(cmd string) {
 	msg.CombatAction = false
 	msg.Command = cmd
