@@ -108,7 +108,8 @@ func (inv *Inventory) GetItem(name string) (Item_I, bool) {
 
 func (inv *Inventory) getInventoryDescription() []FormattedString {
 	desc := newFormattedStringCollection()
-	desc.addMessage2("\nInventory\n")
+	desc.addMessage2("\nItems\n")
+	desc.addMessage2(fmt.Sprintf("\t%-20s   %3s\n", "Item Name", "Qty"))
 	desc.addMessage(ct.Green, "-----------------------------------------\n")
 
 	for name, itemEntry := range inv.items {
