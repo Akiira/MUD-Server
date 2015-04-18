@@ -280,7 +280,7 @@ func (c *Character) GetGoldAmount() int {
 	return c.gold
 }
 
-func (c *Character) GetItemsToTrade(items *[]string, wg sync.WaitGroup) {
+func (c *Character) GetItemsToTrade(items *[]string, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	for {
@@ -385,8 +385,17 @@ func (char *Character) toXML() *CharacterXML {
 func (c *Character) addTarget(target Agenter) {
 	//Do nothing
 }
+
 func (char *Character) sendMessage(msg ServerMessage) {
 	char.myClientConn.sendMsgToClient(msg)
+}
+
+func (char *Character) sendMessageS(msg string) {
+	char.myClientConn.sendMsgToClient(newServerMessageS(msg))
+}
+
+func (char *Character) sendMessageFS(msg []FormattedString) {
+	char.myClientConn.sendMsgToClient(newServerMessageFS(msg))
 }
 
 //==============="STATIC" FUNCTIONS===================//
