@@ -264,6 +264,7 @@ func (em *EventManager) GetTradeItemsFromPlayers(trader, tradee *Character, trde
 	wg.Wait()
 }
 
+//TODO combine msg to same person into one server msg to make it appear cleaner on clients side
 func (em *EventManager) SendFinalTradeTerms(trader, tradee *Character, trderInv, trdeeInv *Inventory) {
 	//send final terms out to players
 	trader.sendMessageS("Here are the final terms of the trade, you will receive:\n")
