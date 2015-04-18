@@ -49,6 +49,7 @@ func NewClientConnection(conn net.Conn, em *EventManager) *ClientConnection {
 
 	cc.tradeChannel = make(chan string)
 	cc.pingChannel = make(chan string)
+
 	return cc
 }
 
@@ -72,11 +73,11 @@ func (cc *ClientConnection) Read() {
 			event := newEventFromMessage(clientResponse, cc.character)
 			cc.CurrentEM.AddEvent(event)
 		} else if clientResponse.getCommand() == "ping" {
-			cc.pingChannel <- "ping"
+			go cc.SendToPingChannel()
 		} else if clientResponse.IsTradeCommand() {
-			cc.SendToTradeChannel(clientResponse)
+			go cc.SendToTradeChannel(clientResponse)
 		} else {
-			cc.CurrentEM.ExecuteNonCombatEvent(cc, &clientResponse)
+			go cc.CurrentEM.ExecuteNonCombatEvent(cc, &clientResponse)
 		}
 
 		if clientResponse.Command == "exit" || err != nil {
@@ -127,6 +128,10 @@ func (cc *ClientConnection) GetItemsToTrade() string {
 	return cc.GetResponseToTrade()
 }
 
+func (cc *ClientConnection) SendToPingChannel() {
+	cc.pingChannel <- "ping"
+}
+
 func (cc *ClientConnection) GetResponseToPing(start time.Time) time.Duration {
 	timeoutChan2 := make(chan string)
 	go func() {
@@ -146,11 +151,9 @@ func (cc *ClientConnection) getAverageRoundTripTime() (avg time.Duration) {
 
 	for i := 0; i < 10; i++ {
 		cc.Write(newServerMessageTypeS(PING, "ping"))
-		fmt.Println("\t\tWaiting for response ping")
 		avg += cc.GetResponseToPing(time.Now())
 	}
 
-	fmt.Println("\tDone getting average round trip time.")
 	return ((avg / 10) / 2)
 }
 

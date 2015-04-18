@@ -62,6 +62,7 @@ func (a *Auction) bidOnItem(amount int, bidder *ClientConnection, timeOfBid time
 	if distance > 0 {
 		bid := new(Bid)
 		bid.bidder = bidder
+		bid.amount = amount
 		bid.durationFromEnd = distance
 
 		if a.highestBid == nil || a.highestBid.amount <= amount {

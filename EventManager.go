@@ -96,33 +96,9 @@ func (em *EventManager) ExecuteNonCombatEvent(cc *ClientConnection, event *Clien
 
 	switch event.getCommand() {
 	case "auction": //This is to start an auction
-		em.auctn_mutx.Lock()
-		defer em.auctn_mutx.Unlock()
-
-		if em.auction == nil {
-			item, found := cc.character.GetItem(event.Value)
-			if found {
-				em.auction = newAuction(item)
-				go em.runAuction()
-				output = newFormattedStringSplice("Your auction was succesfully started.")
-			} else {
-				output = newFormattedStringSplice("Could not start the auction because you do not have that item.")
-			}
-		}
+		output = em.StartAuction(cc.getCharacter(), event.Value)
 	case "bid":
-		fmt.Println("Executing bid command")
-		em.auctn_mutx.Lock()
-		defer em.auctn_mutx.Unlock()
-
-		if em.auction != nil {
-			fmt.Println("Bidding on item")
-			output = em.auction.bidOnItem(event.getBid(), cc, time.Now())
-			fmt.Println("Done Bidding on item")
-		} else {
-			output = newFormattedStringSplice("There are not currently any auctions happening.\n")
-		}
-		fmt.Println("Done Executing bid command")
-
+		output = em.BidOnAuction(cc, event.getBid())
 	case "unwield":
 		output = cc.character.UnWieldWeapon()
 	case "wield":
@@ -187,6 +163,7 @@ func (em *EventManager) GetRoom(input interface{}) *Room {
 	switch input := input.(type) {
 	default:
 		fmt.Printf("Unexpected type %T in EventManager.GetRoom", input)
+		fmt.Println(" with value: ", input)
 		return nil
 	case int:
 		roomID = input
@@ -353,6 +330,37 @@ func (em *EventManager) AskFinalTradePrompt(trader, tradee *Character) bool {
 
 //-----------------------------AUCTION EVENT FUNCTIONS------------------------//
 
+func (em *EventManager) StartAuction(char *Character, itemName string) (output []FormattedString) {
+	em.auctn_mutx.Lock()
+
+	if !em.IsAuctionRunning() {
+		if item, found := char.GetAndRemoveItem(itemName); found {
+			em.auction = newAuction(item)
+			go em.runAuction()
+			output = newFormattedStringSplice("Your auction was succesfully started.")
+		} else {
+			output = newFormattedStringSplice("Could not start the auction because you do not have that item.")
+		}
+	} else {
+		output = newFormattedStringSplice("Could not start the auction because there is already an auction running.")
+	}
+
+	em.auctn_mutx.Unlock() //Do not defer me
+	return output
+}
+
+func (em *EventManager) BidOnAuction(cc *ClientConnection, bid int) []FormattedString {
+	em.auctn_mutx.Lock()
+	defer em.auctn_mutx.Unlock()
+
+	if em.IsAuctionRunning() {
+		return em.auction.bidOnItem(bid, cc, time.Now())
+	} else {
+		return newFormattedStringSplice("There are not currently any auctions happening.\n")
+	}
+}
+
+//TODO send better message
 func (em *EventManager) sendPeriodicAuctionInfo() {
 	for {
 		time.Sleep(time.Second * 5)
@@ -389,6 +397,6 @@ func (em *EventManager) runAuction() {
 	em.auctn_mutx.Unlock()
 }
 
-func (em *EventManager) isAuctionRunning() bool {
+func (em *EventManager) IsAuctionRunning() bool {
 	return em.auction != nil
 }
