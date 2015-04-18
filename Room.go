@@ -326,8 +326,8 @@ type RoomsXML struct {
 	respawnRoomID int       `xml:"RespawnRoomID"`
 }
 
-func loadRooms(worldName string) map[int]*Room {
-	xmlFile, err := os.Open(worldName + ".xml")
+func loadRooms() map[int]*Room {
+	xmlFile, err := os.Open(serverName + ".xml")
 	checkErrorWithMessage(err, true, " In load rooms function.")
 	defer xmlFile.Close()
 

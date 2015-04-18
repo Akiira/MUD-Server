@@ -37,11 +37,10 @@ func main() {
 
 func runServer() {
 	loadMonsterData()
-	fmt.Println("Monster Data Loaded.")
 
 	serverName = os.Args[1]
 
-	eventManager = newEventManager(serverName)
+	eventManager = newEventManager()
 
 	listener := setUpServerWithAddress(servers[serverName])
 
@@ -51,7 +50,8 @@ func runServer() {
 		if err == nil {
 			fmt.Println("Connection established")
 
-			go HandleClientConnection(conn)
+			clientConnection := NewClientConnection(conn, eventManager)
+			go clientConnection.Read()
 		}
 	}
 }
@@ -73,12 +73,6 @@ func readServerList() {
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)
 	}
-}
-
-func HandleClientConnection(myConn net.Conn) {
-
-	clientConnection := newClientConnection(myConn, eventManager)
-	clientConnection.Read()
 }
 
 func saveCharacterFile(char *CharacterXML) {

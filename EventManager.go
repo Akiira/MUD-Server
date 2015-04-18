@@ -19,10 +19,10 @@ type EventManager struct {
 	traders map[string]bool
 }
 
-func newEventManager(worldName string) *EventManager {
+func newEventManager() *EventManager {
 	em := new(EventManager)
 	em.eventQue = make([]Event, 0, 10)
-	em.worldRooms = loadRooms(worldName)
+	em.worldRooms = loadRooms()
 	em.traders = make(map[string]bool)
 	go em.StartCombatRounds()
 

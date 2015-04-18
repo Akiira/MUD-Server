@@ -258,4 +258,6 @@ func loadMonsterData() {
 	for _, element := range monstersData.Monsters {
 		monsterTemplatesG[element.Name] = newMonsterFromXML(element)
 	}
+
+	fmt.Println("Monster Data Loaded.")
 }

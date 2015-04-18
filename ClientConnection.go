@@ -27,7 +27,7 @@ type ClientConnection struct {
 //CliecntConnection constructor constructs a new client connection and sets the
 //current event manager to the one supplied. This constructor is responsible
 //for getting the initial room description.
-func newClientConnection(conn net.Conn, em *EventManager) *ClientConnection {
+func NewClientConnection(conn net.Conn, em *EventManager) *ClientConnection {
 	cc := new(ClientConnection)
 	cc.myConn = conn
 
