@@ -29,6 +29,11 @@ func (fsc *FmtStrCollection) addMessages(appendFsc *FmtStrCollection) {
 	fsc.fmtedStrings = append(fsc.fmtedStrings, appendFsc.fmtedStrings...)
 }
 
+func (fsc *FmtStrCollection) addMessages2(msgs []FormattedString) {
+
+	fsc.fmtedStrings = append(fsc.fmtedStrings, msgs...)
+}
+
 type FormattedString struct {
 	Color ct.Color
 	Value string

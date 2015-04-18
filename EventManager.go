@@ -128,6 +128,8 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 		output = cc.character.UnEquipArmourByName(event.Value)
 	case "equip":
 		output = cc.character.EquipArmorByName(event.Value)
+	case "equipment":
+		output = cc.character.GetEquipment()
 	case "inv":
 		output = cc.character.PersonalInvetory.getInventoryDescription()
 	case "save", "exit":
@@ -139,6 +141,13 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 		output = em.GetRoom(cc.getCharactersRoomID()).GetDescription()
 	case "get":
 		output = em.GetRoom(cc.getCharactersRoomID()).GiveItemToPlayer(cc.character, event.Value)
+	case "drop":
+		if item, found := cc.getCharacter().GetAndRemoveItem(event.Value); found {
+			em.GetRoom(cc.getCharactersRoomID()).AddItem(item)
+			output = newFormattedStringSplice("You dropped the " + item.getName() + " on the ground.\n")
+		} else {
+			output = newFormattedStringSplice("You dropped the " + item.getName() + " on the ground.\n")
+		}
 	case "move":
 		src := em.worldRooms[cc.getCharactersRoomID()]
 		dest := src.getConnectedRoom(convertDirectionToInt(event.Value))

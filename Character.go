@@ -333,6 +333,17 @@ func (c *Character) GetTradeResponse() string {
 	return c.myClientConn.GetResponseToTrade()
 }
 
+func (c *Character) GetEquipment() []FormattedString {
+	output := newFormattedStringCollection()
+
+	output.addMessage(ct.Green, "Equipment Page for "+c.Name+"\n-------------------------------------------------\n")
+	output.addMessage(ct.Green, "Weapon:")
+	output.addMessage(ct.White, fmt.Sprintf("%10s\n", c.equipedWeapon.getName()))
+	output.addMessages2(c.equippedArmour.getListOfArmourWorn())
+
+	return output.fmtedStrings
+}
+
 func (c *Character) GetStats() []FormattedString {
 
 	output := newFormattedStringCollection()
