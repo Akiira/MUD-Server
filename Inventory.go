@@ -42,6 +42,68 @@ func newInventory() *Inventory {
 }
 
 //================== CLASS FUNCTIONS =============//
+func (inv *Inventory) checkAvailableItem(itemIndex int, quantity int) (bool, string) {
+	if itemIndex <= len(inv.items) {
+		i := 1
+		for key, entryItem := range inv.items {
+			if i == itemIndex && entryItem.quantity >= quantity {
+				return true, key
+			}
+			i++
+		}
+		return false, " "
+	} else {
+		return false, " "
+	}
+
+}
+
+func (inv *Inventory) checkAvailableItemMap(itemMap map[string]int) bool {
+
+	for key, itemQuan := range itemMap {
+		item, found := inv.items[key]
+		if !found {
+			return false
+		} else if item.quantity < itemQuan {
+			return false
+		}
+	}
+	return true
+
+}
+
+func (inv *Inventory) removeItemMapFromInventory(itemMap map[string]int) []entry {
+
+	var deductedItem []entry
+
+	for key, itemQuan := range itemMap {
+
+		tradeItem, _ := inv.items[key]
+
+		deductedItem = append(deductedItem, entry{item: tradeItem.item.getCopy(), quantity: itemQuan})
+
+		if tradeItem.quantity > itemQuan {
+			tradeItem.quantity -= itemQuan
+			inv.items[key] = tradeItem
+		} else {
+			delete(inv.items, key)
+		}
+
+	}
+	return deductedItem
+}
+
+func (inv *Inventory) addItemListToInventory(entryList []entry) {
+	for _, itemEntry := range entryList {
+		tradeItem, found := inv.items[itemEntry.item.getName()]
+		if found {
+			tradeItem.quantity += itemEntry.quantity
+			inv.items[itemEntry.item.getName()] = tradeItem
+		} else {
+			inv.items[itemEntry.item.getName()] = &itemEntry
+		}
+	}
+}
 
 func (inv *Inventory) addItemToInventory(item Item_I) {
 	if val, ok := inv.items[item.getName()]; ok { // the item is already there
@@ -76,10 +138,13 @@ func (inv *Inventory) getInventoryDescription() []FormattedString {
 	desc.addMessage2("\nInventory\n")
 	desc.addMessage(ct.Green, "-----------------------------------------\n")
 
+	i := 1
 	for name, itemEntry := range inv.items {
-		desc.addMessage(ct.Green, fmt.Sprintf("\t%-20s   %3d", name, itemEntry.quantity)+"\n")
+		desc.addMessage(ct.Green, fmt.Sprintf("%d\t%-20s   %3d", i, name, itemEntry.quantity)+"\n")
+		i++
 	}
 	desc.addMessage2("\n")
+
 	return desc.fmtedStrings
 }
 

@@ -37,7 +37,6 @@ func (em *EventManager) sendMessageToWorld(msg ServerMessage) {
 
 func (em *EventManager) sendMessageToRoom(roomID int, msg ServerMessage) {
 	room := em.worldRooms[roomID]
-
 	for _, char := range room.CharactersInRoom {
 		char.sendMessage(msg)
 	}
@@ -143,13 +142,22 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 	case cmd == "move":
 		src := em.worldRooms[cc.getCharactersRoomID()]
 		dest := src.getConnectedRoom(convertDirectionToInt(event.Value))
-
 		msgType, output = cc.character.moveCharacter(src, dest)
 	case cmd == "yell":
 		em.sendMessageToWorld(newServerMessageFS(newFormattedStringSplice2(ct.Blue, cc.character.Name+" says \""+event.Value+"\"")))
 	case cmd == "say":
 		formattedOutput := newFormattedStringSplice2(ct.Blue, cc.character.Name+" says \""+event.Value+"\"")
 		em.sendMessageToRoom(cc.character.RoomIN, ServerMessage{Value: formattedOutput})
+	case cmd == "trade":
+		output = cc.beginTrade(event.Value)
+	case cmd == "select":
+		output = cc.selectItems(event.Value)
+	case cmd == "reject":
+		output = cc.rejectTrading()
+	case cmd == "accept":
+		output = cc.acceptTrading()
+	case cmd == "help":
+		output = newFormattedStringSplice("\nYou can use the following commands\nattack\ninv\nlook\nyell\nsay\ntrade\nbid\nwield\nunwield\nequip\nget\nmove\nauction\n")
 	}
 
 	if len(output) > 0 {

@@ -7,6 +7,7 @@ import (
 	"github.com/daviddengcn/go-colortext"
 	"math/rand"
 	"net"
+	"strconv"
 )
 
 type Character struct {
@@ -169,7 +170,8 @@ func (char *Character) makeAttack(target Agenter) []FormattedString {
 
 		a1 := char.getAttack()
 		if a1 >= target.getDefense() {
-			target.takeDamage(char.getDamage(), 0)
+			dmg := char.getDamage()
+			target.takeDamage(dmg, 0)
 			fmt.Printf("\tPlayer did %d damage.\n", char.getDamage())
 
 			if target.isDead() {
@@ -177,13 +179,16 @@ func (char *Character) makeAttack(target Agenter) []FormattedString {
 				room := char.myClientConn.CurrentEM.worldRooms[char.RoomIN] //TODO fix this line
 				room.killOffMonster(target.getName())
 
-				return newFormattedStringSplice("The hit the " + target.getName() + " and it drops over dead.\n")
+				return newFormattedStringSplice("You hit " + target.getName() + " for " + strconv.Itoa(dmg) + " damage and it drops over dead.\n")
 			} else {
 				target.addTarget(char)
-				return newFormattedStringSplice("\nYou hit the " + target.getName() + "!\n")
+				var output []FormattedString
+				output = append(output, newFormattedString2(ct.Red, "\nYou were hit by "+char.Name+" for "+strconv.Itoa(dmg)+" damage!\n"))
+				target.sendMessage(newServerMessageFS(output))
+				return newFormattedStringSplice("\nYou hit " + target.getName() + " for " + strconv.Itoa(dmg) + " damage!\n")
 			}
 		} else {
-			return newFormattedStringSplice("\nYou missed the " + target.getName() + "!\n")
+			return newFormattedStringSplice("\nYour attack missed " + target.getName() + "!\n")
 		}
 	}
 
