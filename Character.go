@@ -133,6 +133,14 @@ func (c *Character) takeOffArmor(location string) {
 	}
 }
 
+func (c *Character) AddInventoryToInventory(otherInv *Inventory) {
+	c.PersonalInvetory.AddInventory(otherInv)
+}
+
+func (c *Character) AddItemsToInventory(items []Item_I) {
+	c.PersonalInvetory.AddItems(items)
+}
+
 func (c *Character) addItemToInventory(item Item_I) {
 	c.PersonalInvetory.AddItem(item)
 }
@@ -235,15 +243,16 @@ func (c *Character) getClientConnection() *ClientConnection {
 
 func (c *Character) GetAndRemoveItems(names []string) (items []Item_I) {
 	for _, name := range names {
-		items = append(items, c.GetAndRemoveItem(name))
+		if item, found := c.GetAndRemoveItem(name); found {
+			items = append(items, item)
+		}
 	}
 
 	return items
 }
 
-func (c *Character) GetAndRemoveItem(name string) Item_I {
-	item, _ := c.PersonalInvetory.GetAndRemoveItem(name)
-	return item
+func (c *Character) GetAndRemoveItem(name string) (Item_I, bool) {
+	return c.PersonalInvetory.GetAndRemoveItem(name)
 }
 
 func (c *Character) GetItem(name string) (Item_I, bool) {
@@ -280,7 +289,7 @@ func (c *Character) GetGoldAmount() int {
 	return c.gold
 }
 
-func (c *Character) GetItemsToTrade(items *[]Item_I, wg *sync.WaitGroup) {
+func (c *Character) GetItemsToTrade(inv *Inventory, wg *sync.WaitGroup) {
 	defer wg.Done()
 
 	for {
@@ -289,8 +298,8 @@ func (c *Character) GetItemsToTrade(items *[]Item_I, wg *sync.WaitGroup) {
 		if response == "timeout" || response == "done" {
 			break
 		} else {
-			if c.HasItem(response) {
-				*items = append(*items, c.GetAndRemoveItem(response))
+			if item, found := c.GetAndRemoveItem(response); found {
+				inv.AddItem(item)
 			} else {
 				c.sendMessageS("You do not have any more of the item: " + response + ".\n")
 			}
