@@ -49,6 +49,8 @@ func newClientConnection(conn net.Conn, em *EventManager) *ClientConnection {
 }
 
 func (cc *ClientConnection) receiveMsgFromClient() {
+	defer cc.CurrentEM.RemovePlayerFromRoom(cc.getCharactersName(), cc.getCharactersRoomID())
+	defer cc.myConn.Close()
 
 	for {
 		var clientResponse ClientMessage
@@ -74,9 +76,6 @@ func (cc *ClientConnection) receiveMsgFromClient() {
 			break
 		}
 	}
-
-	cc.myConn.Close()
-	cc.myConn = nil
 }
 
 func (cc *ClientConnection) GetItemsToTrade() string {

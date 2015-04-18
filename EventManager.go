@@ -168,6 +168,11 @@ func (em *EventManager) GetRoom(roomID int) *Room {
 	}
 }
 
+func (em *EventManager) RemovePlayerFromRoom(charName string, roomID int) {
+	room := em.worldRooms[roomID]
+	room.removePCFromRoom(charName)
+}
+
 //-----------------------------TRADING EVENT FUNCTIONS------------------------//
 func (em *EventManager) IsTrading(charName string) bool {
 	val, found := em.traders[charName]
