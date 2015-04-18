@@ -76,7 +76,7 @@ func newRoomFromXML(roomData RoomXML) *Room {
 		room.ItemsInRoom = make(map[string]Item_I)
 		room.monsterTemplateNames = roomData.Monsters
 
-		room.populateRoomWithMonsters()
+		room.PopulateMonsters()
 		go room.repopulateRoomTick(15)
 	}
 	return &room
@@ -113,13 +113,13 @@ func (room *Room) getConnectedRoom(exit int) *Room {
 	return room.ExitLinksToRooms[exit]
 }
 
-func (room *Room) addItemToRoom(itm Item_I) {
+func (room *Room) AddItem(itm Item_I) {
 	if itm != nil {
 		room.ItemsInRoom[itm.getName()] = itm
 	}
 }
 
-func (room *Room) addPCToRoom(char *Character) {
+func (room *Room) AddPlayer(char *Character) {
 
 	if room.isLocal() {
 		room.CharactersInRoom[char.Name] = char
@@ -127,7 +127,7 @@ func (room *Room) addPCToRoom(char *Character) {
 	char.RoomIN = room.ID
 }
 
-func (room *Room) removePCFromRoom(charName string) {
+func (room *Room) RemovePlayer(charName string) {
 	if char, found := room.GetPC(charName); found {
 		char.RoomIN = -1
 		delete(room.CharactersInRoom, charName)
@@ -144,7 +144,7 @@ func (room *Room) GetPC(charName string) (*Character, bool) {
 	}
 }
 
-func (room *Room) getItem(char *Character, itemName string) []FormattedString {
+func (room *Room) GiveItemToPlayer(char *Character, itemName string) []FormattedString {
 
 	item, found := room.ItemsInRoom[itemName]
 
@@ -183,7 +183,7 @@ func (room *Room) getAgentInRoom(name string) Agenter {
 func (room *Room) killOffMonster(monsterName string) {
 	drops := room.MonstersInRoom[monsterName].getLootAndCorpse()
 	for _, drop := range drops {
-		room.addItemToRoom(drop)
+		room.AddItem(drop)
 	}
 	delete(room.MonstersInRoom, monsterName)
 }
@@ -193,11 +193,11 @@ func (room *Room) repopulateRoomTick(timeInMinutes time.Duration) {
 		//TODO should also periodically remove corpses and items in room
 		//Repopulate the room every x minutes
 		time.Sleep(time.Minute * timeInMinutes)
-		room.populateRoomWithMonsters()
+		room.PopulateMonsters()
 	}
 }
 
-func (room *Room) populateRoomWithMonsters() {
+func (room *Room) PopulateMonsters() {
 
 	for _, monsterName := range room.monsterTemplateNames {
 		if _, found := room.MonstersInRoom[monsterName]; found == false {
@@ -206,7 +206,7 @@ func (room *Room) populateRoomWithMonsters() {
 	}
 }
 
-func (room *Room) getRoomDescription() []FormattedString {
+func (room *Room) GetDescription() []FormattedString {
 	var output string
 	fs := newFormattedStringCollection()
 

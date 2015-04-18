@@ -137,9 +137,9 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 	case cmd == "stats":
 		output = cc.getCharacter().getStatsPage()
 	case cmd == "look":
-		output = eventRoom.getRoomDescription()
+		output = eventRoom.GetDescription()
 	case cmd == "get":
-		output = eventRoom.getItem(cc.character, event.Value)
+		output = eventRoom.GiveItemToPlayer(cc.character, event.Value)
 	case cmd == "move":
 		src := em.worldRooms[cc.getCharactersRoomID()]
 		dest := src.getConnectedRoom(convertDirectionToInt(event.Value))
@@ -170,7 +170,7 @@ func (em *EventManager) GetRoom(roomID int) *Room {
 
 func (em *EventManager) RemovePlayerFromRoom(charName string, roomID int) {
 	room := em.worldRooms[roomID]
-	room.removePCFromRoom(charName)
+	room.RemovePlayer(charName)
 }
 
 //-----------------------------TRADING EVENT FUNCTIONS------------------------//

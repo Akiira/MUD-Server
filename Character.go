@@ -150,13 +150,13 @@ func (char *Character) moveCharacter(source *Room, destination *Room) (int, []Fo
 	if destination != nil {
 
 		if destination.isLocal() {
-			source.removePCFromRoom(char.Name)
-			destination.addPCToRoom(char)
+			source.RemovePlayer(char.Name)
+			destination.AddPlayer(char)
 
-			return GAMEPLAY, destination.getRoomDescription()
+			return GAMEPLAY, destination.GetDescription()
 		} else {
-			source.removePCFromRoom(char.Name)
-			destination.addPCToRoom(char)
+			source.RemovePlayer(char.Name)
+			destination.AddPlayer(char)
 
 			charXML := char.toXML()
 			charXML.CurrentWorld = destination.WorldID
