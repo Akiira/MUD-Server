@@ -62,7 +62,9 @@ func characterFromXML(charData *CharacterXML) *Character {
 	return char
 }
 
-//================== CLASS FUNCTIONS =============//
+//============================== CLASS FUNCTIONS =============================//
+
+// ===== Armour Functions
 
 func (c *Character) EquipArmorByName(name string) []FormattedString {
 	if item, found := c.GetItem(name); found {
@@ -76,7 +78,7 @@ func (c *Character) EquipArmorByName(name string) []FormattedString {
 }
 
 func (c *Character) EquipArmour(armr *Armour) []FormattedString {
-	if c.equippedArmour.isArmourEquippedAtLocation(armr.wearLocation) { // already an item present
+	if c.equippedArmour.IsArmourAt(armr.wearLocation) { // already an item present
 		return newFormattedStringSplice("\nYou already have a peice of armour equiped there.\n")
 	} else {
 		c.equippedArmour.equipArmour(armr)
@@ -89,49 +91,59 @@ func (c *Character) UnEquipArmourByName(name string) []FormattedString {
 	if armr == nil {
 		return newFormattedStringSplice("\nYou are not wearing a peice of armour with that name. \n")
 	}
-	c.addItemToInventory(armr)
+	c.AddItemToInventory(armr)
 	return newFormattedStringSplice("\nYou took off the " + armr.name + ".\n")
 }
 
-func (c *Character) UnWieldWeapon() []FormattedString {
-	weapon := c.equipedWeapon
+func (c *Character) UnEquipArmourAt(location string) []FormattedString {
+	if c.equippedArmour.IsArmourAt(location) {
+		armr := c.equippedArmour.GetAndRemoveArmourAt(location)
+		c.AddItemToInventory(armr)
+		return newFormattedStringSplice(fmt.Sprintf("You succesfully removed the %s and stored it in your inventory.\n", armr.getName()))
+	} else {
+		return newFormattedStringSplice("You are not wearing any armour there.\n")
+	}
+}
 
-	if weapon == nil {
+// ===== Weapon Functions
+
+func (c *Character) WieldWeapon(weapon interface{}) []FormattedString {
+	var weaponToEquip Item_I
+
+	switch weapon := weapon.(type) {
+	default:
+		fmt.Printf("Unexpected type %T in Character.WieldWeapon", weapon)
+	case string:
+		if item, found := c.GetItem(weapon); found {
+			weaponToEquip = item
+		}
+	case *Weapon:
+		weaponToEquip = weapon
+	}
+
+	if weaponToEquip == nil {
+		return newFormattedStringSplice("\nYou don't have that item. If it is on the ground try 'get'ing it first.\n")
+	} else if weaponToEquip.getItemType() != WEAPON {
+		return newFormattedStringSplice("\nThat item is not a weapon.\n")
+	} else if c.equipedWeapon == nil {
+		c.equipedWeapon = weaponToEquip.(*Weapon)
+		return newFormattedStringSplice("\nYou equiped " + c.equipedWeapon.getName() + ".\n")
+	} else {
+		return newFormattedStringSplice("\nYou already have a weapon equiped.\n")
+	}
+}
+
+func (c *Character) UnWieldWeapon() []FormattedString {
+	if weapon := c.equipedWeapon; weapon != nil {
+		c.AddItemToInventory(weapon)
+		c.equipedWeapon = nil
+		return newFormattedStringSplice("\nYou put the " + weapon.name + " back in your bag.\n")
+	} else {
 		return newFormattedStringSplice("\nYou are not wielding any weapons at this time\n")
 	}
-	c.addItemToInventory(weapon)
-	c.equipedWeapon = nil
-	return newFormattedStringSplice("\nYou put the " + weapon.name + " back in your bag.\n")
 }
 
-func (c *Character) WieldWeaponByName(name string) []FormattedString {
-
-	if item, found := c.GetItem(name); found {
-		if item.getItemType() == WEAPON {
-			return c.WieldWeapon(item.(*Weapon))
-		}
-
-		return newFormattedStringSplice("\nThat item is not a weapon.\n")
-	}
-
-	return newFormattedStringSplice("\nYou don't have that item. If it is on the ground try 'get'ing it first.\n")
-}
-
-func (c *Character) WieldWeapon(weapon *Weapon) []FormattedString {
-	if c.equipedWeapon == nil {
-		c.equipedWeapon = weapon
-		return newFormattedStringSplice("\nYou equiped " + weapon.name + "\n")
-	}
-	return newFormattedStringSplice("\nYou already have a weapon equiped.\n")
-}
-
-func (c *Character) takeOffArmor(location string) {
-	if c.equippedArmour.isArmourEquippedAtLocation(location) { // already an item present
-		c.equippedArmour.takeOffArmourByLocation(location)
-	} else {
-		//TODO
-	}
-}
+// ===== Inventory Functions
 
 func (c *Character) AddInventoryToInventory(otherInv *Inventory) {
 	c.PersonalInvetory.AddInventory(otherInv)
@@ -141,9 +153,11 @@ func (c *Character) AddItemsToInventory(items []Item_I) {
 	c.PersonalInvetory.AddItems(items)
 }
 
-func (c *Character) addItemToInventory(item Item_I) {
+func (c *Character) AddItemToInventory(item Item_I) {
 	c.PersonalInvetory.AddItem(item)
 }
+
+// ===== General Functions
 
 func (char *Character) moveCharacter(source *Room, destination *Room) (int, []FormattedString) {
 
@@ -176,33 +190,37 @@ func (char *Character) makeAttack(target Agenter) []FormattedString {
 		return newFormattedStringSplice("\nYour target does not exist any more!\n")
 	}
 
-	if !target.isDead() {
+	if !target.IsDead() {
 
-		a1 := char.getAttack()
-		if a1 >= target.getDefense() {
+		a1 := char.GetAttack()
+		if a1 >= target.GetDefense() {
 			target.takeDamage(char.getDamage(), 0)
 			fmt.Printf("\tPlayer did %d damage.\n", char.getDamage())
 
-			if target.isDead() {
+			if target.IsDead() {
 				// TODO  reward player exp
 				room := char.myClientConn.CurrentEM.worldRooms[char.RoomIN] //TODO fix this line
-				room.killOffMonster(target.getName())
+				room.killOffMonster(target.GetName())
 
-				return newFormattedStringSplice("The hit the " + target.getName() + " and it drops over dead.\n")
+				return newFormattedStringSplice("The hit the " + target.GetName() + " and it drops over dead.\n")
 			} else {
 				target.addTarget(char)
-				return newFormattedStringSplice("\nYou hit the " + target.getName() + "!\n")
+				return newFormattedStringSplice("\nYou hit the " + target.GetName() + "!\n")
 			}
 		} else {
-			return newFormattedStringSplice("\nYou missed the " + target.getName() + "!\n")
+			return newFormattedStringSplice("\nYou missed the " + target.GetName() + "!\n")
 		}
 	}
 
-	return newFormattedStringSplice("\nthe " + target.getName() + " is already dead!\n")
+	return newFormattedStringSplice("\nthe " + target.GetName() + " is already dead!\n")
 }
 
 func (c *Character) takeDamage(amount int, typeOfDamge int) {
 	c.currentHP -= amount
+}
+
+func (c *Character) addTarget(target Agenter) {
+	//Do nothing, required for Agenter interface
 }
 
 func (c *Character) respawn() *FmtStrCollection {
@@ -212,32 +230,35 @@ func (c *Character) respawn() *FmtStrCollection {
 
 	//These two lines are kinda ugly, maybe when a player dies the monster adds a respawn event to em
 	// and then the even manager passes the respawn room to the characters respawn function.
-	src := c.getClientConnection().CurrentEM.worldRooms[c.getClientConnection().getCharactersRoomID()]
-	dest := c.getClientConnection().CurrentEM.worldRooms[worldRespawnRoomID]
+	src := c.GetClientConnection().CurrentEM.worldRooms[c.GetClientConnection().getCharactersRoomID()]
+	dest := c.GetClientConnection().CurrentEM.worldRooms[worldRespawnRoomID]
 
 	c.moveCharacter(src, dest)
 	c.currentHP = c.MaxHitPoints
 	return output
 }
-func (c *Character) isDead() bool {
-	return c.currentHP <= 0 || c.myClientConn.isConnectionClosed()
-}
 
-func (c *Character) getName() string {
+// ===== Getter Functions
+
+func (c *Character) GetName() string {
 	return c.Name
 }
-func (c *Character) getRoomID() int {
+
+func (c *Character) GetRoomID() int {
 	return c.RoomIN
 }
-func (c *Character) getAttack() int {
+
+func (c *Character) GetAttack() int {
 	return (rand.Int() % 20) + c.equipedWeapon.attack + c.Strength
 }
 
-func (c *Character) getDefense() int {
+func (c *Character) GetDefense() int {
 	return c.equippedArmour.getArmoursDefense()
 }
 
-func (c *Character) getClientConnection() *ClientConnection {
+//TODO refactor so we can remove this. The character class should not provide
+//open access to its client connection.
+func (c *Character) GetClientConnection() *ClientConnection {
 	return c.myClientConn
 }
 
@@ -300,9 +321,9 @@ func (c *Character) GetItemsToTrade(inv *Inventory, wg *sync.WaitGroup) {
 		} else {
 			if item, found := c.GetAndRemoveItem(response); found {
 				inv.AddItem(item)
-				c.sendMessageS("One " + response + " was added to the trade pool.\n")
+				c.SendMessage("One " + response + " was added to the trade pool.\n")
 			} else {
-				c.sendMessageS("You do not have any more of the item: " + response + ".\n")
+				c.SendMessage("You do not have any more of the item: " + response + ".\n")
 			}
 		}
 	}
@@ -312,21 +333,7 @@ func (c *Character) GetTradeResponse() string {
 	return c.myClientConn.GetResponseToTrade()
 }
 
-func (c *Character) HasItems(itemNames []string) bool {
-	for _, name := range itemNames {
-		if !c.HasItem(name) {
-			return false
-		}
-	}
-
-	return true
-}
-
-func (c *Character) HasItem(name string) bool {
-	return c.PersonalInvetory.PossesItem(name)
-}
-
-func (c *Character) getStatsPage() []FormattedString {
+func (c *Character) GetStats() []FormattedString {
 
 	output := newFormattedStringCollection()
 
@@ -354,7 +361,7 @@ func (c *Character) getStatsPage() []FormattedString {
 	output.addMessage(ct.Green, "DEX  :")
 	output.addMessage(ct.White, fmt.Sprintf("%2d %8s", c.Dexterity, ""))
 	output.addMessage(ct.Green, "Armour:")
-	output.addMessage(ct.White, fmt.Sprintf("%8d\n", c.getDefense()))
+	output.addMessage(ct.White, fmt.Sprintf("%8d\n", c.GetDefense()))
 	output.addMessage(ct.Green, "CON  :")
 	output.addMessage(ct.White, fmt.Sprintf("%2d %8s", c.Constitution, ""))
 	output.addMessage(ct.Green, "Gold:")
@@ -364,6 +371,28 @@ func (c *Character) getStatsPage() []FormattedString {
 
 	return output.fmtedStrings
 }
+
+// ===== Predicate Functions
+
+func (c *Character) HasItems(itemNames []string) bool {
+	for _, name := range itemNames {
+		if !c.HasItem(name) {
+			return false
+		}
+	}
+
+	return true
+}
+
+func (c *Character) HasItem(name string) bool {
+	return c.PersonalInvetory.PossesItem(name)
+}
+
+func (c *Character) IsDead() bool {
+	return c.currentHP <= 0 || c.myClientConn.isConnectionClosed()
+}
+
+// ===== Misc Functions
 
 func (char *Character) toXML() *CharacterXML {
 
@@ -396,20 +425,17 @@ func (char *Character) toXML() *CharacterXML {
 	return ch
 }
 
-func (c *Character) addTarget(target Agenter) {
-	//Do nothing
-}
-
-func (char *Character) sendMessage(msg ServerMessage) {
-	char.myClientConn.Write(msg)
-}
-
-func (char *Character) sendMessageS(msg string) {
-	char.myClientConn.Write(newServerMessageS(msg))
-}
-
-func (char *Character) sendMessageFS(msg []FormattedString) {
-	char.myClientConn.Write(newServerMessageFS(msg))
+func (char *Character) SendMessage(msg interface{}) {
+	switch msg := msg.(type) {
+	default:
+		fmt.Printf("Unexpected type %T in Character.SendMessage\n", msg)
+	case string:
+		char.myClientConn.Write(newServerMessageS(msg))
+	case ServerMessage:
+		char.myClientConn.Write(msg)
+	case []FormattedString:
+		char.myClientConn.Write(newServerMessageFS(msg))
+	}
 }
 
 //==============="STATIC" FUNCTIONS===================//
@@ -443,37 +469,21 @@ type CharacterXML struct {
 	PersInv       InventoryXML `xml:"Inventory"`
 }
 
-func getCharacterFromCentral(charName string) *Character {
-
-	address := servers["characterStorage"]
-
-	conn, err := net.Dial("tcp", address)
+func GetCharacterFromCentral(charName string) *Character {
+	conn, err := net.Dial("tcp", servers["characterStorage"])
 	checkError(err, true)
 	defer conn.Close()
+
 	enc := gob.NewEncoder(conn)
 	dec := gob.NewDecoder(conn)
 
-	serverMsg := newServerMessageTypeS(GETFILE, charName)
-
 	var queriedChar CharacterXML
 
-	err = enc.Encode(serverMsg)
+	err = enc.Encode(newServerMessageTypeS(GETFILE, charName))
 	checkError(err, true)
+
 	err = dec.Decode(&queriedChar)
-
 	checkError(err, true)
 
-	char := characterFromXML(&queriedChar)
-
-	return char
+	return characterFromXML(&queriedChar)
 }
-
-//func saveCharacterToFile(char *Character) {
-//	//TODO saveCharacter
-
-//	var ch CharacterXML
-//	ch.Name = char.Name
-//	ch.RoomIN = char.RoomIN
-//	ch.HP = char.currentHP
-
-//}

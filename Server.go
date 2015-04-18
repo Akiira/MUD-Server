@@ -36,7 +36,7 @@ func main() {
 }
 
 func runServer() {
-	loadMonsterData()
+	LoadMonsterData()
 
 	serverName = os.Args[1]
 

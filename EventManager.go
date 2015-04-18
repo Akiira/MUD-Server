@@ -33,7 +33,7 @@ func (em *EventManager) sendMessageToWorld(msg ServerMessage) {
 
 	for _, room := range em.worldRooms {
 		for _, char := range room.CharactersInRoom {
-			char.sendMessage(msg)
+			char.SendMessage(msg)
 		}
 	}
 }
@@ -42,7 +42,7 @@ func (em *EventManager) sendMessageToRoom(roomID int, msg ServerMessage) {
 	room := em.worldRooms[roomID]
 
 	for _, char := range room.CharactersInRoom {
-		char.sendMessage(msg)
+		char.SendMessage(msg)
 	}
 }
 
@@ -69,17 +69,17 @@ func (em *EventManager) executeCombatRound() {
 		action := event.action
 		agent := event.agent
 
-		target := em.worldRooms[agent.getRoomID()].getAgentInRoom(event.target)
+		target := em.worldRooms[agent.GetRoomID()].getAgentInRoom(event.target)
 
-		if _, found := alreadyActed[agent.getName()]; !found {
-			alreadyActed[agent.getName()] = true
+		if _, found := alreadyActed[agent.GetName()]; !found {
+			alreadyActed[agent.GetName()] = true
 
 			switch {
 			case action == "attack":
 				output = agent.makeAttack(target)
 			}
 
-			agent.sendMessage(newServerMessageFS(output))
+			agent.SendMessage(newServerMessageFS(output))
 		}
 	}
 
@@ -123,7 +123,7 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 	case "unwield":
 		output = cc.character.UnWieldWeapon()
 	case "wield":
-		output = cc.character.WieldWeaponByName(event.Value)
+		output = cc.character.WieldWeapon(event.Value)
 	case "unequip":
 		output = cc.character.UnEquipArmourByName(event.Value)
 	case "equip":
@@ -134,7 +134,7 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 		sendCharactersXML(cc.getCharacter().toXML())
 		output = newFormattedStringSplice("Character succesfully saved.\n")
 	case "stats":
-		output = cc.getCharacter().getStatsPage()
+		output = cc.getCharacter().GetStats()
 	case "look":
 		output = em.GetRoom(cc.getCharactersRoomID()).GetDescription()
 	case "get":
@@ -170,6 +170,9 @@ func (em *EventManager) GetRoom(roomID int) *Room {
 func (em *EventManager) AddPlayerToRoom(char *Character, roomID int) {
 	if room := em.GetRoom(roomID); room != nil {
 		room.AddPlayer(char)
+		if room.isLocal() {
+			char.SendMessage(room.GetDescription())
+		}
 	}
 }
 
@@ -201,8 +204,8 @@ func (em *EventManager) SetPlayerToNotTrading(name string) {
 //TODO check players are not in combat before starting trade
 func (em *EventManager) ExecuteTradeEvent(trader *Character, event *ClientMessage) {
 
-	em.SetPlayerToTrading(trader.getName())
-	defer em.SetPlayerToNotTrading(trader.getName())
+	em.SetPlayerToTrading(trader.GetName())
+	defer em.SetPlayerToNotTrading(trader.GetName())
 
 	//If other player rejects trade we return
 	var tradee *Character
@@ -210,11 +213,11 @@ func (em *EventManager) ExecuteTradeEvent(trader *Character, event *ClientMessag
 		return
 	}
 
-	em.SetPlayerToTrading(tradee.getName()) //TODO should we double check they are still in the room?
-	defer em.SetPlayerToNotTrading(tradee.getName())
+	em.SetPlayerToTrading(tradee.GetName()) //TODO should we double check they are still in the room?
+	defer em.SetPlayerToNotTrading(tradee.GetName())
 
-	trader.sendMessageS("The trade is opened, what items would you like to trade? Type 'add' [item name] to add an item to the trade or 'add' [quantity] [item name].\n")
-	tradee.sendMessageS("The trade is opened, what items would you like to trade? Type 'add' [item name] to add an item to the trade or 'add' [quantity] [item name].\n")
+	trader.SendMessage("The trade is opened, what items would you like to trade? Type 'add' [item name] to add an item to the trade or 'add' [quantity] [item name].\n")
+	tradee.SendMessage("The trade is opened, what items would you like to trade? Type 'add' [item name] to add an item to the trade or 'add' [quantity] [item name].\n")
 
 	tradersItems := newInventory()
 	tradeesItems := newInventory()
@@ -224,13 +227,13 @@ func (em *EventManager) ExecuteTradeEvent(trader *Character, event *ClientMessag
 		if accepted {
 			trader.AddInventoryToInventory(tradeesItems)
 			tradee.AddInventoryToInventory(tradersItems)
-			trader.sendMessageS("Both parties accepted the trade, you receieved your items.\n")
-			tradee.sendMessageS("Both parties accepted the trade, you receieved your items.\n")
+			trader.SendMessage("Both parties accepted the trade, you receieved your items.\n")
+			tradee.SendMessage("Both parties accepted the trade, you receieved your items.\n")
 		} else {
 			tradee.AddInventoryToInventory(tradeesItems)
 			trader.AddInventoryToInventory(tradersItems)
-			trader.sendMessageS("The trade was ended, any entered items have been returned to your inventory.\n")
-			tradee.sendMessageS("The trade was ended, any entered items have been returned to your inventory.\n")
+			trader.SendMessage("The trade was ended, any entered items have been returned to your inventory.\n")
+			tradee.SendMessage("The trade was ended, any entered items have been returned to your inventory.\n")
 		}
 	}()
 
@@ -243,21 +246,21 @@ func (em *EventManager) ExecuteTradeEvent(trader *Character, event *ClientMessag
 
 func (em *EventManager) AskOtherPlayerToTrade(trader *Character, tradeeName string) *Character {
 	// ask other player if they want to trade
-	room := em.GetRoom(trader.getRoomID())
+	room := em.GetRoom(trader.GetRoomID())
 	tradee, found := room.GetPlayer(tradeeName)
 
 	if !found {
 		fmt.Println("\tDid not find other player.")
-		trader.sendMessageS("That player is not in this room.\n")
+		trader.SendMessage("That player is not in this room.\n")
 		return nil
 	}
 
-	tradee.sendMessageS("Would you like to trade with " + trader.getName() + "? Type accept or reject.\n")
+	tradee.SendMessage("Would you like to trade with " + trader.GetName() + "? Type accept or reject.\n")
 	response := tradee.GetTradeResponse()
 
 	if response != "accept" {
 		fmt.Println("\tOther player did not responde with accept.")
-		trader.sendMessageS("\nThe other player did not accept your trade.\n")
+		trader.SendMessage("\nThe other player did not accept your trade.\n")
 		return nil
 	}
 
@@ -278,18 +281,18 @@ func (em *EventManager) GetTradeItemsFromPlayers(trader, tradee *Character, trde
 //TODO combine msg to same person into one server msg to make it appear cleaner on clients side
 func (em *EventManager) SendFinalTradeTerms(trader, tradee *Character, trderInv, trdeeInv *Inventory) {
 	//send final terms out to players
-	trader.sendMessageS("Here are the final terms of the trade, you will receive:\n")
-	trader.sendMessageFS(trdeeInv.getInventoryDescription())
-	trader.sendMessageS("And are trading away:\n")
-	trader.sendMessageFS(trderInv.getInventoryDescription())
+	trader.SendMessage("Here are the final terms of the trade, you will receive:\n")
+	trader.SendMessage(trdeeInv.getInventoryDescription())
+	trader.SendMessage("And are trading away:\n")
+	trader.SendMessage(trderInv.getInventoryDescription())
 
-	tradee.sendMessageS("Here are the final terms of the trade, you will receive:\n")
-	tradee.sendMessageFS(trderInv.getInventoryDescription())
-	tradee.sendMessageS("And are trading away:\n")
-	tradee.sendMessageFS(trdeeInv.getInventoryDescription())
+	tradee.SendMessage("Here are the final terms of the trade, you will receive:\n")
+	tradee.SendMessage(trderInv.getInventoryDescription())
+	tradee.SendMessage("And are trading away:\n")
+	tradee.SendMessage(trdeeInv.getInventoryDescription())
 
-	trader.sendMessageS("If you accept the terms of this trade then type 'accept' else type 'reject'.\n")
-	tradee.sendMessageS("If you accept the terms of this trade then type 'accept' else type 'reject'.\n")
+	trader.SendMessage("If you accept the terms of this trade then type 'accept' else type 'reject'.\n")
+	tradee.SendMessage("If you accept the terms of this trade then type 'accept' else type 'reject'.\n")
 }
 
 func (em *EventManager) AskFinalTradePrompt(trader, tradee *Character) bool {
@@ -297,16 +300,16 @@ func (em *EventManager) AskFinalTradePrompt(trader, tradee *Character) bool {
 	response := trader.GetTradeResponse()
 	if response != "accept" {
 		fmt.Println("\tTrader did not accept.")
-		trader.sendMessageS("You rejected the trade.\n")
-		tradee.sendMessageS("The other player did not accept the final terms of the trade.\n")
+		trader.SendMessage("You rejected the trade.\n")
+		tradee.SendMessage("The other player did not accept the final terms of the trade.\n")
 		return false
 	}
 
 	response = tradee.GetTradeResponse()
 	if response != "accept" {
 		fmt.Println("\tTradee did not accept.")
-		trader.sendMessageS("You rejected the trade.\n")
-		tradee.sendMessageS("The other player did not accept the final terms of the trade.\n")
+		trader.SendMessage("You rejected the trade.\n")
+		tradee.SendMessage("The other player did not accept the final terms of the trade.\n")
 		return false
 	}
 

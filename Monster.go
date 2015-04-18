@@ -90,8 +90,8 @@ func (m *Monster) fightPlayers() {
 		maxAggro := 0
 		for _, targ := range m.targets {
 
-			if targ.attackTarget.isDead() {
-				delete(m.targets, targ.attackTarget.getName())
+			if targ.attackTarget.IsDead() {
+				delete(m.targets, targ.attackTarget.GetName())
 				continue
 			}
 
@@ -110,14 +110,14 @@ func (m *Monster) fightPlayers() {
 
 func (m *Monster) addTarget(targetChar Agenter) {
 
-	_, exist := m.targets[targetChar.getName()]
+	_, exist := m.targets[targetChar.GetName()]
 
 	if exist {
-		m.targets[targetChar.getName()].aggro += 5
+		m.targets[targetChar.GetName()].aggro += 5
 	} else {
 		fmt.Println("\tAdding player to target list.")
 		targ := target{aggro: 5, attackTarget: targetChar.(*Character)}
-		m.targets[targetChar.getName()] = &targ
+		m.targets[targetChar.GetName()] = &targ
 
 		m.fightingPlayersMutex.Lock()
 		if len(m.targets) == 1 && m.fightingPlayers == false {
@@ -131,22 +131,22 @@ func (m *Monster) addTarget(targetChar Agenter) {
 func (m *Monster) makeAttack(target Agenter) []FormattedString {
 	fmt.Println("\t\tMonster making attack against player.")
 	output := newFormattedStringCollection()
-	a1 := m.getAttackRoll()
-	if a1 >= target.getDefense() {
+	a1 := m.GetAttackRoll()
+	if a1 >= target.GetDefense() {
 
-		output.addMessage(ct.Red, fmt.Sprintf("The %s hit you for %d damage\n", m.Name, m.getDamage()))
-		target.takeDamage(m.getDamage(), 0)
+		output.addMessage(ct.Red, fmt.Sprintf("The %s hit you for %d damage\n", m.Name, m.GetDamage()))
+		target.takeDamage(m.GetDamage(), 0)
 
-		if target.isDead() {
+		if target.IsDead() {
 			output.addMessages(target.respawn())
-			delete(m.targets, target.getName())
+			delete(m.targets, target.GetName())
 
 		}
-		target.sendMessage(newServerMessageFS(output.fmtedStrings))
+		target.SendMessage(newServerMessageFS(output.fmtedStrings))
 		return output.fmtedStrings
 	}
 	output.addMessage(ct.Red, fmt.Sprintf("The %s's attack missed you.\n", m.Name))
-	target.sendMessage(newServerMessageFS(output.fmtedStrings))
+	target.SendMessage(newServerMessageFS(output.fmtedStrings))
 	return output.fmtedStrings
 }
 
@@ -155,35 +155,35 @@ func (m *Monster) takeDamage(amount int, typeOfDamge int) {
 }
 
 func (m *Monster) respawn() *FmtStrCollection {
-	return new(FmtStrCollection)
+	return nil
 }
 
 //------------------MONSTER GETTERS------------------------------
 
-func (m *Monster) getAttackRoll() int {
+func (m *Monster) GetAttackRoll() int {
 	return (rand.Int() % 20) + m.weapon.attack + m.Strength
 }
 
-func (c *Monster) getRoomID() int {
+func (c *Monster) GetRoomID() int {
 	return c.RoomIN
 }
-func (m *Monster) getDefense() int {
+func (m *Monster) GetDefense() int {
 	return m.Defense
 }
 
-func (m *Monster) getName() string {
+func (m *Monster) GetName() string {
 	return m.Name
 }
 
-func (m *Monster) getCorpse() *Item {
+func (m *Monster) GetCorpse() *Item {
 	return &Item{name: m.Name + " corpse", description: "A freshly kill " + m.Name + " corpse."}
 }
 
-func (m *Monster) getLootAndCorpse() []Item_I {
-	return append(m.getLoot(), m.getCorpse())
+func (m *Monster) GetLootAndCorpse() []Item_I {
+	return append(m.GetLoot(), m.GetCorpse())
 }
 
-func (m *Monster) getLoot() []Item_I {
+func (m *Monster) GetLoot() []Item_I {
 	lootItems := make([]Item_I, 0)
 	if len(m.lootDrops) > 0 {
 		roll := rand.Intn(1000)
@@ -197,7 +197,7 @@ func (m *Monster) getLoot() []Item_I {
 	return lootItems
 }
 
-func (m *Monster) getDamage() int {
+func (m *Monster) GetDamage() int {
 	return m.weapon.getDamage() + m.Strength
 }
 
@@ -205,15 +205,15 @@ func (m *Monster) getLookDescription() []FormattedString {
 	return newFormattedStringSplice2(ct.Yellow, m.description)
 }
 
-func (m *Monster) sendMessage(msg ServerMessage) {
-	//Do nothing.
+func (m *Monster) SendMessage(msg interface{}) {
+	//Do nothing, required for agenter interface
 }
 
-func (m *Monster) isDead() bool {
+func (m *Monster) IsDead() bool {
 	return m.currentHP < 0
 }
 
-func (m *Monster) isPlayerAggroed(name string) bool {
+func (m *Monster) IsAttackingPlayer(name string) bool {
 	for _, targets := range m.targets {
 		if targets.attackTarget.Name == name {
 			return true
@@ -243,7 +243,7 @@ type LootXML struct {
 	DropRates []int        `xml:"DropRate"`
 }
 
-func loadMonsterData() {
+func LoadMonsterData() {
 	monsterTemplatesG = make(map[string]*Monster)
 	xmlFile, err := os.Open("monsterData.xml")
 	checkErrorWithMessage(err, true, " In Load monster data.")

@@ -6,13 +6,13 @@ type Agenter interface {
 	respawn() *FmtStrCollection
 	addTarget(target Agenter)
 
-	getName() string
-	getDefense() int
-	getRoomID() int
+	GetName() string
+	GetDefense() int
+	GetRoomID() int
 
-	isDead() bool
+	IsDead() bool
 
-	sendMessage(ServerMessage)
+	SendMessage(interface{})
 }
 
 type Agent struct {

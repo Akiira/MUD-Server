@@ -94,7 +94,7 @@ func (room *Room) setRoomLink(roomLink map[int]*Room) {
 
 func (room *Room) isPlayerAggroed(name string) bool {
 	for _, monster := range room.MonstersInRoom {
-		if monster.isPlayerAggroed(name) {
+		if monster.IsAttackingPlayer(name) {
 			return true
 		}
 	}
@@ -149,7 +149,7 @@ func (room *Room) GiveItemToPlayer(char *Character, itemName string) []Formatted
 	item, found := room.ItemsInRoom[itemName]
 
 	if found {
-		char.addItemToInventory(item)
+		char.AddItemToInventory(item)
 		delete(room.ItemsInRoom, itemName)
 
 		return newFormattedStringSplice("You succesfully picked up the item and added it to your invenctory")
@@ -181,7 +181,7 @@ func (room *Room) getAgentInRoom(name string) Agenter {
 }
 
 func (room *Room) killOffMonster(monsterName string) {
-	drops := room.MonstersInRoom[monsterName].getLootAndCorpse()
+	drops := room.MonstersInRoom[monsterName].GetLootAndCorpse()
 	for _, drop := range drops {
 		room.AddItem(drop)
 	}

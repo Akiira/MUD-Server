@@ -39,7 +39,7 @@ func NewClientConnection(conn net.Conn, em *EventManager) *ClientConnection {
 	err := cc.myDecoder.Decode(&clientResponse)
 	checkError(err, true)
 
-	cc.character = getCharacterFromCentral(clientResponse.getUsername()) //maybe this should be moved out to Server.go
+	cc.character = GetCharacterFromCentral(clientResponse.getUsername()) //maybe this should be moved out to Server.go
 	cc.character.myClientConn = cc
 	cc.CurrentEM = em
 	em.AddPlayerToRoom(cc.getCharacter(), cc.getCharactersRoomID()) //maybe this should be moved out to Server.go
@@ -171,5 +171,5 @@ func (cc *ClientConnection) isConnectionClosed() bool {
 }
 
 func (cc *ClientConnection) giveItem(itm Item_I) {
-	cc.character.addItemToInventory(itm)
+	cc.character.AddItemToInventory(itm)
 }

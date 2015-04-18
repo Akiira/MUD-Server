@@ -88,7 +88,7 @@ func (as *ArmourSet) getArmoursDefense() int {
 	return defense
 }
 
-func (as *ArmourSet) takeOffArmourByLocation(loc string) *Armour {
+func (as *ArmourSet) GetAndRemoveArmourAt(loc string) *Armour {
 
 	arm := as.equipedArmour[loc]
 
@@ -101,7 +101,7 @@ func (as *ArmourSet) takeOffArmourByName(name string) *Armour {
 
 	for loc, armr := range as.equipedArmour {
 		if armr.name == name {
-			as.takeOffArmourByLocation(loc)
+			as.GetAndRemoveArmourAt(loc)
 			return armr
 		}
 	}
@@ -129,7 +129,7 @@ func (as *ArmourSet) getListOfArmourWorn() []FormattedString {
 	return output
 }
 
-func (as *ArmourSet) isArmourEquippedAtLocation(loc string) bool {
+func (as *ArmourSet) IsArmourAt(loc string) bool {
 	_, present := as.equipedArmour[loc]
 	return present
 }
