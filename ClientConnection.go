@@ -16,6 +16,7 @@ type ClientConnection struct {
 	ping_lock    sync.Mutex
 	pingResponse *sync.Cond
 	tradeChannel chan string
+	pingChannel  chan string
 
 	character *Character
 	CurrentEM *EventManager
@@ -45,6 +46,7 @@ func newClientConnection(conn net.Conn, em *EventManager) *ClientConnection {
 	em.executeNonCombatEvent(cc, &ClientMessage{Command: "look", Value: "room"})
 
 	cc.tradeChannel = make(chan string)
+	cc.pingChannel = make(chan string)
 	return cc
 }
 
@@ -64,7 +66,7 @@ func (cc *ClientConnection) receiveMsgFromClient() {
 			event := newEventFromMessage(clientResponse, cc.character)
 			cc.CurrentEM.addEvent(event)
 		} else if clientResponse.getCommand() == "ping" {
-			cc.pingResponse.Signal()
+			cc.pingChannel <- "ping"
 		} else if clientResponse.IsTradeCommand() {
 			cc.SendToTradeChannel(clientResponse)
 		} else {
@@ -76,6 +78,12 @@ func (cc *ClientConnection) receiveMsgFromClient() {
 			break
 		}
 	}
+}
+
+func (cc *ClientConnection) sendMsgToClient(msg ServerMessage) {
+	msg.addCharInfo(cc.character)
+	err := cc.myEncoder.Encode(msg)
+	checkError(err, false)
 }
 
 func (cc *ClientConnection) GetItemsToTrade() string {
@@ -110,44 +118,29 @@ func (cc *ClientConnection) GetResponseToTrade() (response string) {
 	return response
 }
 
-func (cc *ClientConnection) sendMsgToClient(msg ServerMessage) {
-	msg.addCharInfo(cc.character)
-	err := cc.myEncoder.Encode(msg)
-	checkError(err, false)
+func (cc *ClientConnection) GetResponseToPing(start time.Time) time.Duration {
+	timeoutChan2 := make(chan string)
+	go func() {
+		time.Sleep(time.Second * 2)
+		timeoutChan2 <- "timeout"
+	}()
+
+	select {
+	case <-cc.pingChannel:
+		return time.Now().Sub(start)
+	case <-timeoutChan2:
+		return time.Second * 6
+	}
 }
 
 func (cc *ClientConnection) getAverageRoundTripTime() (avg time.Duration) {
-	addr, _, err := net.SplitHostPort(cc.myConn.RemoteAddr().String())
-	checkError(err, true)
-
-	conn, err := net.Dial("tcp", addr+pingPort)
-	checkErrorWithMessage(err, true, "Trying to open connection to client to get average round trip time.")
-	defer conn.Close()
-
-	encoder := gob.NewEncoder(conn)
-	decoder := gob.NewDecoder(conn)
 
 	for i := 0; i < 10; i++ {
-		now := time.Now()
-		err = encoder.Encode(newServerMessageS("ping"))
-		checkError(err, false)
-		if err != nil {
-			avg += time.Minute * 10
-			break
-		}
+		cc.sendMsgToClient(newServerMessageTypeS(PING, "ping"))
 		fmt.Println("\t\tWaiting for response ping")
-		err = decoder.Decode(newClientMessage("", ""))
-		checkError(err, false)
-		then := time.Now()
-
-		if err != nil {
-			avg += time.Minute * 10
-			break
-		}
-		fmt.Println("Time diff: ", then.Sub(now))
-		avg += then.Sub(now)
+		avg += cc.GetResponseToPing(time.Now())
 	}
-	encoder.Encode(newServerMessageS("done"))
+
 	fmt.Println("\tDone getting average round trip time.")
 	return ((avg / 10) / 2)
 }
