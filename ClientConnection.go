@@ -4,7 +4,6 @@ import (
 	"encoding/gob"
 	"fmt"
 	"net"
-	"sync"
 	"time"
 )
 
@@ -13,16 +12,21 @@ type ClientConnection struct {
 	myEncoder *gob.Encoder
 	myDecoder *gob.Decoder
 
-	ping_lock    sync.Mutex
-	pingResponse *sync.Cond
+	//tradeChannel is used to easily communicate with the client without going
+	//directly through the event manager. When used, it is expected that the event
+	//manager has set the characters trading flag.
 	tradeChannel chan string
-	pingChannel  chan string
+
+	//pingChannel is used to easily receive pings from the client.
+	pingChannel chan string
 
 	character *Character
 	CurrentEM *EventManager
 }
 
-//CliecntConnection constructor
+//CliecntConnection constructor constructs a new client connection and sets the
+//current event manager to the one supplied. This constructor is responsible
+//for getting the initial room description.
 func newClientConnection(conn net.Conn, em *EventManager) *ClientConnection {
 	cc := new(ClientConnection)
 	cc.myConn = conn
@@ -30,17 +34,15 @@ func newClientConnection(conn net.Conn, em *EventManager) *ClientConnection {
 	cc.myEncoder = gob.NewEncoder(conn)
 	cc.myDecoder = gob.NewDecoder(conn)
 
-	//This associates the clients character with their connection
+	//Get the clients characters name
 	var clientResponse ClientMessage
 	err := cc.myDecoder.Decode(&clientResponse)
 	checkError(err, true)
 
-	cc.character = getCharacterFromCentral(clientResponse.getUsername())
+	cc.character = getCharacterFromCentral(clientResponse.getUsername()) //maybe this should be moved out to Server.go
 	cc.character.myClientConn = cc
-	em.worldRooms[cc.character.RoomIN].AddPlayer(cc.character)
 	cc.CurrentEM = em
-
-	cc.pingResponse = sync.NewCond(&cc.ping_lock)
+	em.AddPlayerToRoom(cc.getCharacter(), cc.getCharactersRoomID()) //maybe this should be moved out to Server.go
 
 	//Send the client a description of their starting room
 	em.executeNonCombatEvent(cc, &ClientMessage{Command: "look", Value: "room"})
@@ -50,7 +52,11 @@ func newClientConnection(conn net.Conn, em *EventManager) *ClientConnection {
 	return cc
 }
 
-func (cc *ClientConnection) receiveMsgFromClient() {
+//Read will continuously try to read from the connection established with the client.
+//If an error occurs or the client wishes to exit this will handle closing the connection
+//and cleaning up the character from the world. When a succesful read occures
+//the corresponding event is added to the event queu or executed rightaway.
+func (cc *ClientConnection) Read() {
 	defer cc.CurrentEM.RemovePlayerFromRoom(cc.getCharactersName(), cc.getCharactersRoomID())
 	defer cc.myConn.Close()
 
@@ -64,7 +70,7 @@ func (cc *ClientConnection) receiveMsgFromClient() {
 
 		if clientResponse.CombatAction {
 			event := newEventFromMessage(clientResponse, cc.character)
-			cc.CurrentEM.addEvent(event)
+			cc.CurrentEM.AddEvent(event)
 		} else if clientResponse.getCommand() == "ping" {
 			cc.pingChannel <- "ping"
 		} else if clientResponse.IsTradeCommand() {
@@ -80,14 +86,13 @@ func (cc *ClientConnection) receiveMsgFromClient() {
 	}
 }
 
-func (cc *ClientConnection) sendMsgToClient(msg ServerMessage) {
+//Write will attempt to send the provided server message accross the connection
+//to the client. Write automatically appends the clients most recent character
+//data to the message.
+func (cc *ClientConnection) Write(msg ServerMessage) {
 	msg.addCharInfo(cc.character)
 	err := cc.myEncoder.Encode(msg)
 	checkError(err, false)
-}
-
-func (cc *ClientConnection) GetItemsToTrade() string {
-	return cc.GetResponseToTrade()
 }
 
 func (cc *ClientConnection) SendToTradeChannel(msg ClientMessage) {
@@ -118,6 +123,10 @@ func (cc *ClientConnection) GetResponseToTrade() (response string) {
 	return response
 }
 
+func (cc *ClientConnection) GetItemsToTrade() string {
+	return cc.GetResponseToTrade()
+}
+
 func (cc *ClientConnection) GetResponseToPing(start time.Time) time.Duration {
 	timeoutChan2 := make(chan string)
 	go func() {
@@ -136,7 +145,7 @@ func (cc *ClientConnection) GetResponseToPing(start time.Time) time.Duration {
 func (cc *ClientConnection) getAverageRoundTripTime() (avg time.Duration) {
 
 	for i := 0; i < 10; i++ {
-		cc.sendMsgToClient(newServerMessageTypeS(PING, "ping"))
+		cc.Write(newServerMessageTypeS(PING, "ping"))
 		fmt.Println("\t\tWaiting for response ping")
 		avg += cc.GetResponseToPing(time.Now())
 	}

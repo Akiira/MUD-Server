@@ -78,7 +78,7 @@ func readServerList() {
 func HandleClientConnection(myConn net.Conn) {
 
 	clientConnection := newClientConnection(myConn, eventManager)
-	clientConnection.receiveMsgFromClient()
+	clientConnection.Read()
 }
 
 func saveCharacterFile(char *CharacterXML) {

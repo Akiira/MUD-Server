@@ -14,8 +14,9 @@ type EventManager struct {
 	queue_lock sync.Mutex
 	eventQue   []Event
 	worldRooms map[int]*Room
-	auction    *Auction
-	traders    map[string]bool
+
+	auction *Auction
+	traders map[string]bool
 }
 
 func newEventManager(worldName string) *EventManager {
@@ -23,7 +24,7 @@ func newEventManager(worldName string) *EventManager {
 	em.eventQue = make([]Event, 0, 10)
 	em.worldRooms = loadRooms(worldName)
 	em.traders = make(map[string]bool)
-	go em.waitForTick()
+	go em.StartCombatRounds()
 
 	return em
 }
@@ -45,13 +46,13 @@ func (em *EventManager) sendMessageToRoom(roomID int, msg ServerMessage) {
 	}
 }
 
-func (em *EventManager) addEvent(event Event) {
+func (em *EventManager) AddEvent(event Event) {
 	em.queue_lock.Lock()
 	em.eventQue = append(em.eventQue, event)
 	em.queue_lock.Unlock()
 }
 
-func (em *EventManager) waitForTick() {
+func (em *EventManager) StartCombatRounds() {
 	for {
 		time.Sleep(time.Second * 6)
 		go em.executeCombatRound()
@@ -88,12 +89,10 @@ func (em *EventManager) executeCombatRound() {
 
 func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *ClientMessage) {
 	var output []FormattedString
-	eventRoom := em.worldRooms[cc.character.RoomIN]
-	cmd := event.getCommand()
-	var msgType int
-	msgType = GAMEPLAY
-	switch {
-	case cmd == "auction": //This is to start an auction
+	var msgType int = GAMEPLAY
+
+	switch event.getCommand() {
+	case "auction": //This is to start an auction
 		em.auctn_mutx.Lock()
 		defer em.auctn_mutx.Unlock()
 
@@ -107,7 +106,7 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 				output = newFormattedStringSplice("Could not start the auction because you do not have that item.")
 			}
 		}
-	case cmd == "bid":
+	case "bid":
 		fmt.Println("Executing bid command")
 		em.auctn_mutx.Lock()
 		defer em.auctn_mutx.Unlock()
@@ -121,41 +120,41 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 		}
 		fmt.Println("Done Executing bid command")
 
-	case cmd == "unwield":
+	case "unwield":
 		output = cc.character.UnWieldWeapon()
-	case cmd == "wield":
+	case "wield":
 		output = cc.character.WieldWeaponByName(event.Value)
-	case cmd == "unequip":
+	case "unequip":
 		output = cc.character.UnEquipArmourByName(event.Value)
-	case cmd == "equip":
+	case "equip":
 		output = cc.character.EquipArmorByName(event.Value)
-	case cmd == "inv":
+	case "inv":
 		output = cc.character.PersonalInvetory.getInventoryDescription()
-	case cmd == "save" || cmd == "exit":
+	case "save", "exit":
 		sendCharactersXML(cc.getCharacter().toXML())
 		output = newFormattedStringSplice("Character succesfully saved.\n")
-	case cmd == "stats":
+	case "stats":
 		output = cc.getCharacter().getStatsPage()
-	case cmd == "look":
-		output = eventRoom.GetDescription()
-	case cmd == "get":
-		output = eventRoom.GiveItemToPlayer(cc.character, event.Value)
-	case cmd == "move":
+	case "look":
+		output = em.GetRoom(cc.getCharactersRoomID()).GetDescription()
+	case "get":
+		output = em.GetRoom(cc.getCharactersRoomID()).GiveItemToPlayer(cc.character, event.Value)
+	case "move":
 		src := em.worldRooms[cc.getCharactersRoomID()]
 		dest := src.getConnectedRoom(convertDirectionToInt(event.Value))
 
 		msgType, output = cc.character.moveCharacter(src, dest)
-	case cmd == "yell":
+	case "yell":
 		em.sendMessageToWorld(newServerMessageFS(newFormattedStringSplice2(ct.Blue, cc.character.Name+" says \""+event.Value+"\"")))
-	case cmd == "say":
+	case "say":
 		formattedOutput := newFormattedStringSplice2(ct.Blue, cc.character.Name+" says \""+event.Value+"\"")
 		em.sendMessageToRoom(cc.character.RoomIN, ServerMessage{Value: formattedOutput})
-	case cmd == "trade":
+	case "trade":
 		go em.ExecuteTradeEvent(cc.getCharacter(), event)
 	}
 
 	if len(output) > 0 {
-		cc.sendMsgToClient(newServerMessageTypeFS(msgType, output))
+		cc.Write(newServerMessageTypeFS(msgType, output))
 	}
 }
 
@@ -168,9 +167,16 @@ func (em *EventManager) GetRoom(roomID int) *Room {
 	}
 }
 
+func (em *EventManager) AddPlayerToRoom(char *Character, roomID int) {
+	if room := em.GetRoom(roomID); room != nil {
+		room.AddPlayer(char)
+	}
+}
+
 func (em *EventManager) RemovePlayerFromRoom(charName string, roomID int) {
-	room := em.worldRooms[roomID]
-	room.RemovePlayer(charName)
+	if room := em.GetRoom(roomID); room != nil {
+		room.RemovePlayer(charName)
+	}
 }
 
 //-----------------------------TRADING EVENT FUNCTIONS------------------------//

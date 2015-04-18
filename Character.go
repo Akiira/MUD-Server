@@ -401,15 +401,15 @@ func (c *Character) addTarget(target Agenter) {
 }
 
 func (char *Character) sendMessage(msg ServerMessage) {
-	char.myClientConn.sendMsgToClient(msg)
+	char.myClientConn.Write(msg)
 }
 
 func (char *Character) sendMessageS(msg string) {
-	char.myClientConn.sendMsgToClient(newServerMessageS(msg))
+	char.myClientConn.Write(newServerMessageS(msg))
 }
 
 func (char *Character) sendMessageFS(msg []FormattedString) {
-	char.myClientConn.sendMsgToClient(newServerMessageFS(msg))
+	char.myClientConn.Write(newServerMessageFS(msg))
 }
 
 //==============="STATIC" FUNCTIONS===================//

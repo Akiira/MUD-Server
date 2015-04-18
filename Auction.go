@@ -39,7 +39,7 @@ func (a *Auction) isOver() bool {
 }
 
 func (a *Auction) awardItemToWinner(winner *Bid) {
-	winner.bidder.sendMsgToClient(newServerMessageS("You won the auction."))
+	winner.bidder.Write(newServerMessageS("You won the auction."))
 	winner.bidder.giveItem(a.itemUp)
 }
 

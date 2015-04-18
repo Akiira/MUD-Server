@@ -102,7 +102,7 @@ func (m *Monster) fightPlayers() {
 
 		if attackTarget != nil {
 			event := newEvent(m, "attack", attackTarget.Name)
-			eventManager.addEvent(event)
+			eventManager.AddEvent(event)
 		}
 		m.fightingPlayersMutex.Unlock()
 	}
