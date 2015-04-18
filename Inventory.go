@@ -40,7 +40,7 @@ func newInventory() *Inventory {
 //================== CLASS FUNCTIONS =============//
 
 //AddInventory will ad all items from the given inventory into this one.
-func (inv *Inventory) AddInventory(otherInv Inventory) {
+func (inv *Inventory) AddInventory(otherInv *Inventory) {
 	for _, items := range otherInv.items {
 		inv.AddItems(items)
 	}
@@ -89,8 +89,12 @@ func (inv *Inventory) RemoveItem(name string) {
 	_, found := inv.GetItem(name)
 
 	if found {
-		items := inv.items[name]
-		inv.items[name] = items[0 : len(items)-1]
+		if len(inv.items[name]) == 1 {
+			delete(inv.items, name)
+		} else {
+			items := inv.items[name]
+			inv.items[name] = items[0 : len(items)-1]
+		}
 	}
 }
 
