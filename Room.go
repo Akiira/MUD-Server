@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/xml"
+	"fmt"
 	"github.com/daviddengcn/go-colortext"
 	"io/ioutil"
 	"os"
@@ -342,5 +343,8 @@ func loadRooms(worldName string) map[int]*Room {
 	for _, room := range rooms {
 		room.setRoomLink(rooms)
 	}
+
+	fmt.Println("Rooms loaded.")
+
 	return rooms
 }
