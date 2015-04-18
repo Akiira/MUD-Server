@@ -6,7 +6,7 @@ import (
 
 type Item_I interface {
 	getName() string
-	getDescription() string
+	getDescription() string //TODO change this to return []FormattedString
 	getItemType() int
 	getCopy() Item_I
 	toXML() ItemXML_I

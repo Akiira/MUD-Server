@@ -42,10 +42,10 @@ func NewClientConnection(conn net.Conn, em *EventManager) *ClientConnection {
 	cc.character = GetCharacterFromCentral(clientResponse.getUsername()) //maybe this should be moved out to Server.go
 	cc.character.myClientConn = cc
 	cc.CurrentEM = em
-	em.AddPlayerToRoom(cc.getCharacter(), cc.getCharactersRoomID()) //maybe this should be moved out to Server.go
+	em.AddPlayerToRoom(cc.getCharacter()) //maybe this should be moved out to Server.go
 
 	//Send the client a description of their starting room
-	em.executeNonCombatEvent(cc, &ClientMessage{Command: "look", Value: "room"})
+	em.ExecuteNonCombatEvent(cc, &ClientMessage{Command: "look", Value: "room"})
 
 	cc.tradeChannel = make(chan string)
 	cc.pingChannel = make(chan string)
@@ -57,7 +57,7 @@ func NewClientConnection(conn net.Conn, em *EventManager) *ClientConnection {
 //and cleaning up the character from the world. When a succesful read occures
 //the corresponding event is added to the event queu or executed rightaway.
 func (cc *ClientConnection) Read() {
-	defer cc.CurrentEM.RemovePlayerFromRoom(cc.getCharactersName(), cc.getCharactersRoomID())
+	defer cc.CurrentEM.RemovePlayerFromRoom(cc.getCharactersName())
 	defer cc.myConn.Close()
 
 	for {
@@ -76,7 +76,7 @@ func (cc *ClientConnection) Read() {
 		} else if clientResponse.IsTradeCommand() {
 			cc.SendToTradeChannel(clientResponse)
 		} else {
-			cc.CurrentEM.executeNonCombatEvent(cc, &clientResponse)
+			cc.CurrentEM.ExecuteNonCombatEvent(cc, &clientResponse)
 		}
 
 		if clientResponse.Command == "exit" || err != nil {

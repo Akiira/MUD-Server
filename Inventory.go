@@ -69,20 +69,6 @@ func (inv *Inventory) PossesItem(name string) bool {
 	return found
 }
 
-//GetAndRemoveItem returns a pointer to the item in the inventory with the specified
-//name and removes it from the inventory.
-//If the item is not found the pointer is nil and bool is false.
-func (inv *Inventory) GetAndRemoveItem(name string) (Item_I, bool) {
-	item, found := inv.GetItem(name)
-
-	if found {
-		inv.RemoveItem(name)
-		return item, true
-	} else {
-		return nil, false
-	}
-}
-
 //RemoveItem removes an item with the specified name from the inventory.
 //If the item was not present then no change is made.
 func (inv *Inventory) RemoveItem(name string) {
@@ -98,13 +84,25 @@ func (inv *Inventory) RemoveItem(name string) {
 	}
 }
 
+//GetAndRemoveItem returns a pointer to the item in the inventory with the specified
+//name and removes it from the inventory.
+//If the item is not found the pointer is nil and bool is false.
+func (inv *Inventory) GetAndRemoveItem(name string) (Item_I, bool) {
+	item, found := inv.GetItem(name)
+
+	if found {
+		inv.RemoveItem(name)
+		return item, true
+	} else {
+		return nil, false
+	}
+}
+
 //GetItem returns a pointer to the item in the inventory with the name in name.
 //If the item is found it is not removed from the inventory.
 //If the item is not found the pointer is nil and bool is false.
 func (inv *Inventory) GetItem(name string) (Item_I, bool) {
-	items, _ := inv.items[name]
-
-	if len(items) > 0 {
+	if items, _ := inv.items[name]; len(items) > 0 {
 		return items[len(items)-1], true
 	}
 	return nil, false

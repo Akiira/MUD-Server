@@ -19,7 +19,7 @@ type EventManager struct {
 	traders map[string]bool
 }
 
-func newEventManager() *EventManager {
+func NewEventManager() *EventManager {
 	em := new(EventManager)
 	em.eventQue = make([]Event, 0, 10)
 	em.worldRooms = loadRooms()
@@ -29,8 +29,7 @@ func newEventManager() *EventManager {
 	return em
 }
 
-func (em *EventManager) sendMessageToWorld(msg ServerMessage) {
-
+func (em *EventManager) SendMessageToWorld(msg ServerMessage) {
 	for _, room := range em.worldRooms {
 		for _, char := range room.CharactersInRoom {
 			char.SendMessage(msg)
@@ -38,8 +37,8 @@ func (em *EventManager) sendMessageToWorld(msg ServerMessage) {
 	}
 }
 
-func (em *EventManager) sendMessageToRoom(roomID int, msg ServerMessage) {
-	room := em.worldRooms[roomID]
+func (em *EventManager) SendMessageToRoom(roomID int, msg ServerMessage) {
+	room := em.GetRoom(roomID)
 
 	for _, char := range room.CharactersInRoom {
 		char.SendMessage(msg)
@@ -55,11 +54,11 @@ func (em *EventManager) AddEvent(event Event) {
 func (em *EventManager) StartCombatRounds() {
 	for {
 		time.Sleep(time.Second * 6)
-		go em.executeCombatRound()
+		go em.ExecuteCombatRound()
 	}
 }
 
-func (em *EventManager) executeCombatRound() {
+func (em *EventManager) ExecuteCombatRound() {
 	em.queue_lock.Lock()
 	var output []FormattedString
 	alreadyActed := make(map[string]bool)
@@ -87,7 +86,11 @@ func (em *EventManager) executeCombatRound() {
 	em.queue_lock.Unlock()
 }
 
-func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *ClientMessage) {
+//TODO add checks around the needed commands to prevent players from droping items during trades
+// or moving during trades.
+
+//TODO move any command that requires more then 3 lines to its own function
+func (em *EventManager) ExecuteNonCombatEvent(cc *ClientConnection, event *ClientMessage) {
 	var output []FormattedString
 	var msgType int = GAMEPLAY
 
@@ -138,7 +141,18 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 	case "stats":
 		output = cc.getCharacter().GetStats()
 	case "look":
-		output = em.GetRoom(cc.getCharactersRoomID()).GetDescription()
+		room := em.GetRoom(cc)
+		if event.Value == "room" {
+			output = room.GetDescription()
+		} else {
+			if item := room.GetItem(event.Value); item != nil {
+				//output = item.getDescription() //TODO change return type of getDescr..
+			} else if _, found := cc.getCharacter().GetItem(event.Value); found {
+				//output = item.getDescription()
+			} else {
+				output = newFormattedStringSplice("That item could not be found anywhere.\n")
+			}
+		}
 	case "get":
 		output = em.GetRoom(cc.getCharactersRoomID()).GiveItemToPlayer(cc.character, event.Value)
 	case "drop":
@@ -154,10 +168,10 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 
 		msgType, output = cc.character.moveCharacter(src, dest)
 	case "yell":
-		em.sendMessageToWorld(newServerMessageFS(newFormattedStringSplice2(ct.Blue, cc.character.Name+" says \""+event.Value+"\"")))
+		em.SendMessageToWorld(newServerMessageFS(newFormattedStringSplice2(ct.Blue, cc.character.Name+" says \""+event.Value+"\"")))
 	case "say":
 		formattedOutput := newFormattedStringSplice2(ct.Blue, cc.character.Name+" says \""+event.Value+"\"")
-		em.sendMessageToRoom(cc.character.RoomIN, ServerMessage{Value: formattedOutput})
+		em.SendMessageToRoom(cc.character.RoomIN, ServerMessage{Value: formattedOutput})
 	case "trade":
 		go em.ExecuteTradeEvent(cc.getCharacter(), event)
 	}
@@ -167,17 +181,30 @@ func (em *EventManager) executeNonCombatEvent(cc *ClientConnection, event *Clien
 	}
 }
 
-func (em *EventManager) GetRoom(roomID int) *Room {
-	room, found := em.worldRooms[roomID]
-	if found {
+func (em *EventManager) GetRoom(input interface{}) *Room {
+	var roomID int
+
+	switch input := input.(type) {
+	default:
+		fmt.Printf("Unexpected type %T in EventManager.GetRoom", input)
+		return nil
+	case int:
+		roomID = input
+	case *ClientConnection:
+		roomID = input.getCharactersRoomID()
+	case *Character:
+		roomID = input.GetRoomID()
+	}
+
+	if room, found := em.worldRooms[roomID]; found {
 		return room
 	} else {
 		return nil
 	}
 }
 
-func (em *EventManager) AddPlayerToRoom(char *Character, roomID int) {
-	if room := em.GetRoom(roomID); room != nil {
+func (em *EventManager) AddPlayerToRoom(char *Character) {
+	if room := em.GetRoom(char); room != nil {
 		room.AddPlayer(char)
 		if room.isLocal() {
 			char.SendMessage(room.GetDescription())
@@ -185,13 +212,14 @@ func (em *EventManager) AddPlayerToRoom(char *Character, roomID int) {
 	}
 }
 
-func (em *EventManager) RemovePlayerFromRoom(charName string, roomID int) {
-	if room := em.GetRoom(roomID); room != nil {
+func (em *EventManager) RemovePlayerFromRoom(charName string) {
+	if room := em.GetRoom(charName); room != nil {
 		room.RemovePlayer(charName)
 	}
 }
 
 //-----------------------------TRADING EVENT FUNCTIONS------------------------//
+
 func (em *EventManager) IsTrading(charName string) bool {
 	val, found := em.traders[charName]
 
@@ -228,8 +256,7 @@ func (em *EventManager) ExecuteTradeEvent(trader *Character, event *ClientMessag
 	trader.SendMessage("The trade is opened, what items would you like to trade? Type 'add' [item name] to add an item to the trade or 'add' [quantity] [item name].\n")
 	tradee.SendMessage("The trade is opened, what items would you like to trade? Type 'add' [item name] to add an item to the trade or 'add' [quantity] [item name].\n")
 
-	tradersItems := newInventory()
-	tradeesItems := newInventory()
+	tradersItems, tradeesItems := newInventory(), newInventory()
 	accepted := false
 
 	defer func() { //This ensures that no matter how the function returns, the correct person gets their items
@@ -254,9 +281,8 @@ func (em *EventManager) ExecuteTradeEvent(trader *Character, event *ClientMessag
 }
 
 func (em *EventManager) AskOtherPlayerToTrade(trader *Character, tradeeName string) *Character {
-	// ask other player if they want to trade
-	room := em.GetRoom(trader.GetRoomID())
-	tradee, found := room.GetPlayer(tradeeName)
+
+	tradee, found := em.GetRoom(trader).GetPlayer(tradeeName)
 
 	if !found {
 		fmt.Println("\tDid not find other player.")
@@ -265,9 +291,8 @@ func (em *EventManager) AskOtherPlayerToTrade(trader *Character, tradeeName stri
 	}
 
 	tradee.SendMessage("Would you like to trade with " + trader.GetName() + "? Type accept or reject.\n")
-	response := tradee.GetTradeResponse()
 
-	if response != "accept" {
+	if tradee.GetTradeResponse() != "accept" {
 		fmt.Println("\tOther player did not responde with accept.")
 		trader.SendMessage("\nThe other player did not accept your trade.\n")
 		return nil
@@ -332,7 +357,7 @@ func (em *EventManager) sendPeriodicAuctionInfo() {
 	for {
 		time.Sleep(time.Second * 5)
 		if em.auction.timeTillOver() > time.Second*5 {
-			em.sendMessageToWorld(em.auction.getAuctionInfo())
+			em.SendMessageToWorld(em.auction.getAuctionInfo())
 		} else {
 			break
 		}

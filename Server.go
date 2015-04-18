@@ -40,7 +40,7 @@ func runServer() {
 
 	serverName = os.Args[1]
 
-	eventManager = newEventManager()
+	eventManager = NewEventManager()
 
 	listener := setUpServerWithAddress(servers[serverName])
 

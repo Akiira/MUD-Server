@@ -47,6 +47,7 @@ type Room struct {
 	//May have a third mapping to friendly NPCs like shopkeepers
 	//NonCharactersInRoom map[string]*NPC
 
+	//TODO change this to an Inventory object
 	ItemsInRoom map[string]Item_I
 
 	//This is for the monsters native to this room
@@ -142,6 +143,19 @@ func (room *Room) GetPlayer(charName string) (*Character, bool) {
 	} else {
 		return nil, false
 	}
+}
+
+func (room *Room) GetItem(name string) Item_I {
+	if item, found := room.ItemsInRoom[name]; found {
+		return item
+	} else {
+		return nil
+	}
+}
+
+//TODO
+func (room *Room) GetAndRemoveItem(name string) {
+
 }
 
 func (room *Room) GiveItemToPlayer(char *Character, itemName string) []FormattedString {
