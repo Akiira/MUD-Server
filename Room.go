@@ -128,13 +128,13 @@ func (room *Room) AddPlayer(char *Character) {
 }
 
 func (room *Room) RemovePlayer(charName string) {
-	if char, found := room.GetPC(charName); found {
+	if char, found := room.GetPlayer(charName); found {
 		char.RoomIN = -1
 		delete(room.CharactersInRoom, charName)
 	}
 }
 
-func (room *Room) GetPC(charName string) (*Character, bool) {
+func (room *Room) GetPlayer(charName string) (*Character, bool) {
 	if room.CharactersInRoom != nil {
 		char, found := room.CharactersInRoom[charName]
 
@@ -173,7 +173,7 @@ func (room *Room) getAgentInRoom(name string) Agenter {
 
 	if val := room.getMonster(name); val != nil {
 		return val
-	} else if val, found := room.GetPC(name); found {
+	} else if val, found := room.GetPlayer(name); found {
 		return val
 	} else { // in case, it's already dead, return nil
 		return nil
@@ -197,6 +197,10 @@ func (room *Room) repopulateRoomTick(timeInMinutes time.Duration) {
 	}
 }
 
+//PopulateMonsters will add monsters to the room based on the preset types
+//of monsters allowed in this room. In other words, if the rooms monsters are dead
+//or have never been spawned, this will spawn them; if the monsters are all alive
+//this will have no effect.
 func (room *Room) PopulateMonsters() {
 
 	for _, monsterName := range room.monsterTemplateNames {

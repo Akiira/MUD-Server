@@ -26,8 +26,6 @@ func main() {
 	gob.Register(ArmourSetXML{})
 	gob.Register(ItemXML{})
 
-	//testNewXMLstiff()
-
 	if len(os.Args) < 2 {
 		fmt.Println(os.Args[0] + " requires 1 arguments, worldname")
 		os.Exit(1)
@@ -35,9 +33,6 @@ func main() {
 
 	readServerList()
 	runServer()
-
-	//getCharacterFromCentral("Ragnar")
-	//sendCharactersFile("Tiefling")
 }
 
 func runServer() {
@@ -84,33 +79,6 @@ func HandleClientConnection(myConn net.Conn) {
 
 	clientConnection := newClientConnection(myConn, eventManager)
 	clientConnection.receiveMsgFromClient()
-}
-
-func testNewXMLstiff() {
-	name := "test"
-	file, err := os.Open("Characters/" + name + ".xml")
-	checkError(err, true)
-	defer file.Close()
-
-	data, err := ioutil.ReadAll(file)
-	checkError(err, false)
-	_ = data
-	var c CharacterXML
-
-	err = xml.Unmarshal(data, &c)
-	checkError(err, false)
-
-	fmt.Println(c)
-	checkError(err, true)
-	c.Name = name + "2"
-	c.WeaponComment = []byte("Equipped Weapon")
-
-	fmt.Println(c.PersInv.Items[0])
-	fmt.Println()
-	fmt.Println(*characterFromXML(&c).toXML())
-	fmt.Println()
-
-	saveCharacterFile(characterFromXML(&c).toXML())
 }
 
 func saveCharacterFile(char *CharacterXML) {

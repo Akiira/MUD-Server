@@ -238,7 +238,7 @@ func (em *EventManager) ExecuteTradeEvent(trader *Character, event *ClientMessag
 func (em *EventManager) AskOtherPlayerToTrade(trader *Character, tradeeName string) *Character {
 	// ask other player if they want to trade
 	room := em.GetRoom(trader.getRoomID())
-	tradee, found := room.GetPC(tradeeName)
+	tradee, found := room.GetPlayer(tradeeName)
 
 	if !found {
 		fmt.Println("\tDid not find other player.")
