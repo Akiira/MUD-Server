@@ -44,6 +44,7 @@ func newClientConnection(conn net.Conn, em *EventManager) *ClientConnection {
 	//Send the client a description of their starting room
 	em.executeNonCombatEvent(cc, &ClientMessage{Command: "look", Value: "room"})
 
+	cc.tradeChannel = make(chan string)
 	return cc
 }
 
@@ -61,12 +62,9 @@ func (cc *ClientConnection) receiveMsgFromClient() {
 			event := newEventFromMessage(clientResponse, cc.character)
 			cc.CurrentEM.addEvent(event)
 		} else if clientResponse.getCommand() == "ping" {
-			fmt.Println("\t\tReceived ping from user.")
 			cc.pingResponse.Signal()
-		} else if clientResponse.getCommand() == "opentrade" {
-			cc.tradeChannel <- clientResponse.getCommand()
-		} else if clientResponse.getCommand() == "add" {
-			cc.tradeChannel <- clientResponse.Value
+		} else if clientResponse.IsTradeCommand() {
+			cc.SendToTradeChannel(clientResponse)
 		} else {
 			cc.CurrentEM.executeNonCombatEvent(cc, &clientResponse)
 		}
@@ -84,10 +82,22 @@ func (cc *ClientConnection) receiveMsgFromClient() {
 func (cc *ClientConnection) GetItemsToTrade() string {
 	return cc.GetResponseToTrade()
 }
+
+func (cc *ClientConnection) SendToTradeChannel(msg ClientMessage) {
+
+	if msg.Command == "add" {
+		for i := 0; i < msg.GetItemQuantity(); i++ {
+			cc.tradeChannel <- msg.GetItem()
+		}
+	} else {
+		cc.tradeChannel <- msg.GetValue()
+	}
+}
+
 func (cc *ClientConnection) GetResponseToTrade() (response string) {
 	timeoutChan := make(chan string)
 	go func() {
-		time.Sleep(time.Second * 3)
+		time.Sleep(time.Second * 60)
 		timeoutChan <- "timeout"
 	}()
 
