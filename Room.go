@@ -243,7 +243,7 @@ func (room *Room) GetDescription() []FormattedString {
 	output = ""
 
 	for _, itemPtr := range room.ItemsInRoom {
-		output += "\n\t" + itemPtr.getDescription()
+		output += "\n\t" + itemPtr.getName()
 	}
 	fs.addMessage(ct.Yellow, output)
 	output = ""
