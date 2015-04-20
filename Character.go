@@ -303,7 +303,7 @@ func (c *Character) getDamageRoll() string {
 }
 
 func (c *Character) getDamage() int {
-	return c.equipedWeapon.getDamage() + c.Strength
+	return c.equipedWeapon.GetDamage() + c.Strength
 }
 
 func (c *Character) GetGoldAmount() int {
@@ -336,9 +336,14 @@ func (c *Character) GetTradeResponse() string {
 func (c *Character) GetEquipment() []FormattedString {
 	output := newFormattedStringCollection()
 
-	output.addMessage(ct.Green, "Equipment Page for "+c.Name+"\n-------------------------------------------------\n")
-	output.addMessage(ct.Green, "Weapon:")
-	output.addMessage(ct.White, fmt.Sprintf("%10s\n", c.equipedWeapon.getName()))
+	output.addMessage(ct.Green, "\t\t\tEquipment Page for "+c.Name+"\n--------------------------------------------------------------------\n")
+	if c.equipedWeapon != nil {
+		output.addMessages2(c.equipedWeapon.GetWeaponPage())
+	} else {
+		output.addMessage(ct.Green, "\t\t\tEquipped Weapon\n")
+		output.addMessage2(fmt.Sprintf("\t%-15s   %-15s %-15s %-15s\n", "Name", "Attack", "MinDmg", "MaxDmg"))
+		output.addMessage(ct.Green, "--------------------------------------------------------------------\n\n")
+	}
 	output.addMessages2(c.equippedArmour.GetArmourWornPage())
 
 	return output.fmtedStrings

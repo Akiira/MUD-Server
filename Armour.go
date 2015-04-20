@@ -5,6 +5,8 @@ import (
 	"encoding/xml"
 	"fmt"
 	"github.com/daviddengcn/go-colortext"
+	"strconv"
+	"strings"
 )
 
 type Armour struct {
@@ -16,9 +18,10 @@ type Armour struct {
 //------------------- CONSTRUCTORS ------------------------//
 
 func NewArmour(name1 string, descr string, def int, wearLoc string) Armour {
-	a := Armour{defense: def, wearLocation: wearLoc}
+	a := Armour{defense: def, wearLocation: strings.ToLower(wearLoc)}
 	a.name = name1
 	a.description = descr
+
 	return a
 }
 
@@ -26,7 +29,7 @@ func NewArmourFromXML(armourData *ArmourXML) *Armour {
 	arm := new(Armour)
 	arm.Item = *itemFromXML(armourData.ItemInfo)
 	arm.defense = armourData.Defense
-	arm.wearLocation = armourData.WearLocation
+	arm.wearLocation = strings.ToLower(armourData.WearLocation)
 
 	return arm
 }
@@ -125,12 +128,11 @@ func (as *ArmourSet) GetArmourWornPage() []FormattedString {
 	output := newFormattedStringCollection()
 	output.addMessage(ct.Green, "\t\t\tEquipped Armour\n")
 	output.addMessage2(fmt.Sprintf("\t%-20s   %-20s %-20s\n", "Location", "Name", "Defense"))
-	output.addMessage(ct.Green, "--------------------------------------------------------\n")
+	output.addMessage(ct.Green, "--------------------------------------------------------------------\n")
 
 	for _, loc := range locations {
-		arm, present := as.equipedArmour[loc]
-		if present {
-			output.addMessage2(fmt.Sprintf("\t%-20s   %-20s %-20s\n", loc, arm.name, string(arm.defense)))
+		if arm, found := as.equipedArmour[loc]; found {
+			output.addMessage2(fmt.Sprintf("\t%-20s   %-20s %-20s\n", loc, arm.name, strconv.Itoa(arm.defense)))
 		} else {
 			output.addMessage2(fmt.Sprintf("\t%-20s   %-20s %-20s\n", loc, " ", "0"))
 		}

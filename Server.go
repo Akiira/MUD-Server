@@ -3,9 +3,7 @@ package main
 import (
 	"bufio"
 	"encoding/gob"
-	"encoding/xml"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net"
 	"os"
@@ -87,6 +85,7 @@ func runServer() {
 	}
 }
 
+//TODO is this more appropiate here or in the character class?
 func SendCharactersXML(charData *CharacterXML) {
 
 	conn, err := net.Dial("tcp", servers["characterStorage"])

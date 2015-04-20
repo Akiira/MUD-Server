@@ -2,7 +2,10 @@ package main
 
 import (
 	"encoding/xml"
+	"fmt"
+	"github.com/daviddengcn/go-colortext"
 	"math/rand"
+	"strconv"
 )
 
 type Weapon struct {
@@ -16,11 +19,11 @@ func (wpn *Weapon) getItemType() int {
 	return WEAPON
 }
 
-func (wpn *Weapon) getAttack() int {
+func (wpn *Weapon) GetAttack() int {
 	return wpn.attack
 }
 
-func (wpn *Weapon) getDamage() int {
+func (wpn *Weapon) GetDamage() int {
 	return rand.Intn(wpn.getDamageRange()) + wpn.minDmg
 }
 
@@ -32,6 +35,16 @@ func (w *Weapon) getCopy() Item_I {
 	wpn := new(Weapon)
 	*wpn = *w
 	return wpn
+}
+
+func (w *Weapon) GetWeaponPage() []FormattedString {
+	output := newFormattedStringCollection()
+	output.addMessage(ct.Green, "\t\t\tEquipped Weapon\n")
+	output.addMessage2(fmt.Sprintf("\t%-15s   %-15s %-15s %-15s\n", "Name", "Attack", "MinDmg", "MaxDmg"))
+	output.addMessage(ct.Green, "--------------------------------------------------------------------\n")
+	output.addMessage2(fmt.Sprintf("\t%-15s   %-15s %-15s %-15s\n\n", w.name, strconv.Itoa(w.attack), strconv.Itoa(w.minDmg), strconv.Itoa(w.maxDmg)))
+
+	return output.fmtedStrings
 }
 
 type WeaponXML struct {
@@ -61,10 +74,6 @@ func (w *Weapon) toXML() ItemXML_I {
 
 	return wpnXML
 }
-
-//func (w *WeaponXML) toItem() Item_I {
-//	return weaponFromXML(w)
-//}
 
 func (w WeaponXML) toItem() Item_I {
 	return weaponFromXML(&w)

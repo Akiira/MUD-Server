@@ -198,7 +198,7 @@ func (m *Monster) GetLoot() []Item_I {
 }
 
 func (m *Monster) GetDamage() int {
-	return m.weapon.getDamage() + m.Strength
+	return m.weapon.GetDamage() + m.Strength
 }
 
 func (m *Monster) getLookDescription() []FormattedString {
