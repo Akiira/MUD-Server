@@ -45,18 +45,23 @@ func (a *Auction) awardItemToWinner(winner *Bid) {
 
 func (a *Auction) getAuctionInfo() ServerMessage {
 	msg := newFormattedStringCollection()
-	msg.addMessage2("\n\tItem:" + a.itemUp.getName())
+	msg.addMessage2("Attention Players! There is an auction going on. The current status of the auction is the following:\n")
+	msg.addMessage2("\tItem:" + a.itemUp.getName())
+
 	if a.highestBid != nil {
 		msg.addMessage2(fmt.Sprint("\tCurrent Bid: ", a.highestBid.amount))
+	} else {
+		msg.addMessage2("\tCurrent Bid: None")
 	}
 	msg.addMessage2("\tTime left: " + a.endTime.Sub(time.Now()).String() + "\n")
+	msg.addMessage2("If you would like to bid on this item then type 'bid [amount]' where amount is the amount of gold you want to bid.\n")
 
 	return newServerMessageFS(msg.fmtedStrings)
 }
 
 func (a *Auction) bidOnItem(amount int, bidder *ClientConnection, timeOfBid time.Time) []FormattedString {
 
-	estimatedTime := timeOfBid.Add(-1 * bidder.getAverageRoundTripTime())
+	estimatedTime := timeOfBid.Add(-1 * bidder.GetAverageRoundTripTime())
 	distance := a.endTime.Sub(estimatedTime)
 
 	if distance > 0 {
