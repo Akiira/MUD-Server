@@ -8,6 +8,7 @@ import (
 	"math/rand"
 	"net"
 	"os"
+	"strconv"
 	"sync"
 )
 
@@ -194,21 +195,27 @@ func (char *Character) makeAttack(target Agenter) []FormattedString {
 
 		a1 := char.GetAttack()
 		if a1 >= target.GetDefense() {
+			dmg := char.getDamage()
+			target.takeDamage(dmg, 0)
 			target.takeDamage(char.getDamage(), 0)
-			fmt.Printf("\tPlayer did %d damage.\n", char.getDamage())
+			//fmt.Printf("\tPlayer did %d damage.\n", char.getDamage())
 
 			if target.IsDead() {
 				// TODO  reward player exp
 				room := char.myClientConn.CurrentEM.worldRooms[char.RoomIN] //TODO fix this line
 				room.killOffMonster(target.GetName())
 
-				return newFormattedStringSplice("The hit the " + target.GetName() + " and it drops over dead.\n")
+				return newFormattedStringSplice("You hit " + target.GetName() + " for " + strconv.Itoa(dmg) + " damage and it drops over dead.\n")
 			} else {
 				target.addTarget(char)
-				return newFormattedStringSplice("\nYou hit the " + target.GetName() + "!\n")
+				var output []FormattedString
+				output = append(output, newFormattedString2(ct.Red, "\nYou were hit by "+char.Name+" for "+strconv.Itoa(dmg)+" damage!\n"))
+				target.SendMessage(newServerMessageFS(output))
+				return newFormattedStringSplice("\nYou hit " + target.GetName() + " for " + strconv.Itoa(dmg) + " damage!\n")
 			}
 		} else {
-			return newFormattedStringSplice("\nYou missed the " + target.GetName() + "!\n")
+
+			return newFormattedStringSplice("\nYour attack missed " + target.GetName() + "!\n")
 		}
 	}
 

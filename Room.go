@@ -111,7 +111,11 @@ func (room *Room) isLocal() bool {
 }
 
 func (room *Room) getConnectedRoom(exit int) *Room {
-	return room.ExitLinksToRooms[exit]
+	if exit != -1 {
+		return room.ExitLinksToRooms[exit]
+	} else {
+		return nil
+	}
 }
 
 func (room *Room) AddItem(itm Item_I) {
@@ -123,6 +127,7 @@ func (room *Room) AddItem(itm Item_I) {
 func (room *Room) AddPlayer(char *Character) {
 
 	if room.isLocal() {
+		eventManager.SendMessageToRoom(room.ID, newServerMessageFS(newFormattedStringSplice2(ct.Blue, "\n"+char.Name+" has entered this room.")))
 		room.CharactersInRoom[char.Name] = char
 	}
 	char.RoomIN = room.ID

@@ -3,12 +3,8 @@
 	<RespawnRoomID>2000</RespawnRoomID>
 	<Room>
 		<ID>2000</ID>
-		<Name>The Path to the Dwarven Village</Name>
-		<Description>You walk in the hill's shadow down an ever-widening path which leads to the
-outskirts of the dwarven village.  The hill rises above you to the southwest,
-and a smaller path leads to its crest in that direction.  A tunnel here leads
-down a short distance into the hill itself, and the dwarven village can be
-seen near the mountains to the north. </Description>
+		<Name>The entrance to the hell realm</Name>
+		<Description>You are standing in front of the mysterious river that separate between this world and the after life world.</Description>
 		<WorldID>local</WorldID>
 		<Exit> 
 			<Direction>s</Direction>
@@ -21,10 +17,8 @@ seen near the mountains to the north. </Description>
 	</Room>
 	<Room>
 		<ID>2001</ID>
-		<Name>Path nearing the Mountain</Name>
-		<Description>You are near the base a rugged mountain.  Dense forest prevents passage in
-most directions, and it grows dark to the north as the path begins its way
-up the shadowed mountain.</Description>
+		<Name>Bridge of the mysterious river</Name>
+		<Description>The bridge leads you down to the underworld as well as the river twists down to the feiry red demon's hole.</Description>
 		<WorldID>local</WorldID>
 		<Exit> 
 			<Direction>s</Direction>	
@@ -37,10 +31,8 @@ up the shadowed mountain.</Description>
 	</Room>
 	<Room>
 		<ID>2002</ID>
-		<Name>Path up the Mountain</Name>
-		<Description>Standing near the halfway point up the mountain, you can easily see the
-hill of the crossroads in the distance to the southwest, while the top
-of the mountain is very near to the north.</Description>
+		<Name>Level 2 of the realm of hell</Name>
+		<Description>There are bonfires everywhere. You just notice that these bonfires burn poor souls as fuel.</Description>
 		<WorldID>local</WorldID>
 		<Exit> 
 			<Direction>s</Direction>
@@ -53,11 +45,8 @@ of the mountain is very near to the north.</Description>
 	</Room>
 	<Room>
 		<ID>2003</ID>
-		<Name>Top of the Mountain</Name>
-		<Description>You stand on the mountain's top.  Far to the south you can see the spires
-of the city of Darkhaven, and a path leads down the mountainside to its
-base in that direction.  To your east and west, large gates have been
-built into the rock face.</Description>
+		<Name>The lowest level of the hell realm</Name>
+		<Description>You think this is the hottest level of the hell? Sorry pal, heat rises up. If you pay more attention in science class, you will not get confused for this myth.</Description>
 		<WorldID>local</WorldID>
 		<Exit> 
 			<Direction>s</Direction>

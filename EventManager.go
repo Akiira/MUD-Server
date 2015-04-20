@@ -150,6 +150,8 @@ func (em *EventManager) ExecuteNonCombatEvent(cc *ClientConnection, event *Clien
 		em.SendMessageToRoom(cc.character.RoomIN, ServerMessage{Value: formattedOutput})
 	case "trade":
 		go em.ExecuteTradeEvent(cc.getCharacter(), event)
+	case "help":
+		output = newFormattedStringSplice("\nYou can use the following commands\nattack\ninv\nlook\nyell\nsay\ntrade\nbid\nwield\nunwield\nequip\nget\nmove\nauction\n")
 	}
 
 	if len(output) > 0 {
