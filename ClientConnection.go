@@ -39,7 +39,7 @@ func NewClientConnection(conn net.Conn, em *EventManager) *ClientConnection {
 	err := cc.myDecoder.Decode(&clientResponse)
 	checkError(err, true)
 
-	cc.character = GetCharacterFromCentral(clientResponse.getUsername()) //maybe this should be moved out to Server.go
+	cc.character = GetCharacterFromStorage(clientResponse.getUsername()) //maybe this should be moved out to Server.go
 	cc.character.myClientConn = cc
 	cc.CurrentEM = em
 	em.AddPlayerToRoom(cc.getCharacter()) //maybe this should be moved out to Server.go
@@ -147,7 +147,7 @@ func (cc *ClientConnection) GetResponseToPing(start time.Time) time.Duration {
 	}
 }
 
-func (cc *ClientConnection) getAverageRoundTripTime() (avg time.Duration) {
+func (cc *ClientConnection) GetAverageRoundTripTime() (avg time.Duration) {
 
 	for i := 0; i < 10; i++ {
 		cc.Write(newServerMessageTypeS(PING, "ping"))

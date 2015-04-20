@@ -112,7 +112,7 @@ func (em *EventManager) ExecuteNonCombatEvent(cc *ClientConnection, event *Clien
 	case "inv":
 		output = cc.character.PersonalInvetory.getInventoryDescription()
 	case "save", "exit":
-		sendCharactersXML(cc.getCharacter().toXML())
+		SendCharactersXML(cc.getCharacter().toXML())
 		output = newFormattedStringSplice("Character succesfully saved.\n")
 	case "stats":
 		output = cc.getCharacter().GetStats()
