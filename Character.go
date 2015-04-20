@@ -38,7 +38,7 @@ func newCharacter(name string, room int, hp int, def int) *Character {
 	char.Name = name
 	char.currentHP = hp
 	char.PersonalInvetory = *newInventory()
-	char.equippedArmour = *newArmourSet()
+	char.equippedArmour = *NewArmourSet()
 
 	return char
 }
@@ -56,7 +56,7 @@ func characterFromXML(charData *CharacterXML) *Character {
 	char.experience = charData.Experience
 
 	char.equipedWeapon = weaponFromXML(&charData.EquipedWeapon)
-	char.equippedArmour = *armourSetFromXML(&charData.ArmSet)
+	char.equippedArmour = *NewArmourSetFromXML(&charData.ArmSet)
 	char.PersonalInvetory = *inventoryFromXML(&charData.PersInv)
 
 	return char
@@ -81,13 +81,13 @@ func (c *Character) EquipArmour(armr *Armour) []FormattedString {
 	if c.equippedArmour.IsArmourAt(armr.wearLocation) { // already an item present
 		return newFormattedStringSplice("\nYou already have a peice of armour equiped there.\n")
 	} else {
-		c.equippedArmour.equipArmour(armr)
+		c.equippedArmour.EquipArmour(armr)
 		return newFormattedStringSplice("\nYou equiped " + armr.name + "\n")
 	}
 }
 
 func (c *Character) UnEquipArmourByName(name string) []FormattedString {
-	armr := c.equippedArmour.takeOffArmourByName(name)
+	armr := c.equippedArmour.GetAndRemoveArmour(name)
 	if armr == nil {
 		return newFormattedStringSplice("\nYou are not wearing a peice of armour with that name. \n")
 	}
@@ -97,7 +97,7 @@ func (c *Character) UnEquipArmourByName(name string) []FormattedString {
 
 func (c *Character) UnEquipArmourAt(location string) []FormattedString {
 	if c.equippedArmour.IsArmourAt(location) {
-		armr := c.equippedArmour.GetAndRemoveArmourAt(location)
+		armr := c.equippedArmour.GetAndRemoveArmour(location)
 		c.AddItemToInventory(armr)
 		return newFormattedStringSplice(fmt.Sprintf("You succesfully removed the %s and stored it in your inventory.\n", armr.getName()))
 	} else {
@@ -253,7 +253,7 @@ func (c *Character) GetAttack() int {
 }
 
 func (c *Character) GetDefense() int {
-	return c.equippedArmour.getArmoursDefense()
+	return c.equippedArmour.GetDefense()
 }
 
 //TODO refactor so we can remove this. The character class should not provide
@@ -339,7 +339,7 @@ func (c *Character) GetEquipment() []FormattedString {
 	output.addMessage(ct.Green, "Equipment Page for "+c.Name+"\n-------------------------------------------------\n")
 	output.addMessage(ct.Green, "Weapon:")
 	output.addMessage(ct.White, fmt.Sprintf("%10s\n", c.equipedWeapon.getName()))
-	output.addMessages2(c.equippedArmour.getListOfArmourWorn())
+	output.addMessages2(c.equippedArmour.GetArmourWornPage())
 
 	return output.fmtedStrings
 }
