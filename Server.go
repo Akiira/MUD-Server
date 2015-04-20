@@ -29,7 +29,24 @@ func main() {
 	}
 
 	readServerList()
-	runServer()
+	go runServer()
+	NewGetInputFromUser()
+}
+
+func NewGetInputFromUser() {
+
+	var input string
+	for {
+
+		fmt.Scan(&input)
+		input = strings.TrimSpace(input)
+
+		if input == "exit" {
+			os.Exit(1)
+		} else if input == "refreshserver" {
+			readServerList()
+		}
+	}
 }
 
 //readServerList reads the list of server names and their corresponding addresses
