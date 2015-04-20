@@ -3,6 +3,7 @@ package main
 
 import (
 	"encoding/xml"
+	"fmt"
 	"github.com/daviddengcn/go-colortext"
 )
 
@@ -12,14 +13,16 @@ type Armour struct {
 	wearLocation string
 }
 
-func newArmour(name1 string, descr string, def int, wearLoc string) Armour {
+//------------------- CONSTRUCTORS ------------------------//
+
+func NewArmour(name1 string, descr string, def int, wearLoc string) Armour {
 	a := Armour{defense: def, wearLocation: wearLoc}
 	a.name = name1
 	a.description = descr
 	return a
 }
 
-func armourFromXML(armourData *ArmourXML) *Armour {
+func NewArmourFromXML(armourData *ArmourXML) *Armour {
 	arm := new(Armour)
 	arm.Item = *itemFromXML(armourData.ItemInfo)
 	arm.defense = armourData.Defense
@@ -27,6 +30,8 @@ func armourFromXML(armourData *ArmourXML) *Armour {
 
 	return arm
 }
+
+//------------------- GETTERS -----------------------------//
 
 func (arm *Armour) getItemType() int {
 	return ARMOUR
@@ -49,28 +54,30 @@ func (arm *Armour) toXML() ItemXML_I {
 }
 
 func (a ArmourXML) toItem() Item_I {
-	return armourFromXML(&a)
+	return NewArmourFromXML(&a)
 }
 
-//--------------ARMOURSET CLASS----------------
+//=================== ARMOURSET CLASS =====================//
+
+var locations = [...]string{"head", "chest", "legs", "feet", "hands"}
 
 type ArmourSet struct {
 	equipedArmour map[string]*Armour
 }
 
-//=================== CONSTRUCTORS =====================//
+//------------------- CONSTRUCTORS ------------------------//
 
-func newArmourSet() *ArmourSet {
+func NewArmourSet() *ArmourSet {
 	as := new(ArmourSet)
 	as.equipedArmour = make(map[string]*Armour, 5)
 	return as
 }
 
-func armourSetFromXML(armourSetData *ArmourSetXML) *ArmourSet {
-	as := newArmourSet()
+func NewArmourSetFromXML(armourSetData *ArmourSetXML) *ArmourSet {
+	as := NewArmourSet()
 
 	for _, arm := range armourSetData.ArmSet {
-		as.equipArmour(armourFromXML(&arm))
+		as.EquipArmour(NewArmourFromXML(&arm))
 	}
 
 	return as
@@ -78,7 +85,7 @@ func armourSetFromXML(armourSetData *ArmourSetXML) *ArmourSet {
 
 //=================== CLASS FUNCTIONS =====================//
 
-func (as *ArmourSet) getArmoursDefense() int {
+func (as *ArmourSet) GetDefense() int {
 	defense := 0
 
 	for _, armr := range as.equipedArmour {
@@ -88,45 +95,48 @@ func (as *ArmourSet) getArmoursDefense() int {
 	return defense
 }
 
-func (as *ArmourSet) GetAndRemoveArmourAt(loc string) *Armour {
+func (as *ArmourSet) GetAndRemoveArmour(nameOrLocation string) *Armour {
 
-	arm := as.equipedArmour[loc]
+	if IsLocation(nameOrLocation) {
+		loc := nameOrLocation
 
-	delete(as.equipedArmour, loc)
+		arm := as.equipedArmour[loc]
+		delete(as.equipedArmour, loc)
 
-	return arm
-}
+		return arm
+	} else {
+		name := nameOrLocation
 
-func (as *ArmourSet) takeOffArmourByName(name string) *Armour {
-
-	for loc, armr := range as.equipedArmour {
-		if armr.name == name {
-			as.GetAndRemoveArmourAt(loc)
-			return armr
+		for loc, armr := range as.equipedArmour {
+			if armr.name == name {
+				as.GetAndRemoveArmour(loc)
+				return armr
+			}
 		}
 	}
-
 	return nil
 }
 
-func (as *ArmourSet) equipArmour(arm *Armour) {
+func (as *ArmourSet) EquipArmour(arm *Armour) {
 	as.equipedArmour[arm.wearLocation] = arm
 }
 
-func (as *ArmourSet) getListOfArmourWorn() []FormattedString {
-	foo := []string{"head", "chest", "legs", "feet", "hands"}
-	var output []FormattedString
-	for _, e := range foo {
-		str := "\t" + e + ": "
-		arm, present := as.equipedArmour[e]
+func (as *ArmourSet) GetArmourWornPage() []FormattedString {
+	output := newFormattedStringCollection()
+	output.addMessage(ct.Green, "\t\t\tEquipped Armour\n")
+	output.addMessage2(fmt.Sprintf("\t%-20s   %-20s %-20s\n", "Location", "Name", "Defense"))
+	output.addMessage(ct.Green, "--------------------------------------------------------\n")
+
+	for _, loc := range locations {
+		arm, present := as.equipedArmour[loc]
 		if present {
-			str += arm.getName()
+			output.addMessage2(fmt.Sprintf("\t%-20s   %-20s %-20s\n", loc, arm.name, string(arm.defense)))
+		} else {
+			output.addMessage2(fmt.Sprintf("\t%-20s   %-20s %-20s\n", loc, " ", "0"))
 		}
-		fmtStr := FormattedString{Color: ct.White, Value: str + "\n"}
-		output = append(output, fmtStr)
 	}
 
-	return output
+	return output.fmtedStrings
 }
 
 func (as *ArmourSet) IsArmourAt(loc string) bool {
@@ -142,6 +152,16 @@ func (as *ArmourSet) toXML() *ArmourSetXML {
 	}
 
 	return asXML
+}
+
+func IsLocation(loc string) bool {
+	for _, element := range locations {
+		if loc == element {
+			return true
+		}
+	}
+
+	return false
 }
 
 //=================== XML STUFF =====================//
