@@ -15,7 +15,6 @@ import (
 var (
 	servers            map[string]string = make(map[string]string)
 	eventManager       *EventManager
-	pingPort           string = ":1600"
 	serverName         string
 	worldRespawnRoomID int
 )
@@ -35,27 +34,8 @@ func main() {
 	runServer()
 }
 
-func runServer() {
-	LoadMonsterData()
-
-	serverName = os.Args[1]
-
-	eventManager = NewEventManager()
-
-	listener := setUpServerWithAddress(servers[serverName])
-
-	for {
-		conn, err := listener.Accept()
-		checkError(err, false)
-		if err == nil {
-			fmt.Println("Connection established")
-
-			clientConnection := NewClientConnection(conn, eventManager)
-			go clientConnection.Read()
-		}
-	}
-}
-
+//readServerList reads the list of server names and their corresponding addresses
+//in from a txt file. The names and addresses are stored in the global servers variable.
 func readServerList() {
 	file, err := os.Open("serverConfig/serverList.txt")
 	if err != nil {
@@ -75,44 +55,39 @@ func readServerList() {
 	}
 }
 
-func saveCharacterFile(char *CharacterXML) {
-	fmt.Println("Saving char: ", char)
-	file, err := os.Create("Characters/" + char.Name + ".xml")
+//NewServerListener takes an internet address - could just be a port number - and
+//starts a server on that address. The protocol used is tcp and the object returned
+//is a listener, which will listen to that address waiting for connections.
+func NewServerListener(addr string) *net.TCPListener {
+	tcpAddr, err := net.ResolveTCPAddr("tcp4", addr)
 	checkError(err, true)
-	defer file.Close()
-
-	enc := xml.NewEncoder(file)
-	enc.Indent("", "\t")
-
-	err = enc.Encode(char)
-	checkError(err, false)
+	listener, err := net.ListenTCP("tcp", tcpAddr)
+	checkError(err, true)
+	return listener
 }
 
-func sendCharactersFile(name string) {
-	conn, err := net.Dial("tcp", servers["characterStorage"])
-	checkError(err, true)
-	defer conn.Close()
+func runServer() {
+	LoadMonsterData()
 
-	encdr := gob.NewEncoder(conn)
-	err = encdr.Encode(&ServerMessage{MsgType: SAVEFILE, Value: newFormattedStringSplice(name)})
-	checkError(err, true)
+	serverName = os.Args[1]
 
-	file, err := os.Open("Characters/" + name + ".xml")
-	checkError(err, true)
-	defer file.Close()
+	eventManager = NewEventManager()
 
-	data, err := ioutil.ReadAll(file)
-	checkError(err, false)
+	listener := NewServerListener(servers[serverName])
 
-	var c CharacterXML
-	err = xml.Unmarshal(data, &c)
-	checkError(err, false)
+	for {
+		conn, err := listener.Accept()
+		checkError(err, false)
+		if err == nil {
+			fmt.Println("Connection established")
 
-	err = encdr.Encode(c)
-	checkError(err, false)
+			clientConnection := NewClientConnection(conn, eventManager)
+			go clientConnection.Read()
+		}
+	}
 }
 
-func sendCharactersXML(charData *CharacterXML) {
+func SendCharactersXML(charData *CharacterXML) {
 
 	conn, err := net.Dial("tcp", servers["characterStorage"])
 	checkError(err, true)
@@ -124,4 +99,23 @@ func sendCharactersXML(charData *CharacterXML) {
 
 	err = encdr.Encode(*charData)
 	checkError(err, false)
+}
+
+func checkError(err error, exitIfError bool) {
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Fatal error: %s", err.Error())
+		if exitIfError {
+			os.Exit(1)
+		}
+	}
+}
+
+func checkErrorWithMessage(err error, exitIfError bool, messageIfError string) {
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Fatal error: %s", err.Error())
+		fmt.Fprintf(os.Stderr, "Additional Message: %s", messageIfError)
+		if exitIfError {
+			os.Exit(1)
+		}
+	}
 }

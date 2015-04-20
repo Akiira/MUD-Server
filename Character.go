@@ -175,7 +175,7 @@ func (char *Character) moveCharacter(source *Room, destination *Room) (int, []Fo
 			charXML := char.toXML()
 			charXML.CurrentWorld = destination.WorldID
 
-			sendCharactersXML(charXML)
+			SendCharactersXML(charXML)
 
 			return REDIRECT, newFormattedStringSplice(servers[destination.WorldID])
 		}
@@ -436,6 +436,9 @@ func (char *Character) toXML() *CharacterXML {
 	return ch
 }
 
+//SendMessage is used to send a communication to a character. This communication
+//is then forwarded to the client for this character. The only valid message types
+//are: string, ServerMessage, and []FormattedString.
 func (char *Character) SendMessage(msg interface{}) {
 	switch msg := msg.(type) {
 	default:
@@ -451,7 +454,7 @@ func (char *Character) SendMessage(msg interface{}) {
 
 //==============="STATIC" FUNCTIONS===================//
 
-//TODO add items, stats, and any other missing fields
+//TODO add any missing fields
 type CharacterXML struct {
 	XMLName xml.Name `xml:"Character"`
 	Name    string   `xml:"Name"`
@@ -480,7 +483,9 @@ type CharacterXML struct {
 	PersInv       InventoryXML `xml:"Inventory"`
 }
 
-func GetCharacterFromCentral(charName string) *Character {
+//GetCharacterFromStorage querys the characterStorage server for the characters
+//data and stores it into a new character object.
+func GetCharacterFromStorage(charName string) *Character {
 	conn, err := net.Dial("tcp", servers["characterStorage"])
 	checkError(err, true)
 	defer conn.Close()
