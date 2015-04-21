@@ -8,11 +8,12 @@ import (
 )
 
 const (
-	REDIRECT = 1
-	GETFILE  = 2
-	SAVEFILE = 3
-	GAMEPLAY = 4
-	PING     = 5
+	REDIRECT  = 1
+	GETFILE   = 2
+	SAVEFILE  = 3
+	GAMEPLAY  = 4
+	PING      = 5
+	REPLYPING = 6
 )
 
 type ServerMessage struct {

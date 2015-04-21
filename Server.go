@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/gob"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net"
 	"os"
@@ -94,21 +95,29 @@ func runServer() {
 		conn, err := listener.Accept()
 		checkError(err, false)
 		if err == nil {
-			fmt.Println("Connection established")
 
 			decoder := gob.NewDecoder(conn)
 			var clientResponse ClientMessage
-			err := cc.myDecoder.Decode(&clientResponse)
+			err := decoder.Decode(&clientResponse)
 			checkError(err, true)
 
-			if clientResponse.Command == "ping" {
-				//TODO put logic for ping function
+			if clientResponse.Command == "heartbeat" {
+				encoder := gob.NewEncoder(conn)
+				serverResponse := newServerMessageTypeS(REPLYPING, "\n"+serverName+" : I'm fine.\n")
+				encoder.Encode(serverResponse)
+				conn.Close()
 
 			} else if clientResponse.Command == "refreshserver" {
 				//TODO put logic for refreshserver
+				//fmt.Println(clientResponse.Value)
+				d1 := []byte(clientResponse.Value)
+				err := ioutil.WriteFile("./serverConfig/serverList.txt", d1, 0666)
+				checkError(err, true)
+				conn.Close()
+				readServerList()
 
 			} else { //it means this connection is from the player for game play
-
+				fmt.Println("Connection established")
 				clientConnection := NewClientConnection(conn, eventManager, clientResponse, decoder)
 				go clientConnection.Read()
 			}
