@@ -96,8 +96,22 @@ func runServer() {
 		if err == nil {
 			fmt.Println("Connection established")
 
-			clientConnection := NewClientConnection(conn, eventManager)
-			go clientConnection.Read()
+			decoder := gob.NewDecoder(conn)
+			var clientResponse ClientMessage
+			err := cc.myDecoder.Decode(&clientResponse)
+			checkError(err, true)
+
+			if clientResponse.Command == "ping" {
+				//TODO put logic for ping function
+
+			} else if clientResponse.Command == "refreshserver" {
+				//TODO put logic for refreshserver
+
+			} else { //it means this connection is from the player for game play
+
+				clientConnection := NewClientConnection(conn, eventManager, clientResponse, decoder)
+				go clientConnection.Read()
+			}
 		}
 	}
 }

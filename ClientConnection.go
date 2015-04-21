@@ -27,17 +27,17 @@ type ClientConnection struct {
 //CliecntConnection constructor constructs a new client connection and sets the
 //current event manager to the one supplied. This constructor is responsible
 //for getting the initial room description.
-func NewClientConnection(conn net.Conn, em *EventManager) *ClientConnection {
+func NewClientConnection(conn net.Conn, em *EventManager, clientResponse ClientMessage, decoder gob.Decoder) *ClientConnection {
 	cc := new(ClientConnection)
 	cc.myConn = conn
 
 	cc.myEncoder = gob.NewEncoder(conn)
-	cc.myDecoder = gob.NewDecoder(conn)
+	cc.myDecoder = decoder
 
 	//Get the clients characters name
-	var clientResponse ClientMessage
-	err := cc.myDecoder.Decode(&clientResponse)
-	checkError(err, true)
+	//var clientResponse ClientMessage
+	//err := cc.myDecoder.Decode(&clientResponse)
+	//checkError(err, true)
 
 	cc.character = GetCharacterFromStorage(clientResponse.getUsername()) //maybe this should be moved out to Server.go
 	cc.character.myClientConn = cc
