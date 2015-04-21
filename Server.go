@@ -30,10 +30,10 @@ func main() {
 
 	readServerList()
 	go runServer()
-	NewGetInputFromUser()
+	GetInputFromUser()
 }
 
-func NewGetInputFromUser() {
+func GetInputFromUser() {
 
 	var input string
 	for {
