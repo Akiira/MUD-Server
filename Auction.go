@@ -70,7 +70,10 @@ func (a *Auction) bidOnItem(amount int, bidder *ClientConnection, timeOfBid time
 		bid.amount = amount
 		bid.durationFromEnd = distance
 
-		if a.highestBid == nil || a.highestBid.amount <= amount {
+		if a.highestBid == nil || a.highestBid.amount < amount {
+			a.highestBid = bid
+			return newFormattedStringSplice2(ct.Green, "Your bid was recorded for time: "+estimatedTime.String()+"\n")
+		} else if a.highestBid.amount == amount && distance > a.highestBid.durationFromEnd {
 			a.highestBid = bid
 			return newFormattedStringSplice2(ct.Green, "Your bid was recorded for time: "+estimatedTime.String()+"\n")
 		} else {
