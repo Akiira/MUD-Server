@@ -45,11 +45,11 @@ func (a *Auction) awardItemToWinner(winner *Bid) {
 
 func (a *Auction) getAuctionInfo() ServerMessage {
 	msg := newFormattedStringCollection()
-	msg.addMessage2("Attention Players! There is an auction going on. The current status of the auction is the following:\n")
-	msg.addMessage2("\tItem:" + a.itemUp.getName())
+	msg.addMessage2("\nAttention Players! There is an auction going on. The current status of the auction is the following:\n")
+	msg.addMessage2(fmt.Sprintf("\tItem: %-15s ", a.itemUp.getName()))
 
 	if a.highestBid != nil {
-		msg.addMessage2(fmt.Sprint("\tCurrent Bid: ", a.highestBid.amount))
+		msg.addMessage2(fmt.Sprintf("Current Bid: %d     Bidder: %-15s", a.highestBid.amount, a.highestBid.bidder.getCharactersName()))
 	} else {
 		msg.addMessage2("\tCurrent Bid: None")
 	}
