@@ -34,11 +34,6 @@ func NewClientConnection(conn net.Conn, em *EventManager, clientResponse ClientM
 	cc.myEncoder = gob.NewEncoder(conn)
 	cc.myDecoder = decoder
 
-	//Get the clients characters name
-	//var clientResponse ClientMessage
-	//err := cc.myDecoder.Decode(&clientResponse)
-	//checkError(err, true)
-
 	cc.character = GetCharacterFromStorage(clientResponse.getUsername()) //maybe this should be moved out to Server.go
 	cc.character.myClientConn = cc
 	cc.CurrentEM = em
