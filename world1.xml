@@ -1,80 +1,280 @@
  <?xml version="1.0"?>
  <Rooms>
 	<RespawnRoomID>1000</RespawnRoomID>
+	
+	<Room>
+		<ID>2000</ID>
+		<Name>Path  </Name>
+		<Description>other world.</Description>
+		<WorldID>world2</WorldID>
+		<Exit> 
+			<Direction>s</Direction>
+			<RoomID>1000</RoomID>			
+		</Exit>
+	</Room>
+	
 	<Room>
 		<ID>1000</ID>
-		<Name>The Path to the Dwarven Village</Name>
-		<Description>You walk in the hill's shadow down an ever-widening path which leads to the
-outskirts of the dwarven village.  The hill rises above you to the southwest,
-and a smaller path leads to its crest in that direction.  A tunnel here leads
-down a short distance into the hill itself, and the dwarven village can be
-seen near the mountains to the north. </Description>
+		<Name>Enveloped in gloom  </Name>
+		<Description>The trees overhang the path like dark souls waiting upon ill luck to
+bring them their next victim. Long trailers of moss hang from the
+branches distorting their already bent and twisted forms. The bushes
+along the trail seem to reach towards you as you wend your way through.
+Looking southward, the trail can be seen ending in a dark cave entrance.</Description>
 		<WorldID>local</WorldID>
-		<Monster>Rabbit</Monster>
-		<Monster>Fox</Monster>
+		<Exit> 
+			<Direction>s</Direction>
+			<RoomID>1001</RoomID>			
+		</Exit>
 		<Exit> 
 			<Direction>n</Direction>
-			<RoomID>1001</RoomID>			
+			<RoomID>2000</RoomID>			
 		</Exit>
 	</Room>
 	<Room>
 		<ID>1001</ID>
-		<Name>Path nearing the Mountain</Name>
-		<Description>You are near the base a rugged mountain.  Dense forest prevents passage in
-most directions, and it grows dark to the north as the path begins its way
-up the shadowed mountain.</Description>
+		<Name>A dark cave </Name>
+		<Description>Covered in a slimy sweat, those rough hewn walls close in about you like
+a wet blanket.  Rotting garbage litters the ground, adding a distinct odor
+to the cave.  Holding your nose against the smell and decay, you wonder if
+you should explore deeper.</Description>
 		<WorldID>local</WorldID>
 		<Monster>Rabbit</Monster>
 		<Monster>Deer</Monster>
 		<Exit> 
-			<Direction>s</Direction>	
+			<Direction>n</Direction>	
 			<RoomID>1000</RoomID>			
 		</Exit>
 		<Exit> 
-			<Direction>n</Direction>
+			<Direction>e</Direction>
 			<RoomID>1002</RoomID>
+		</Exit>
+		<Exit> 
+			<Direction>sw</Direction>
+			<RoomID>1006</RoomID>
 		</Exit>
 	</Room>
 	<Room>
 		<ID>1002</ID>
-		<Name>Path up the Mountain</Name>
-		<Description>Standing near the halfway point up the mountain, you can easily see the
-hill of the crossroads in the distance to the southwest, while the top
-of the mountain is very near to the north.</Description>
+		<Name>A dank passage </Name>
+		<Description>Dank, putrid air hangs heavily along this passage.  Offal and waste splatter
+the walls in in a random patterning of decay and abandon.  Whoever lives here
+has no respect for the homes or themselves.
+Exits: north east south west </Description>
 		<WorldID>local</WorldID>
 		<Monster>Deer</Monster>
 		<Monster>Skeleton</Monster>
 		<Exit> 
-			<Direction>s</Direction>
+			<Direction>w</Direction>
 			<RoomID>1001</RoomID>
+		</Exit>
+		<Exit> 
+			<Direction>e</Direction>
+			<RoomID>1005</RoomID>
 		</Exit>
 		<Exit> 
 			<Direction>n</Direction>
 			<RoomID>1003</RoomID>
 		</Exit>
+		<Exit> 
+			<Direction>s</Direction>
+			<RoomID>1004</RoomID>
+		</Exit>
 	</Room>
 	<Room>
 		<ID>1003</ID>
-		<Name>Top of the Mountain</Name>
-		<Description>You stand on the mountain's top.  Far to the south you can see the spires
-of the city of Darkhaven, and a path leads down the mountainside to its
-base in that direction.  To your east and west, large gates have been
-built into the rock face.</Description>
+		<Name>Dust and decay </Name>
+		<Description>A cloud of dust rises at your entrance, obscuring the room momentarily,
+and sending you into a coughing fit. Old, ratty piles of furs dot the
+floor of this home. The layers of dust show that this home has not been
+used in quite some time.</Description>
 		<WorldID>local</WorldID>
 		<Exit> 
 			<Direction>s</Direction>
 			<RoomID>1002</RoomID>
 		</Exit>
+	</Room>
+	<Room>
+		<ID>1004</ID>
+		<Name>A tiny home</Name>
+		<Description>Tiny and cramped, this is home to several individuals. At least a
+dozen rotting piles of furs line the floor, leaving little room to
+maneuver. A small pile of rotting food takes up the southeast corner.</Description>
+		<WorldID>local</WorldID>
 		<Exit> 
 			<Direction>n</Direction>
-			<RoomID>2000</RoomID>
+			<RoomID>1002</RoomID>
 		</Exit>
 	</Room>
 	<Room>
-		<ID>2000</ID>
-		<Name>another world</Name>
-		<Description>You move to another world.</Description>
-		<WorldID>world2</WorldID>
+		<ID>1005</ID>
+		<Name>A rancid pile </Name>
+		<Description>A huge pile of offal and bones occupies almost this entire chamber.
+Fumes and colorful gases can be seen rising up from this putrescense,
+causing your eyes to water. A strange fungus grows along the walls
+of this room.</Description>
+		<WorldID>local</WorldID>
+		<Exit> 
+			<Direction>w</Direction>
+			<RoomID>1002</RoomID>
+		</Exit>
+	</Room>
+	
+	<Room>
+		<ID>1006</ID>
+		<Name>A dank passage </Name>
+		<Description>Dank, putrid air hangs heavily along this passage.  Offal and waste splatter
+the walls in a random patterning of decay and abandon.  Whoever lives here
+has no respect for their homes or themselves.</Description>
+		<WorldID>local</WorldID>
+		<Exit> 
+			<Direction>ne</Direction>
+			<RoomID>1001</RoomID>
+		</Exit>
+		<Exit> 
+			<Direction>n</Direction>
+			<RoomID>1007</RoomID>
+		</Exit>
+		<Exit> 
+			<Direction>s</Direction>
+			<RoomID>1008</RoomID>
+		</Exit>
+	</Room>
+	
+	<Room>
+		<ID>1007</ID>
+		<Name>A turn in the passageway </Name>
+		<Description>The passage turns here, moving in to the west and south.  As with other 
+sections of this tunnel, garbage lines the walls like the putrid remains
+of some ghastly parade.</Description>
+		<WorldID>local</WorldID>
+		<Exit> 
+			<Direction>s</Direction>
+			<RoomID>1006</RoomID>
+		</Exit>
+		<Exit> 
+			<Direction>n</Direction>
+			<RoomID>1009</RoomID>
+		</Exit>
+		<Exit> 
+			<Direction>w</Direction>
+			<RoomID>1010</RoomID>
+		</Exit>
+	</Room>
+	
+	<Room>
+		<ID>1008</ID>
+		<Name>A home of bones </Name>
+		<Description>Bones litter the floor here forming piles and heaps about the room.  Like
+the forgotten castoffs of a child, these bones are the remains of many a
+forgotten meal.  Like all other hobgoblin homes, this one has never been
+cleaned.</Description>
+		<WorldID>local</WorldID>
+		<Exit> 
+			<Direction>n</Direction>
+			<RoomID>1006</RoomID>
+		</Exit>
+	</Room>
+	
+	<Room>
+		<ID>1009</ID>
+		<Name>An empty space  </Name>
+		<Description>A layer of dust, inches thick, sheets the ground here.  Huge cobwebs cover
+the corners, lending this room a more rounded look.  Judging by the amount
+of dust and the state of decay amongst the bits and pieces of garbage, this
+room has not seen use in quite some time.</Description>
+		<WorldID>local</WorldID>
+		<Exit> 
+			<Direction>s</Direction>
+			<RoomID>1007</RoomID>
+		</Exit>
+	</Room>
+	
+	<Room>
+		<ID>1010</ID>
+		<Name>The end of the tunnel</Name>
+		<Description>The passageway comes to an end here. Three chambers can be seen leading
+off to the north, south and west. The chamber to the west seems much 
+larger than any others you have seen so far. The sound of grunts and
+shuffling feet can be heard to the west.</Description>
+		<WorldID>local</WorldID>
+		<Exit> 
+			<Direction>e</Direction>
+			<RoomID>1007</RoomID>
+		</Exit>
+		<Exit> 
+			<Direction>n</Direction>
+			<RoomID>1011</RoomID>
+		</Exit>
+
+		<Exit> 
+			<Direction>w</Direction>
+			<RoomID>1012</RoomID>
+		</Exit>
+	</Room>
+	
+	<Room>
+		<ID>1011</ID>
+		<Name>A foul spring</Name>
+		<Description>A small pool of water rests along the northern wall of this small
+chamber. The source of the water is a spring bubbling forth from
+a crack in the north wall. Another crack in the floor seems to
+siphon off the excess water. This seems to be the main source of
+water for the hobgoblins.</Description>
+		<WorldID>local</WorldID>
+		<Exit> 
+			<Direction>s</Direction>
+			<RoomID>1010</RoomID>
+		</Exit>
+	</Room>
+	
+	<Room>
+		<ID>1012</ID>
+		<Name>The guard room</Name>
+		<Description>Several rancid piles of fur dot the floor in this chamber.  Rusted pieces
+of weaponry and rotting armor line the walls in a sad imitation of military
+order.  Whatever chambers lie to the north are obviously important enough
+to have warranted a guard chamber here.</Description>
+		<WorldID>local</WorldID>
+		<Exit> 
+			<Direction>e</Direction>
+			<RoomID>1010</RoomID>
+		</Exit>
+		<Exit> 
+			<Direction>n</Direction>
+			<RoomID>1013</RoomID>
+		</Exit>
+	</Room>
+	
+	<Room>
+		<ID>1013</ID>
+		<Name>The chief guard</Name>
+		<Description>Large slabs of granite have been haphazardly assembled into a huge desk
+of sorts.  Several pieces of rusted weaponry occupy places of honour 
+behind the desk.  A large, thick slab of granite forms a door to the north.</Description>
+		<WorldID>local</WorldID>
+		<Exit> 
+			<Direction>s</Direction>
+			<RoomID>1012</RoomID>
+		</Exit>
+		<Exit> 
+			<Direction>n</Direction>
+			<RoomID>1014</RoomID>
+		</Exit>
+	</Room>
+	<Room>
+		<ID>1014</ID>
+		<Name>The King's chamber</Name>
+		<Description>Large, almost fresh hides and furs hang along the walls of this huge chamber.
+As you look at them, there is barely a hint of rot about them.  A tall throne
+of roughly cut granite stands at the end of the chamber.  Several torches 
+along the walls give this chamber a brighter look than any other chamber you
+have found. There is a large throne blocking the travel west.</Description>
+		<WorldID>local</WorldID>
+		<Exit> 
+			<Direction>s</Direction>
+			<RoomID>1013</RoomID>
+		</Exit>
 	</Room>
  </Rooms>
  

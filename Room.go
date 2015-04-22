@@ -297,25 +297,25 @@ func convertDirectionToInt(direction string) int {
 func convertIntToDirection(direction int) string {
 
 	switch direction {
-	case 0:
+	case NORTH:
 		return "North"
-	case 1:
+	case SOUTH:
 		return "South"
-	case 2:
+	case EAST:
 		return "East"
-	case 3:
+	case WEST:
 		return "West"
-	case 4:
+	case NORTH_WEST:
 		return "North-West"
-	case 5:
+	case NORTH_EAST:
 		return "North-East"
-	case 6:
+	case SOUTH_WEST:
 		return "South-West"
-	case 7:
+	case SOUTH_EAST:
 		return "South-East"
-	case 8:
+	case UP:
 		return "Up"
-	case 9:
+	case DOWN:
 		return "Down"
 	}
 
