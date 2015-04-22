@@ -3,7 +3,7 @@
 	<RespawnRoomID>1000</RespawnRoomID>
 	
 	<Room>
-		<ID>2000</ID>
+		<ID>2007</ID>
 		<Name>Path  </Name>
 		<Description>other world.</Description>
 		<WorldID>world2</WorldID>
@@ -15,7 +15,7 @@
 	
 	<Room>
 		<ID>1000</ID>
-		<Name>Enveloped in gloom  </Name>
+		<Name>Enveloped in gloom</Name>
 		<Description>The trees overhang the path like dark souls waiting upon ill luck to
 bring them their next victim. Long trailers of moss hang from the
 branches distorting their already bent and twisted forms. The bushes
@@ -28,7 +28,7 @@ Looking southward, the trail can be seen ending in a dark cave entrance.</Descri
 		</Exit>
 		<Exit> 
 			<Direction>n</Direction>
-			<RoomID>2000</RoomID>			
+			<RoomID>2007</RoomID>			
 		</Exit>
 	</Room>
 	<Room>

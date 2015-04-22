@@ -1,63 +1,126 @@
  <?xml version="1.0"?>
  <Rooms>
-	<RespawnRoomID>2000</RespawnRoomID>
+	<RespawnRoomID>2000</RespawnRoomID>	
 	<Room>
 		<ID>2000</ID>
-		<Name>The entrance to the hell realm</Name>
-		<Description>You are standing in front of the mysterious river that separate between this world and the after life world.</Description>
+		<Name></Name>
+		<Description></Description>
 		<WorldID>local</WorldID>
-		<Exit> 
-			<Direction>s</Direction>
-			<RoomID>1003</RoomID>			
-		</Exit>
 		<Exit> 
 			<Direction>n</Direction>
 			<RoomID>2001</RoomID>			
 		</Exit>
 	</Room>
+	
 	<Room>
 		<ID>2001</ID>
-		<Name>Bridge of the mysterious river</Name>
-		<Description>The bridge leads you down to the underworld as well as the river twists down to the feiry red demon's hole.</Description>
+		<Name></Name>
+		<Description></Description>
 		<WorldID>local</WorldID>
 		<Exit> 
-			<Direction>s</Direction>	
-			<RoomID>2000</RoomID>
+			<Direction>s</Direction>
+			<RoomID>2000</RoomID>			
 		</Exit>
 		<Exit> 
 			<Direction>n</Direction>
-			<RoomID>2002</RoomID>
+			<RoomID>2002</RoomID>			
+		</Exit>
+		<Exit> 
+			<Direction>e</Direction>
+			<RoomID>2003</RoomID>			
 		</Exit>
 	</Room>
 	<Room>
 		<ID>2002</ID>
-		<Name>Level 2 of the realm of hell</Name>
-		<Description>There are bonfires everywhere. You just notice that these bonfires burn poor souls as fuel.</Description>
+		<Name></Name>
+		<Description></Description>
 		<WorldID>local</WorldID>
 		<Exit> 
 			<Direction>s</Direction>
-			<RoomID>2001</RoomID>
+			<RoomID>2001</RoomID>			
+		</Exit>
+	</Room>
+	
+	
+	<Room>
+		<ID>2003</ID>
+		<Name></Name>
+		<Description></Description>
+		<WorldID>local</WorldID>
+		<Exit> 
+			<Direction>w</Direction>
+			<RoomID>2001</RoomID>			
 		</Exit>
 		<Exit> 
 			<Direction>n</Direction>
-			<RoomID>2003</RoomID>
+			<RoomID>2004</RoomID>			
+		</Exit>
+		<Exit> 
+			<Direction>s</Direction>
+			<RoomID>2005</RoomID>			
+		</Exit>
+		<Exit> 
+			<Direction>e</Direction>
+			<RoomID>2006</RoomID>			
 		</Exit>
 	</Room>
 	<Room>
-		<ID>2003</ID>
-		<Name>The lowest level of the hell realm</Name>
-		<Description>You think this is the hottest level of the hell? Sorry pal, heat rises up. If you pay more attention in science class, you will not get confused for this myth.</Description>
+		<ID>2004</ID>
+		<Name></Name>
+		<Description></Description>
 		<WorldID>local</WorldID>
 		<Exit> 
 			<Direction>s</Direction>
-			<RoomID>2002</RoomID>
+			<RoomID>2003</RoomID>			
 		</Exit>
 	</Room>
 	<Room>
-		<ID>1003</ID>
-		<Name>another world</Name>
-		<Description>Another world.</Description>
+		<ID>2005</ID>
+		<Name></Name>
+		<Description></Description>
+		<WorldID>local</WorldID>
+		<Exit> 
+			<Direction>n</Direction>
+			<RoomID>2003</RoomID>			
+		</Exit>
+	</Room>
+	
+	
+	<Room>
+		<ID>2006</ID>
+		<Name></Name>
+		<Description></Description>
+		<WorldID>local</WorldID>
+		<Exit> 
+			<Direction>w</Direction>
+			<RoomID>2003</RoomID>			
+		</Exit>
+		<Exit> 
+			<Direction>e</Direction>
+			<RoomID>2007</RoomID>			
+		</Exit>
+	</Room>
+	<Room>
+		<ID>2007</ID>
+		<Name></Name>
+		<Description></Description>
+		<WorldID>local</WorldID>
+		<Exit> 
+			<Direction>w</Direction>
+			<RoomID>2006</RoomID>			
+		</Exit>
+		<Exit> 
+			<Direction>s</Direction>
+			<RoomID>1000</RoomID>			
+		</Exit>
+	</Room>
+	<Room>
+		<ID>1000</ID>
+		<Name></Name>
+		<Description></Description>
 		<WorldID>world1</WorldID>
 	</Room>
+	
+	
  </Rooms>
  
