@@ -84,9 +84,7 @@ func NewServerListener(addr string) *net.TCPListener {
 
 func runServer() {
 	LoadMonsterData()
-
 	serverName = os.Args[1]
-
 	eventManager = NewEventManager()
 
 	listener := NewServerListener(servers[serverName])
@@ -94,34 +92,38 @@ func runServer() {
 	for {
 		conn, err := listener.Accept()
 		checkError(err, false)
+
 		if err == nil {
-
-			decoder := gob.NewDecoder(conn)
-			var clientResponse ClientMessage
-			err := decoder.Decode(&clientResponse)
-			checkError(err, true)
-
-			if clientResponse.Command == "heartbeat" {
-				encoder := gob.NewEncoder(conn)
-				serverResponse := newServerMessageTypeS(REPLYPING, "\n"+serverName+" : I'm fine.\n")
-				encoder.Encode(serverResponse)
-				conn.Close()
-
-			} else if clientResponse.Command == "refreshserver" {
-				//TODO put logic for refreshserver
-				//fmt.Println(clientResponse.Value)
-				d1 := []byte(clientResponse.Value)
-				err := ioutil.WriteFile("./serverConfig/serverList.txt", d1, 0666)
-				checkError(err, true)
-				conn.Close()
-				readServerList()
-
-			} else { //it means this connection is from the player for game play
-				fmt.Println("Connection established")
-				clientConnection := NewClientConnection(conn, eventManager, clientResponse, decoder)
-				go clientConnection.Read()
-			}
+			fmt.Println("Connection established")
+			err = HandleConnection(conn)
+			checkError(err, false)
 		}
+	}
+}
+
+func HandleConnection(conn net.Conn) error {
+	var clientResponse ClientMessage
+
+	decoder := gob.NewDecoder(conn)
+	err := decoder.Decode(&clientResponse)
+	checkError(err, false)
+
+	if clientResponse.Command == "heartbeat" {
+		err = gob.NewEncoder(conn).Encode(newServerMessageTypeS(REPLYPING, "beat"))
+		checkError(err, false)
+
+		return conn.Close()
+	} else if clientResponse.Command == "refreshserver" {
+		err := ioutil.WriteFile("./serverConfig/serverList.txt", []byte(clientResponse.Value), 0666)
+		checkError(err, true)
+		readServerList()
+
+		return conn.Close()
+	} else { //it means this connection is from the player for game play
+		clientConnection := NewClientConnection(conn, eventManager, clientResponse, decoder)
+		go clientConnection.Read()
+
+		return nil
 	}
 }
 
