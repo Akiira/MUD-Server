@@ -519,7 +519,7 @@ func GetCharacterFromStorage(charName string) (char *Character, err error) {
 		return char, err
 	}
 
-	//Decone the character from message
+	//Decode the character from message
 	if err = dec.Decode(&queriedChar); err != nil {
 		return char, err
 	}

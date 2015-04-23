@@ -30,7 +30,7 @@ func main() {
 	}
 
 	ReadServerAddresses()
-	go runServer()
+	go RunServer()
 	GetInputFromUser()
 }
 
@@ -84,7 +84,7 @@ func NewServerListener(addr string) *net.TCPListener {
 	return listener
 }
 
-func runServer() {
+func RunServer() {
 	LoadMonsterData()
 	serverName = os.Args[1]
 	eventManager = NewEventManager()
@@ -96,7 +96,6 @@ func runServer() {
 		checkError(err, false)
 
 		if err == nil {
-			fmt.Println("Connection established")
 			err = HandleConnection(conn)
 			checkError(err, false)
 		}
@@ -122,6 +121,7 @@ func HandleConnection(conn net.Conn) (err error) {
 func HandleServerRefresh(conn net.Conn, updatedAddress string) (err error) {
 	defer conn.Close()
 
+	fmt.Println("refresh server Connection established")
 	err = ioutil.WriteFile("./serverConfig/serverList.txt", []byte(updatedAddress), 0666)
 
 	//Since failing to update these addresses means the server cant do its job
@@ -134,6 +134,8 @@ func HandleServerRefresh(conn net.Conn, updatedAddress string) (err error) {
 func HandleHeartBeatConnection(conn net.Conn) (err error) {
 	defer conn.Close()
 
+	fmt.Println("heartbeat Connection established")
+
 	//Simply send a beat back to let the central server know
 	//this server is still alive
 	err = gob.NewEncoder(conn).Encode(newServerMessageTypeS(REPLYPING, "beat"))
@@ -142,6 +144,7 @@ func HandleHeartBeatConnection(conn net.Conn) (err error) {
 }
 
 func HandlePlayerConnection(conn net.Conn, decoder *gob.Decoder, charsName string) (err error) {
+	fmt.Println("Player Connection established")
 	var clientsCharacter *Character
 
 	if clientsCharacter, err = GetCharacterFromStorage(charsName); err == nil {
