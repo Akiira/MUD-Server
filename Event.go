@@ -11,10 +11,6 @@ type Event struct {
 	agent  Agenter
 }
 
-func newEventFromMessage(msg ClientMessage, agent Agenter) Event {
-	return NewEvent(agent, msg.Command, msg.Value)
-}
-
 func NewEvent(agent Agenter, action string, target string) Event {
 	event := new(Event)
 	event.agent = agent
