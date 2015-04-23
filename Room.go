@@ -150,26 +150,31 @@ func (room *Room) GetPlayer(charName string) (*Character, bool) {
 	}
 }
 
-func (room *Room) GetItem(name string) Item_I {
-	if item, found := room.ItemsInRoom[name]; found {
-		return item
-	} else {
-		return nil
+func (room *Room) GetItem(itemName string) (Item_I, bool) {
+	for name, item := range room.ItemsInRoom {
+		lcName := strings.ToLower(name)
+
+		if strings.Contains(lcName, itemName) {
+			return item, true
+		}
 	}
+
+	return nil, false
 }
 
-//TODO
-func (room *Room) GetAndRemoveItem(name string) {
+func (room *Room) GetAndRemoveItem(itemName string) (Item_I, bool) {
+	if item, found := room.GetItem(itemName); found {
+		delete(room.ItemsInRoom, item.getName())
+		return item, found
+	}
 
+	return nil, false
 }
 
 func (room *Room) GiveItemToPlayer(char *Character, itemName string) []FormattedString {
 
-	item, found := room.ItemsInRoom[itemName]
-
-	if found {
+	if item, found := room.GetAndRemoveItem(itemName); found {
 		char.AddItemToInventory(item)
-		delete(room.ItemsInRoom, itemName)
 
 		return newFormattedStringSplice("You succesfully picked up the item and added it to your invenctory")
 	} else {

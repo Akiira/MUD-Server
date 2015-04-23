@@ -111,7 +111,9 @@ func (as *ArmourSet) GetAndRemoveArmour(nameOrLocation string) *Armour {
 		name := nameOrLocation
 
 		for loc, armr := range as.equipedArmour {
-			if armr.name == name {
+			lcName := strings.ToLower(armr.name)
+
+			if strings.Contains(lcName, name) {
 				as.GetAndRemoveArmour(loc)
 				return armr
 			}
