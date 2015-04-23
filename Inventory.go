@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/daviddengcn/go-colortext"
 	"io"
+	"strings"
 )
 
 type Inventory struct {
@@ -91,7 +92,7 @@ func (inv *Inventory) GetAndRemoveItem(name string) (Item_I, bool) {
 	item, found := inv.GetItem(name)
 
 	if found {
-		inv.RemoveItem(name)
+		inv.RemoveItem(item.getName())
 		return item, true
 	} else {
 		return nil, false
@@ -102,9 +103,13 @@ func (inv *Inventory) GetAndRemoveItem(name string) (Item_I, bool) {
 //If the item is found it is not removed from the inventory.
 //If the item is not found the pointer is nil and bool is false.
 func (inv *Inventory) GetItem(name string) (Item_I, bool) {
-	if items, _ := inv.items[name]; len(items) > 0 {
-		return items[len(items)-1], true
+	for itmName, items := range inv.items {
+		itmName = strings.ToLower(itmName)
+		if strings.Contains(itmName, name) && len(items) > 0 {
+			return items[len(items)-1], true
+		}
 	}
+
 	return nil, false
 }
 

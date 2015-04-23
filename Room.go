@@ -180,12 +180,15 @@ func (room *Room) GiveItemToPlayer(char *Character, itemName string) []Formatted
 
 func (room *Room) getMonster(monsterName string) *Monster {
 
-	if val, ok := room.MonstersInRoom[monsterName]; ok {
-		//fmt.Println(room.MonstersInRoom[monsterName])
-		return val
-	} else { // in case, it's already dead, return nil
-		return nil
+	for name, mosnter := range room.MonstersInRoom {
+		name = strings.ToLower(name)
+
+		if strings.Contains(name, monsterName) {
+			return mosnter
+		}
 	}
+
+	return nil
 }
 
 func (room *Room) getAgentInRoom(name string) Agenter {
