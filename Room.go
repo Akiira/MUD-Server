@@ -23,8 +23,6 @@ const (
 	SOUTH_WEST = 7
 	UP         = 8
 	DOWN       = 9
-
-	LocalWorld = "local"
 )
 
 type Room struct {
@@ -115,7 +113,7 @@ func (room *Room) IsValidDirection(dir int) bool {
 }
 
 func (room *Room) IsLocal() bool {
-	return room.WorldID == LocalWorld
+	return room.WorldID == os.Args[1]
 }
 
 func (room *Room) GetConnectedRoom(exit int) *Room {

@@ -4,7 +4,7 @@
 	
 	<Room>
 		<ID>2007</ID>
-		<Name>Path  </Name>
+		<Name>Path</Name>
 		<Description>other world.</Description>
 		<WorldID>world2</WorldID>
 		<Exit> 
@@ -21,7 +21,7 @@ bring them their next victim. Long trailers of moss hang from the
 branches distorting their already bent and twisted forms. The bushes
 along the trail seem to reach towards you as you wend your way through.
 Looking southward, the trail can be seen ending in a dark cave entrance.</Description>
-		<WorldID>local</WorldID>
+		<WorldID>world1</WorldID>
 		<Exit> 
 			<Direction>s</Direction>
 			<RoomID>1001</RoomID>			
@@ -38,7 +38,7 @@ Looking southward, the trail can be seen ending in a dark cave entrance.</Descri
 a wet blanket.  Rotting garbage litters the ground, adding a distinct odor
 to the cave.  Holding your nose against the smell and decay, you wonder if
 you should explore deeper.</Description>
-		<WorldID>local</WorldID>
+		<WorldID>world1</WorldID>
 		<Monster>Rabbit</Monster>
 		<Monster>Deer</Monster>
 		<Inventory>
@@ -69,7 +69,7 @@ you should explore deeper.</Description>
 the walls in in a random patterning of decay and abandon.  Whoever lives here
 has no respect for the homes or themselves.
 Exits: north east south west </Description>
-		<WorldID>local</WorldID>
+		<WorldID>world1</WorldID>
 		<Monster>Hobgoblin Miner</Monster>
 		<Exit> 
 			<Direction>w</Direction>
@@ -95,7 +95,7 @@ Exits: north east south west </Description>
 and sending you into a coughing fit. Old, ratty piles of furs dot the
 floor of this home. The layers of dust show that this home has not been
 used in quite some time.</Description>
-		<WorldID>local</WorldID>
+		<WorldID>world1</WorldID>
 		<Monster>Hobgoblin Miner</Monster>
 		<Exit> 
 			<Direction>s</Direction>
@@ -108,7 +108,7 @@ used in quite some time.</Description>
 		<Description>Tiny and cramped, this is home to several individuals. At least a
 dozen rotting piles of furs line the floor, leaving little room to
 maneuver. A small pile of rotting food takes up the southeast corner.</Description>
-		<WorldID>local</WorldID>
+		<WorldID>world1</WorldID>
 		<Monster>Hobgoblin Miner</Monster>
 		<Exit> 
 			<Direction>n</Direction>
@@ -122,7 +122,7 @@ maneuver. A small pile of rotting food takes up the southeast corner.</Descripti
 Fumes and colorful gases can be seen rising up from this putrescense,
 causing your eyes to water. A strange fungus grows along the walls
 of this room.</Description>
-		<WorldID>local</WorldID>
+		<WorldID>world1</WorldID>
 		<Exit> 
 			<Direction>w</Direction>
 			<RoomID>1002</RoomID>
@@ -135,7 +135,7 @@ of this room.</Description>
 		<Description>Dank, putrid air hangs heavily along this passage.  Offal and waste splatter
 the walls in a random patterning of decay and abandon.  Whoever lives here
 has no respect for their homes or themselves.</Description>
-		<WorldID>local</WorldID>
+		<WorldID>world1</WorldID>
 		<Monster>Hobgoblin Miner</Monster>
 		<Exit> 
 			<Direction>ne</Direction>
@@ -157,7 +157,7 @@ has no respect for their homes or themselves.</Description>
 		<Description>The passage turns here, moving in to the west and south.  As with other 
 sections of this tunnel, garbage lines the walls like the putrid remains
 of some ghastly parade.</Description>
-		<WorldID>local</WorldID>
+		<WorldID>world1</WorldID>
 		<Monster>Hobgoblin Miner</Monster>
 		<Monster>Hobgoblin Miner</Monster>
 		<Exit> 
@@ -181,7 +181,7 @@ of some ghastly parade.</Description>
 the forgotten castoffs of a child, these bones are the remains of many a
 forgotten meal.  Like all other hobgoblin homes, this one has never been
 cleaned.</Description>
-		<WorldID>local</WorldID>
+		<WorldID>world1</WorldID>
 		<Monster>Hobgoblin Miner</Monster>
 		<Exit> 
 			<Direction>n</Direction>
@@ -196,7 +196,7 @@ cleaned.</Description>
 the corners, lending this room a more rounded look.  Judging by the amount
 of dust and the state of decay amongst the bits and pieces of garbage, this
 room has not seen use in quite some time.</Description>
-		<WorldID>local</WorldID>
+		<WorldID>world1</WorldID>
 		<Exit> 
 			<Direction>s</Direction>
 			<RoomID>1007</RoomID>
@@ -210,7 +210,7 @@ room has not seen use in quite some time.</Description>
 off to the north, south and west. The chamber to the west seems much 
 larger than any others you have seen so far. The sound of grunts and
 shuffling feet can be heard to the west.</Description>
-		<WorldID>local</WorldID>
+		<WorldID>world1</WorldID>
 		<Monster>Hobgoblin Guard</Monster>
 		<Exit> 
 			<Direction>e</Direction>
@@ -235,7 +235,7 @@ chamber. The source of the water is a spring bubbling forth from
 a crack in the north wall. Another crack in the floor seems to
 siphon off the excess water. This seems to be the main source of
 water for the hobgoblins.</Description>
-		<WorldID>local</WorldID>
+		<WorldID>world1</WorldID>
 		<Exit> 
 			<Direction>s</Direction>
 			<RoomID>1010</RoomID>
@@ -249,7 +249,7 @@ water for the hobgoblins.</Description>
 of weaponry and rotting armor line the walls in a sad imitation of military
 order.  Whatever chambers lie to the north are obviously important enough
 to have warranted a guard chamber here.</Description>
-		<WorldID>local</WorldID>
+		<WorldID>world1</WorldID>
 		<Monster>Hobgoblin Guard</Monster>
 		<Monster>Hobgoblin Guard</Monster>
 		<Monster>Hobgoblin Guard</Monster>
@@ -269,7 +269,7 @@ to have warranted a guard chamber here.</Description>
 		<Description>Large slabs of granite have been haphazardly assembled into a huge desk
 of sorts.  Several pieces of rusted weaponry occupy places of honour 
 behind the desk.  A large, thick slab of granite forms a door to the north.</Description>
-		<WorldID>local</WorldID>
+		<WorldID>world1</WorldID>
 		<Monster>Hobgoblin Guard</Monster>
 		<Monster>Hobgoblin Guard</Monster>
 		<Monster>Hobgoblin Guard</Monster>
@@ -291,7 +291,7 @@ As you look at them, there is barely a hint of rot about them.  A tall throne
 of roughly cut granite stands at the end of the chamber.  Several torches 
 along the walls give this chamber a brighter look than any other chamber you
 have found. There is a large throne blocking the travel west.</Description>
-		<WorldID>local</WorldID>
+		<WorldID>world1</WorldID>
 		<Monster>Hobgoblin Guard</Monster>
 		<Monster>Hobgoblin Guard</Monster>
 		<Monster>Hobgoblin King</Monster>
