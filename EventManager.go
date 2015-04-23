@@ -102,27 +102,16 @@ func (em *EventManager) ExecuteNonCombatEvent(cc *ClientConnection, event *Clien
 	case "equip", "wear", "we":
 		output = cc.character.EquipArmor(event.Value)
 	case "equipment", "eq":
-		output = cc.character.GetEquipment()
+		output = cc.character.GetEquipmentPage()
 	case "inventory", "inv":
 		output = cc.character.PersonalInvetory.GetInventoryPage()
 	case "save", "exit":
 		SendCharactersXML(cc.GetCharacter().ToXML())
 		output = newFormattedStringSplice("Character succesfully saved.\n")
 	case "stats":
-		output = cc.GetCharacter().GetStats()
+		output = cc.GetCharacter().GetStatsPage()
 	case "look", "l":
-		room := em.GetRoom(cc)
-		if event.Value == "room" || event.Value == "" || event.Value == "r" {
-			output = room.GetDescription()
-		} else if item, found := room.GetItem(event.Value); found {
-			output = item.GetDescription()
-		} else if item, found := cc.GetCharacter().GetItem(event.Value); found {
-			output = item.GetDescription()
-		} else if agent, found := room.GetAgent(event.Value); found {
-			output = newFormattedStringSplice("\n" + agent.GetDescription() + "\n")
-		} else {
-			output = newFormattedStringSplice("That item or creature could not be found anywhere.\n")
-		}
+		output = em.Look(cc.GetCharacter(), event.Value)
 	case "get", "g":
 		output = em.GetRoom(cc.GetCharactersRoomID()).GiveItemToPlayer(cc.character, event.Value)
 	case "drop", "d":
@@ -146,6 +135,21 @@ func (em *EventManager) ExecuteNonCombatEvent(cc *ClientConnection, event *Clien
 
 	if len(output) > 0 {
 		cc.Write(newServerMessageTypeFS(msgType, output))
+	}
+}
+
+func (em *EventManager) Look(char *Character, target string) []FormattedString {
+	room := em.GetRoom(char)
+	if target == "room" || target == "" || target == "r" {
+		return room.GetDescription()
+	} else if item, found := room.GetItem(target); found {
+		return item.GetDescription()
+	} else if item, found := char.GetItem(target); found {
+		return item.GetDescription()
+	} else if agent, found := room.GetAgent(target); found {
+		return newFormattedStringSplice("\n" + agent.GetDescription() + "\n")
+	} else {
+		return newFormattedStringSplice("That item or creature could not be found anywhere.\n")
 	}
 }
 
@@ -199,6 +203,14 @@ func (em *EventManager) SaveAllCharacters() {
 
 func (em *EventManager) GetRespawnRoom() *Room {
 	return em.worldRooms[worldRespawnRoomID]
+}
+
+func (em *EventManager) GetPlayersWorld(char *Character) string {
+	if room := em.GetRoom(char); room != nil {
+		return room.WorldID
+	} else {
+		return ""
+	}
 }
 
 func (em *EventManager) GetRoom(input interface{}) *Room {
@@ -301,13 +313,13 @@ func (em *EventManager) ExecuteTradeEvent(trader *Character, event *ClientMessag
 
 	defer func() { //This ensures that no matter how the function returns, the correct person gets their items
 		if accepted {
-			trader.AddInventoryToInventory(tradeesItems)
-			tradee.AddInventoryToInventory(tradersItems)
+			trader.AddInventory(tradeesItems)
+			tradee.AddInventory(tradersItems)
 			trader.SendMessage("Both parties accepted the trade, you receieved your items.\n")
 			tradee.SendMessage("Both parties accepted the trade, you receieved your items.\n")
 		} else {
-			tradee.AddInventoryToInventory(tradeesItems)
-			trader.AddInventoryToInventory(tradersItems)
+			tradee.AddInventory(tradeesItems)
+			trader.AddInventory(tradersItems)
 			trader.SendMessage("The trade was ended, any entered items have been returned to your inventory.\n")
 			tradee.SendMessage("The trade was ended, any entered items have been returned to your inventory.\n")
 		}
