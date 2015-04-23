@@ -88,7 +88,7 @@ func (em *EventManager) ExecuteNonCombatEvent(cc *ClientConnection, event *Clien
 	var output []FormattedString
 	var msgType int = GAMEPLAY
 
-	switch event.getCommand() {
+	switch event.GetCommand() {
 	case "auction":
 		output = em.StartAuction(cc.GetCharacter(), event.Value)
 	case "bid":

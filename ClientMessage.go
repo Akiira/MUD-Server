@@ -51,7 +51,7 @@ func (msg *ClientMessage) GetValue() string {
 	return msg.Value
 }
 
-func (msg *ClientMessage) getCommand() string {
+func (msg *ClientMessage) GetCommand() string {
 	if strings.Contains(msg.Command, ";") {
 		return strings.Split(msg.Command, ";")[0]
 	} else {

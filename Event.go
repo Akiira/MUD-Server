@@ -12,10 +12,10 @@ type Event struct {
 }
 
 func newEventFromMessage(msg ClientMessage, agent Agenter) Event {
-	return newEvent(agent, msg.Command, msg.Value)
+	return NewEvent(agent, msg.Command, msg.Value)
 }
 
-func newEvent(agent Agenter, action string, target string) Event {
+func NewEvent(agent Agenter, action string, target string) Event {
 	event := new(Event)
 	event.agent = agent
 	event.action = action

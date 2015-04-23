@@ -21,14 +21,10 @@ type ClientConnection struct {
 	pingChannel chan string
 
 	character *Character
-
-	//TODO this field can be removed since it is a global variable now
-	EventManager *EventManager
 }
 
-//CliecntConnection constructor constructs a new client connection and sets the
-//current event manager to the one supplied. This constructor is responsible
-//for getting the initial room description.
+//CliecntConnection constructor constructs a new client connection and starts
+//a new thread to continuously read from the connection.
 func NewClientConnection(conn net.Conn, char *Character, decoder *gob.Decoder, encder *gob.Encoder) {
 	cc := new(ClientConnection)
 	cc.myConn = conn
@@ -39,7 +35,6 @@ func NewClientConnection(conn net.Conn, char *Character, decoder *gob.Decoder, e
 	cc.character = char
 	char.myClientConn = cc
 	cc.character.myClientConn = cc
-	cc.EventManager = eventManager
 
 	cc.tradeChannel = make(chan string)
 	cc.pingChannel = make(chan string)
@@ -55,33 +50,34 @@ func (cc *ClientConnection) Read() {
 	defer cc.shutdown()
 
 	for {
-		var clientResponse ClientMessage
+		var clientsMsg ClientMessage
 
-		err := cc.myDecoder.Decode(&clientResponse)
+		err := cc.myDecoder.Decode(&clientsMsg)
 		checkError(err, false)
 
-		fmt.Println("Message read: ", clientResponse)
+		fmt.Println("Message read: ", clientsMsg)
 
-		if clientResponse.CombatAction {
-			event := newEventFromMessage(clientResponse, cc.character)
-			cc.EventManager.AddEvent(event)
-		} else if clientResponse.getCommand() == "ping" {
+		if clientsMsg.CombatAction {
+			eventManager.AddEvent(NewEvent(cc.character, clientsMsg.GetCommand(), clientsMsg.GetValue()))
+		} else if clientsMsg.GetCommand() == "ping" {
 			go cc.SendToPingChannel()
-		} else if clientResponse.IsTradeCommand() {
-			go cc.SendToTradeChannel(clientResponse)
+		} else if clientsMsg.IsTradeCommand() {
+			go cc.SendToTradeChannel(clientsMsg)
 		} else {
-			go cc.EventManager.ExecuteNonCombatEvent(cc, &clientResponse)
+			go eventManager.ExecuteNonCombatEvent(cc, &clientsMsg)
 		}
 
-		if clientResponse.Command == "exit" || err != nil {
+		if clientsMsg.Command == "exit" || err != nil {
 			fmt.Println("Closing the connection")
 			break
 		}
 	}
 }
 
+//shutdown ensures the clients player is removed from the world when the player
+//disconnects, it also ensures the connection is closed.
 func (cc *ClientConnection) shutdown() {
-	cc.EventManager.RemovePlayerFromRoom(cc.GetCharacter())
+	eventManager.RemovePlayerFromRoom(cc.GetCharacter())
 	cc.myConn.Close()
 }
 
@@ -94,8 +90,11 @@ func (cc *ClientConnection) Write(msg ServerMessage) {
 	checkError(err, false)
 }
 
+//SendToTradeChannel is used when the client is involved in a trade action with
+//another player. When a clients wishes to add an item to the trade the item name
+//is sent accross the trade channel so the event manager can add the items to the
+//trade. To finish adding items the client must send the 'done' command
 func (cc *ClientConnection) SendToTradeChannel(msg ClientMessage) {
-
 	if msg.Command == "add" {
 		for i := 0; i < msg.GetItemQuantity(); i++ {
 			cc.tradeChannel <- msg.GetItem()
@@ -105,6 +104,10 @@ func (cc *ClientConnection) SendToTradeChannel(msg ClientMessage) {
 	}
 }
 
+//GetResponseToTrade waits for the client to respond to some trade action, such
+//as opening a trade or accepting trade terms. A timeout is used to prevent
+//permantly blocking. Failure to respond within the time window is the same as
+//rejecting the trade event.
 func (cc *ClientConnection) GetResponseToTrade() (response string) {
 	timeoutChan := make(chan string)
 	go func() {
