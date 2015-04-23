@@ -66,10 +66,10 @@ func NewCharacterFromXML(charData *CharacterXML) *Character {
 
 // ===== Armour Functions
 
-func (c *Character) EquipArmorByName(name string) []FormattedString {
+func (c *Character) EquipArmor(name string) []FormattedString {
 	if item, found := c.GetItem(name); found {
 		if item.GetType() == ARMOUR {
-			return c.EquipArmour(item.(*Armour))
+			return c.equipArmour(item.(*Armour))
 		}
 
 		return newFormattedStringSplice("\nThat item is not armour.\n")
@@ -77,7 +77,7 @@ func (c *Character) EquipArmorByName(name string) []FormattedString {
 	return newFormattedStringSplice("\nYou don't have that item. If it is on the ground try 'get'ing it first.\n")
 }
 
-func (c *Character) EquipArmour(armr *Armour) []FormattedString {
+func (c *Character) equipArmour(armr *Armour) []FormattedString {
 	if c.equippedArmour.IsArmourAt(armr.wearLocation) { // already an item present
 		return newFormattedStringSplice("\nYou already have a peice of armour equiped there.\n")
 	} else {
@@ -86,23 +86,13 @@ func (c *Character) EquipArmour(armr *Armour) []FormattedString {
 	}
 }
 
-func (c *Character) UnEquipArmourByName(name string) []FormattedString {
+func (c *Character) UnEquipArmour(name string) []FormattedString {
 	armr := c.equippedArmour.GetAndRemoveArmour(name)
 	if armr == nil {
 		return newFormattedStringSplice("\nYou are not wearing a peice of armour with that name. \n")
 	}
 	c.AddItem(armr)
 	return newFormattedStringSplice("\nYou took off the " + armr.name + ".\n")
-}
-
-func (c *Character) UnEquipArmourAt(location string) []FormattedString {
-	if c.equippedArmour.IsArmourAt(location) {
-		armr := c.equippedArmour.GetAndRemoveArmour(location)
-		c.AddItem(armr)
-		return newFormattedStringSplice(fmt.Sprintf("You succesfully removed the %s and stored it in your inventory.\n", armr.GetName()))
-	} else {
-		return newFormattedStringSplice("You are not wearing any armour there.\n")
-	}
 }
 
 // ===== Weapon Functions
@@ -155,6 +145,14 @@ func (c *Character) AddItems(items []Item_I) {
 
 func (c *Character) AddItem(item Item_I) {
 	c.PersonalInvetory.AddItem(item)
+}
+
+func (char *Character) LockInventory() {
+	char.inv_mutex.Lock()
+}
+
+func (char *Character) UnLockInventory() {
+	char.inv_mutex.Unlock()
 }
 
 // ===== General Functions
@@ -280,12 +278,6 @@ func (c *Character) GetAttack() int {
 
 func (c *Character) GetDefense() int {
 	return c.equippedArmour.GetDefense()
-}
-
-//TODO refactor so we can remove this. The character class should not provide
-//open access to its client connection.
-func (c *Character) GetClientConnection() *ClientConnection {
-	return c.myClientConn
 }
 
 func (c *Character) GetAndRemoveItems(names []string) (items []Item_I) {
@@ -435,14 +427,6 @@ func (c *Character) IsDead() bool {
 }
 
 // ===== Misc Functions
-
-func (char *Character) LockInventory() {
-	char.inv_mutex.Lock()
-}
-
-func (char *Character) UnLockInventory() {
-	char.inv_mutex.Unlock()
-}
 
 func (char *Character) ToXML() *CharacterXML {
 

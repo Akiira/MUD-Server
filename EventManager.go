@@ -89,7 +89,7 @@ func (em *EventManager) ExecuteNonCombatEvent(cc *ClientConnection, event *Clien
 	var msgType int = GAMEPLAY
 
 	switch event.getCommand() {
-	case "auction": //This is to start an auction
+	case "auction":
 		output = em.StartAuction(cc.GetCharacter(), event.Value)
 	case "bid":
 		output = em.BidOnAuction(cc, event.getBid())
@@ -98,9 +98,9 @@ func (em *EventManager) ExecuteNonCombatEvent(cc *ClientConnection, event *Clien
 	case "wield", "wi":
 		output = cc.character.WieldWeapon(event.Value)
 	case "unequip", "remove", "rm":
-		output = cc.character.UnEquipArmourByName(event.Value)
+		output = cc.character.UnEquipArmour(event.Value)
 	case "equip", "wear", "we":
-		output = cc.character.EquipArmorByName(event.Value)
+		output = cc.character.EquipArmor(event.Value)
 	case "equipment", "eq":
 		output = cc.character.GetEquipment()
 	case "inventory", "inv":
