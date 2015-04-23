@@ -52,8 +52,7 @@ func NewClientConnection(conn net.Conn, char *Character, decoder *gob.Decoder, e
 //and cleaning up the character from the world. When a succesful read occures
 //the corresponding event is added to the event queu or executed rightaway.
 func (cc *ClientConnection) Read() {
-	defer cc.EventManager.RemovePlayerFromRoom(cc.getCharactersName())
-	defer cc.myConn.Close()
+	defer cc.shutdown()
 
 	for {
 		var clientResponse ClientMessage
@@ -79,6 +78,11 @@ func (cc *ClientConnection) Read() {
 			break
 		}
 	}
+}
+
+func (cc *ClientConnection) shutdown() {
+	cc.EventManager.RemovePlayerFromRoom(cc.getCharacter())
+	cc.myConn.Close()
 }
 
 //Write will attempt to send the provided server message accross the connection
