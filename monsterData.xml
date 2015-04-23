@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
 <Monsters>
+	<!--SKELETON DEFINITION-->
 	<Monster>
 		<Name>Skeleton</Name>
 		<HP>40</HP>
@@ -35,6 +36,126 @@
 			<DropRate>10</DropRate>
 		</Loot>
 	</Monster>
+
+	<!--HOBGOBLIN MINER DEFINITION ============================ -->
+	<Monster>
+		<Name>Hobgoblin Miner</Name>
+		<HP>50</HP>
+		<Defense>10</Defense>
+		<Description>Hobgoblin Miner</Description>
+		<!--Equipped Weapon-->
+		<Weapon>
+			<Item>
+				<Name>Pick Axe</Name>
+				<Description>Pick Axe</Description>
+				<Level>1</Level>
+				<Worth>15</Worth>
+			</Item>
+			<Attack>8</Attack>
+			<MinDmg>4</MinDmg>
+			<MaxDmg>10</MaxDmg>
+		</Weapon>
+		<!--Monsters Loot-->
+		<Loot>
+			<Inventory>
+				<Weapon>
+					<Item>
+						<Name>Pick Axe</Name>
+						<Description>Pick Axe</Description>
+						<Level>1</Level>
+						<Worth>15</Worth>
+					</Item>
+					<Attack>8</Attack>
+					<MinDmg>4</MinDmg>
+					<MaxDmg>10</MaxDmg>
+				</Weapon>
+			</Inventory>
+			<DropRate>10</DropRate>
+		</Loot>
+	</Monster>
+
+	<!--HOBGOBLIN GUARD DEFINITION ============================ -->
+	<Monster>
+		<Name>Hobgoblin Guard</Name>
+		<HP>70</HP>
+		<Defense>13</Defense>
+		<Description>Hobgoblin Miner</Description>
+		<!--Equipped Weapon-->
+		<Weapon>
+			<Item>
+				<Name>Giant Club</Name>
+				<Description>Giant Club</Description>
+				<Level>2</Level>
+				<Worth>30</Worth>
+			</Item>
+			<Attack>10</Attack>
+			<MinDmg>8</MinDmg>
+			<MaxDmg>15</MaxDmg>
+		</Weapon>
+		<!--Monsters Loot-->
+		<Loot>
+			<Inventory>
+				<Weapon>
+					<Item>
+						<Name>Giant Club</Name>
+						<Description>Giant Club</Description>
+						<Level>2</Level>
+						<Worth>30</Worth>
+					</Item>
+					<Attack>10</Attack>
+					<MinDmg>8</MinDmg>
+					<MaxDmg>15</MaxDmg>
+				</Weapon>
+			</Inventory>
+			<DropRate>10</DropRate>
+		</Loot>
+	</Monster>
+
+	<!--HOBGOBLIN KING DEFINITION ============================ -->
+	<Monster>
+		<Name>Hobgoblin King</Name>
+		<HP>150</HP>
+		<Defense>18</Defense>
+		<Description>Hobgoblin King</Description>
+		<!--Equipped Weapon-->
+		<Weapon>
+			<Item>
+				<Name>Long Sword+2</Name>
+				<Description>Long Sword+2</Description>
+				<Level>4</Level>
+				<Worth>600</Worth>
+			</Item>
+			<Attack>15</Attack>
+			<MinDmg>10</MinDmg>
+			<MaxDmg>20</MaxDmg>
+		</Weapon>
+		<!--Monsters Loot-->
+		<Loot>
+			<Inventory>
+				<Weapon>
+					<Item>
+						<Name>Long Sword+2</Name>
+						<Description>Long Sword+2</Description>
+						<Level>4</Level>
+						<Worth>600</Worth>
+					</Item>
+					<Attack>15</Attack>
+					<MinDmg>10</MinDmg>
+					<MaxDmg>20</MaxDmg>
+				</Weapon>
+				<Item>
+					<Name>Golden Necklace</Name>
+					<Description>Golden Necklace</Description>
+					<Level>1</Level>
+					<Worth>1000</Worth>
+				</Item>
+			</Inventory>
+			<DropRate>10</DropRate>
+			<DropRate>10</DropRate>
+		</Loot>
+	</Monster>
+
+	<!--RABBIT DEFINITION ============================ -->
 	<Monster>
 		<Name>Rabbit</Name>
 		<HP>5</HP>
@@ -77,6 +198,8 @@
 			<DropRate>100</DropRate>
 		</Loot>
 	</Monster>
+
+	<!--DEER DEFINITION ============================ -->
 	<Monster>
 		<Name>Deer</Name>
 		<HP>10</HP>
