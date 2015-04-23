@@ -62,8 +62,7 @@ the walls in in a random patterning of decay and abandon.  Whoever lives here
 has no respect for the homes or themselves.
 Exits: north east south west </Description>
 		<WorldID>local</WorldID>
-		<Monster>Deer</Monster>
-		<Monster>Skeleton</Monster>
+		<Monster>Hobgoblin Miner</Monster>
 		<Exit> 
 			<Direction>w</Direction>
 			<RoomID>1001</RoomID>
@@ -89,6 +88,7 @@ and sending you into a coughing fit. Old, ratty piles of furs dot the
 floor of this home. The layers of dust show that this home has not been
 used in quite some time.</Description>
 		<WorldID>local</WorldID>
+		<Monster>Hobgoblin Miner</Monster>
 		<Exit> 
 			<Direction>s</Direction>
 			<RoomID>1002</RoomID>
@@ -101,6 +101,7 @@ used in quite some time.</Description>
 dozen rotting piles of furs line the floor, leaving little room to
 maneuver. A small pile of rotting food takes up the southeast corner.</Description>
 		<WorldID>local</WorldID>
+		<Monster>Hobgoblin Miner</Monster>
 		<Exit> 
 			<Direction>n</Direction>
 			<RoomID>1002</RoomID>
@@ -127,6 +128,7 @@ of this room.</Description>
 the walls in a random patterning of decay and abandon.  Whoever lives here
 has no respect for their homes or themselves.</Description>
 		<WorldID>local</WorldID>
+		<Monster>Hobgoblin Miner</Monster>
 		<Exit> 
 			<Direction>ne</Direction>
 			<RoomID>1001</RoomID>
@@ -148,6 +150,8 @@ has no respect for their homes or themselves.</Description>
 sections of this tunnel, garbage lines the walls like the putrid remains
 of some ghastly parade.</Description>
 		<WorldID>local</WorldID>
+		<Monster>Hobgoblin Miner</Monster>
+		<Monster>Hobgoblin Miner</Monster>
 		<Exit> 
 			<Direction>s</Direction>
 			<RoomID>1006</RoomID>
@@ -170,6 +174,7 @@ the forgotten castoffs of a child, these bones are the remains of many a
 forgotten meal.  Like all other hobgoblin homes, this one has never been
 cleaned.</Description>
 		<WorldID>local</WorldID>
+		<Monster>Hobgoblin Miner</Monster>
 		<Exit> 
 			<Direction>n</Direction>
 			<RoomID>1006</RoomID>
@@ -198,6 +203,7 @@ off to the north, south and west. The chamber to the west seems much
 larger than any others you have seen so far. The sound of grunts and
 shuffling feet can be heard to the west.</Description>
 		<WorldID>local</WorldID>
+		<Monster>Hobgoblin Guard</Monster>
 		<Exit> 
 			<Direction>e</Direction>
 			<RoomID>1007</RoomID>
@@ -236,6 +242,9 @@ of weaponry and rotting armor line the walls in a sad imitation of military
 order.  Whatever chambers lie to the north are obviously important enough
 to have warranted a guard chamber here.</Description>
 		<WorldID>local</WorldID>
+		<Monster>Hobgoblin Guard</Monster>
+		<Monster>Hobgoblin Guard</Monster>
+		<Monster>Hobgoblin Guard</Monster>
 		<Exit> 
 			<Direction>e</Direction>
 			<RoomID>1010</RoomID>
@@ -253,6 +262,10 @@ to have warranted a guard chamber here.</Description>
 of sorts.  Several pieces of rusted weaponry occupy places of honour 
 behind the desk.  A large, thick slab of granite forms a door to the north.</Description>
 		<WorldID>local</WorldID>
+		<Monster>Hobgoblin Guard</Monster>
+		<Monster>Hobgoblin Guard</Monster>
+		<Monster>Hobgoblin Guard</Monster>
+		<Monster>Hobgoblin Guard</Monster>
 		<Exit> 
 			<Direction>s</Direction>
 			<RoomID>1012</RoomID>
@@ -271,6 +284,9 @@ of roughly cut granite stands at the end of the chamber.  Several torches
 along the walls give this chamber a brighter look than any other chamber you
 have found. There is a large throne blocking the travel west.</Description>
 		<WorldID>local</WorldID>
+		<Monster>Hobgoblin Guard</Monster>
+		<Monster>Hobgoblin Guard</Monster>
+		<Monster>Hobgoblin King</Monster>
 		<Exit> 
 			<Direction>s</Direction>
 			<RoomID>1013</RoomID>
