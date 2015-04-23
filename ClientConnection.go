@@ -81,7 +81,7 @@ func (cc *ClientConnection) Read() {
 }
 
 func (cc *ClientConnection) shutdown() {
-	cc.EventManager.RemovePlayerFromRoom(cc.getCharacter())
+	cc.EventManager.RemovePlayerFromRoom(cc.GetCharacter())
 	cc.myConn.Close()
 }
 
@@ -130,6 +130,10 @@ func (cc *ClientConnection) SendToPingChannel() {
 	cc.pingChannel <- "ping"
 }
 
+func (cc *ClientConnection) GiveItem(itm Item_I) {
+	cc.character.AddItem(itm)
+}
+
 func (cc *ClientConnection) GetResponseToPing(start time.Time) time.Duration {
 	timeoutChan2 := make(chan string)
 	go func() {
@@ -155,22 +159,18 @@ func (cc *ClientConnection) GetAverageRoundTripTime() (avg time.Duration) {
 	return ((avg / 10) / 2)
 }
 
-func (cc *ClientConnection) getCharactersName() string {
+func (cc *ClientConnection) GetCharactersName() string {
 	return cc.character.Name
 }
 
-func (cc *ClientConnection) getCharactersRoomID() int {
+func (cc *ClientConnection) GetCharactersRoomID() int {
 	return cc.character.RoomIN
 }
 
-func (cc *ClientConnection) getCharacter() *Character {
+func (cc *ClientConnection) GetCharacter() *Character {
 	return cc.character
 }
 
-func (cc *ClientConnection) isConnectionClosed() bool {
+func (cc *ClientConnection) IsConnectionClosed() bool {
 	return cc.myConn == nil
-}
-
-func (cc *ClientConnection) giveItem(itm Item_I) {
-	cc.character.AddItem(itm)
 }
