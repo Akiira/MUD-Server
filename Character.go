@@ -20,7 +20,6 @@ type Character struct {
 	Age       int
 	Alignment int
 
-	level      int
 	experience int
 	gold       int
 
@@ -30,11 +29,12 @@ type Character struct {
 	equippedArmour   ArmourSet
 
 	myClientConn *ClientConnection
+	inv_mutex    sync.Locker
 }
 
 //=================== CONSTRUCTORS =====================//
 
-func newCharacter(name string, room int, hp int, def int) *Character {
+func NewCharacter(name string, room int, hp int, def int) *Character {
 	char := new(Character)
 	char.Name = name
 	char.currentHP = hp
@@ -44,7 +44,7 @@ func newCharacter(name string, room int, hp int, def int) *Character {
 	return char
 }
 
-func characterFromXML(charData *CharacterXML) *Character {
+func NewCharacterFromXML(charData *CharacterXML) *Character {
 	char := new(Character)
 
 	char.SetAgentStats(charData)
@@ -53,7 +53,6 @@ func characterFromXML(charData *CharacterXML) *Character {
 	char.Race = charData.Race
 	char.Class = charData.Class
 
-	char.level = charData.Level
 	char.experience = charData.Experience
 
 	char.equipedWeapon = NewWeaponFromXML(&charData.EquipedWeapon)
@@ -198,23 +197,24 @@ func (char *Character) Attack(target Agenter) []FormattedString {
 			dmg := char.GetDamage()
 			target.TakeDamage(dmg, 0)
 			target.TakeDamage(char.GetDamage(), 0)
-			//fmt.Printf("\tPlayer did %d damage.\n", char.getDamage())
 
 			if target.IsDead() {
-				// TODO  reward player exp
-				room := char.myClientConn.EventManager.worldRooms[char.RoomIN] //TODO fix this line
+				char.experience += 10 * target.GetLevel()
+				room := eventManager.GetRoom(char)
 				room.killOffMonster(target.GetName())
 
 				return newFormattedStringSplice("You hit " + target.GetName() + " for " + strconv.Itoa(dmg) + " damage and it drops over dead.\n")
 			} else {
 				target.AddTarget(char)
+				char.experience += dmg / 2
+
 				var output []FormattedString
 				output = append(output, newFormattedString2(ct.Red, "\nYou were hit by "+char.Name+" for "+strconv.Itoa(dmg)+" damage!\n"))
 				target.SendMessage(newServerMessageFS(output))
 				return newFormattedStringSplice("\nYou hit " + target.GetName() + " for " + strconv.Itoa(dmg) + " damage!\n")
 			}
 		} else {
-
+			char.experience += 2
 			return newFormattedStringSplice("\nYour attack missed " + target.GetName() + "!\n")
 		}
 	}
@@ -231,8 +231,8 @@ func (c *Character) AddTarget(target Agenter) {
 }
 
 func (c *Character) ApplyFleePenalty() []FormattedString {
-	c.experience -= 100 * c.level
-	return newFormattedStringSplice2(ct.Red, fmt.Sprintf("\nYou lost %d experience for fleeing.\n", 100*c.level))
+	c.experience -= 100 * c.Level
+	return newFormattedStringSplice2(ct.Red, fmt.Sprintf("\nYou lost %d experience for fleeing.\n", 100*c.Level))
 }
 
 func (c *Character) Respawn() []FormattedString {
@@ -246,6 +246,18 @@ func (c *Character) Respawn() []FormattedString {
 	c.Move(src, dest)
 	c.currentHP = c.MaxHitPoints
 	return output.fmtedStrings
+}
+
+func (c *Character) LevelUp() []FormattedString {
+	if c.experience-(1000*c.GetLevel()) > 0 {
+		c.incrementAttack()
+		c.incrementDefense()
+		c.incrementLevel()
+
+		return newFormattedStringSplice2(ct.Green, "\nYou leveled up!\n")
+	} else {
+		return newFormattedStringSplice2(ct.Green, "\nYou don't have enough exp to level up yet.\n")
+	}
 }
 
 // ===== Getter Functions
@@ -369,7 +381,7 @@ func (c *Character) GetStats() []FormattedString {
 
 	output.addMessage(ct.Green, "Character Page for "+c.Name+"\n-------------------------------------------------\n")
 	output.addMessage(ct.Green, "LEVEL:")
-	output.addMessage(ct.White, fmt.Sprintf("%2d %8s", c.level, ""))
+	output.addMessage(ct.White, fmt.Sprintf("%2d %8s", c.Level, ""))
 	output.addMessage(ct.Green, "RACE :")
 	output.addMessage(ct.White, fmt.Sprintf("%8s\n", c.Race))
 	output.addMessage(ct.Green, "AGE  :")
@@ -419,10 +431,18 @@ func (c *Character) HasItem(name string) bool {
 }
 
 func (c *Character) IsDead() bool {
-	return c.currentHP <= 0 || c.myClientConn.isConnectionClosed()
+	return c.currentHP <= 0 || c.myClientConn.IsConnectionClosed()
 }
 
 // ===== Misc Functions
+
+func (char *Character) LockInventory() {
+	char.inv_mutex.Lock()
+}
+
+func (char *Character) UnLockInventory() {
+	char.inv_mutex.Unlock()
+}
 
 func (char *Character) ToXML() *CharacterXML {
 
@@ -442,7 +462,7 @@ func (char *Character) ToXML() *CharacterXML {
 	ch.Charisma = char.Charisma
 	ch.Inteligence = char.Inteligence
 
-	ch.Level = char.level
+	ch.Level = char.Level
 	ch.Experience = char.experience
 
 	ch.WeaponComment = []byte("Equipped Weapon")
@@ -527,6 +547,6 @@ func GetCharacterFromStorage(charName string) (char *Character, err error) {
 	}
 
 	//Decode the characters xml into a character object
-	char = characterFromXML(&queriedChar)
+	char = NewCharacterFromXML(&queriedChar)
 	return char, err
 }
