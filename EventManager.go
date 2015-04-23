@@ -93,11 +93,11 @@ func (em *EventManager) ExecuteNonCombatEvent(cc *ClientConnection, event *Clien
 		output = em.StartAuction(cc.getCharacter(), event.Value)
 	case "bid":
 		output = em.BidOnAuction(cc, event.getBid())
-	case "unwield":
+	case "unwield", "uw":
 		output = cc.character.UnWieldWeapon()
-	case "wield":
+	case "wield", "w":
 		output = cc.character.WieldWeapon(event.Value)
-	case "unequip", "remove":
+	case "unequip", "remove", "rm":
 		output = cc.character.UnEquipArmourByName(event.Value)
 	case "equip", "wear":
 		output = cc.character.EquipArmorByName(event.Value)
@@ -124,9 +124,9 @@ func (em *EventManager) ExecuteNonCombatEvent(cc *ClientConnection, event *Clien
 			output = newFormattedStringSplice("That item or creature could not be found anywhere.\n")
 		}
 
-	case "get":
+	case "get", "g":
 		output = em.GetRoom(cc.getCharactersRoomID()).GiveItemToPlayer(cc.character, event.Value)
-	case "drop":
+	case "drop", "d":
 		if em.IsTrading(cc.getCharactersName()) {
 			output = newFormattedStringSplice2(ct.Red, "\nYou can not drop items while you are trading.\n")
 		} else if item, found := cc.getCharacter().GetAndRemoveItem(event.Value); found {
@@ -138,7 +138,7 @@ func (em *EventManager) ExecuteNonCombatEvent(cc *ClientConnection, event *Clien
 	case "move":
 		if em.IsTrading(cc.getCharactersName()) {
 			output = newFormattedStringSplice2(ct.Red, "\nYou can not move rooms while you are trading.\n")
-		} else if em.IsInCombat(cc.getCharactersName()) {
+		} else if em.IsInCombat(cc.getCharacter()) {
 			output = newFormattedStringSplice2(ct.Red, "\nYou can not move rooms while you are in combat. If your need to get away try 'flee'.\n")
 		} else {
 			src := em.worldRooms[cc.getCharactersRoomID()]
@@ -218,15 +218,15 @@ func (em *EventManager) AddPlayerToRoom(char *Character) {
 	}
 }
 
-func (em *EventManager) RemovePlayerFromRoom(charName string) {
-	if room := em.GetRoom(charName); room != nil {
-		room.RemovePlayer(charName)
+func (em *EventManager) RemovePlayerFromRoom(char *Character) {
+	if room := em.GetRoom(char); room != nil {
+		room.RemovePlayer(char.GetName())
 	}
 }
 
-func (em *EventManager) IsInCombat(charName string) bool {
-	if room := em.GetRoom(charName); room != nil {
-		return room.IsAggroed(charName)
+func (em *EventManager) IsInCombat(char *Character) bool {
+	if room := em.GetRoom(char); room != nil {
+		return room.IsAggroed(char.GetName())
 	}
 
 	return false
