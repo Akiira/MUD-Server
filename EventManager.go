@@ -22,7 +22,7 @@ type EventManager struct {
 func NewEventManager() *EventManager {
 	em := new(EventManager)
 	em.eventQue = make([]Event, 0, 10)
-	em.worldRooms = loadRooms()
+	em.worldRooms = LoadRooms()
 	em.traders = make(map[string]bool)
 	go em.StartCombatRounds()
 
@@ -66,7 +66,7 @@ func (em *EventManager) ExecuteCombatRound() {
 	for _, event := range em.eventQue {
 		action, agent := event.action, event.agent
 
-		target, _ := em.worldRooms[agent.GetRoomID()].getAgentInRoom(event.target)
+		target, _ := em.worldRooms[agent.GetRoomID()].GetAgent(event.target)
 
 		if _, found := alreadyActed[agent.GetName()]; !found {
 			alreadyActed[agent.GetName()] = true
@@ -118,7 +118,7 @@ func (em *EventManager) ExecuteNonCombatEvent(cc *ClientConnection, event *Clien
 			output = item.GetDescription()
 		} else if item, found := cc.GetCharacter().GetItem(event.Value); found {
 			output = item.GetDescription()
-		} else if agent, found := room.getAgentInRoom(event.Value); found {
+		} else if agent, found := room.GetAgent(event.Value); found {
 			output = newFormattedStringSplice("\n" + agent.GetDescription() + "\n")
 		} else {
 			output = newFormattedStringSplice("That item or creature could not be found anywhere.\n")
@@ -167,7 +167,7 @@ func (em *EventManager) Move(char *Character, direction string) (int, []Formatte
 		return GAMEPLAY, newFormattedStringSplice2(ct.Red, "\nYou can not move rooms while you are in combat. If your need to get away try 'flee'.\n")
 	} else {
 		src := em.GetRoom(char)
-		dest := src.getConnectedRoom(convertDirectionToInt(direction))
+		dest := src.GetConnectedRoom(convertDirectionToInt(direction))
 
 		return char.Move(src, dest)
 	}
@@ -178,7 +178,7 @@ func (em *EventManager) Flee(char *Character, direction string) (int, []Formatte
 		return GAMEPLAY, newFormattedStringSplice2(ct.Red, "\nYou can not flee from a room while you are trading.\n")
 	} else {
 		src := em.worldRooms[char.GetRoomID()]
-		dest := src.getConnectedRoom(convertDirectionToInt(direction))
+		dest := src.GetConnectedRoom(convertDirectionToInt(direction))
 
 		src.UnAggroPlayer(char.GetName())
 

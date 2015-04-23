@@ -27,7 +27,7 @@ func NewArmour(name1 string, descr string, def int, wearLoc string) Armour {
 
 func NewArmourFromXML(armourData *ArmourXML) *Armour {
 	arm := new(Armour)
-	arm.Item = *NewItemFromXML(armourData.ItemInfo)
+	arm.Item = *NewItem(armourData.ItemInfo)
 	arm.defense = armourData.Defense
 	arm.wearLocation = strings.ToLower(armourData.WearLocation)
 
