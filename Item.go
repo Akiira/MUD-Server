@@ -7,6 +7,7 @@ import (
 type Item_I interface {
 	GetName() string
 	GetDescription() []FormattedString
+	GetWorth() int
 	GetType() int
 	GetCopy() Item_I
 	ToXML() ItemXML_I
@@ -38,7 +39,7 @@ type ItemXML struct {
 	ItemWorth   int      `xml:"Worth"`
 }
 
-func NewItemFromXML(itemData *ItemXML) *Item {
+func NewItem(itemData *ItemXML) *Item {
 	itm := new(Item)
 	itm.description = itemData.Description
 	itm.itemLevel = itemData.ItemLevel
@@ -54,6 +55,10 @@ func (i *Item) GetName() string {
 
 func (i *Item) GetDescription() []FormattedString {
 	return newFormattedStringSplice(i.description)
+}
+
+func (i *Item) GetWorth() int {
+	return i.itemWorth
 }
 
 func (i *Item) GetType() int {
@@ -77,5 +82,5 @@ func (i *Item) ToXML() ItemXML_I {
 }
 
 func (i ItemXML) ToItem() Item_I {
-	return NewItemFromXML(&i)
+	return NewItem(&i)
 }
