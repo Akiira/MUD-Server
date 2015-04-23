@@ -164,7 +164,7 @@ func (char *Character) moveCharacter(source *Room, destination *Room) (int, []Fo
 
 	if destination != nil {
 
-		if destination.isLocal() {
+		if destination.IsLocal() {
 			source.RemovePlayer(char.Name)
 			destination.AddPlayer(char)
 
@@ -228,6 +228,11 @@ func (c *Character) takeDamage(amount int, typeOfDamge int) {
 
 func (c *Character) addTarget(target Agenter) {
 	//Do nothing, required for Agenter interface
+}
+
+func (c *Character) ApplyFleePenalty() []FormattedString {
+	c.experience -= 100 * c.level
+	return newFormattedStringSplice2(ct.Red, fmt.Sprintf("\nYou lost %d experience for fleeing.\n", 100*c.level))
 }
 
 func (c *Character) respawn() *FmtStrCollection {

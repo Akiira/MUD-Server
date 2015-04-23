@@ -35,7 +35,6 @@ func main() {
 }
 
 func GetInputFromUser() {
-
 	var input string
 	for {
 
@@ -43,9 +42,14 @@ func GetInputFromUser() {
 		input = strings.TrimSpace(input)
 
 		if input == "exit" {
+			eventManager.SaveAllCharacters()
+			os.Exit(1)
+		} else if input == "exitNoSave" {
 			os.Exit(1)
 		} else if input == "refreshserver" {
 			ReadServerAddresses()
+		} else {
+			fmt.Println("Bad input.")
 		}
 	}
 }

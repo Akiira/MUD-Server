@@ -71,7 +71,7 @@ func newRoomFromXML(roomData RoomXML) *Room {
 		room.Exits[convertDirectionToInt(roomExit.Direction)] = roomExit.ConnectedRoomID
 	}
 
-	if room.isLocal() {
+	if room.IsLocal() {
 		room.CharactersInRoom = make(map[string]*Character)
 		room.MonstersInRoom = make(map[string]*Monster)
 		room.ItemsInRoom = make(map[string]Item_I)
@@ -93,7 +93,7 @@ func (room *Room) setRoomLink(roomLink map[int]*Room) {
 	}
 }
 
-func (room *Room) isPlayerAggroed(name string) bool {
+func (room *Room) IsAggroed(name string) bool {
 	for _, monster := range room.MonstersInRoom {
 		if monster.IsAttackingPlayer(name) {
 			return true
@@ -102,11 +102,11 @@ func (room *Room) isPlayerAggroed(name string) bool {
 	return false
 }
 
-func (room *Room) isValidDirection(dir int) bool {
+func (room *Room) IsValidDirection(dir int) bool {
 	return dir < 10 && dir >= 0 && room.Exits[dir] >= 0
 }
 
-func (room *Room) isLocal() bool {
+func (room *Room) IsLocal() bool {
 	return room.WorldID == LocalWorld
 }
 
@@ -126,7 +126,7 @@ func (room *Room) AddItem(itm Item_I) {
 
 func (room *Room) AddPlayer(char *Character) {
 
-	if room.isLocal() {
+	if room.IsLocal() {
 		eventManager.SendMessageToRoom(room.ID, newServerMessageFS(newFormattedStringSplice2(ct.Blue, "\n"+char.Name+" has entered this room.")))
 		room.CharactersInRoom[char.Name] = char
 	}
@@ -137,6 +137,12 @@ func (room *Room) RemovePlayer(charName string) {
 	if char, found := room.GetPlayer(charName); found {
 		char.RoomIN = -1
 		delete(room.CharactersInRoom, charName)
+	}
+}
+
+func (room *Room) UnAggroPlayer(charName string) {
+	for _, monster := range room.MonstersInRoom {
+		monster.RemoveTarget(charName)
 	}
 }
 

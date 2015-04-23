@@ -26,8 +26,6 @@ type Monster struct {
 	lastTarget           Agenter
 }
 
-//TODO add mutex around targets?
-
 type target struct {
 	aggro        int
 	attackTarget *Character
@@ -128,6 +126,12 @@ func (m *Monster) addTarget(targetChar Agenter) {
 	}
 }
 
+func (m *Monster) RemoveTarget(name string) {
+	if _, found := m.targets[name]; found {
+		delete(m.targets, name)
+	}
+}
+
 func (m *Monster) makeAttack(target Agenter) []FormattedString {
 	fmt.Println("\t\tMonster making attack against player.")
 	output := newFormattedStringCollection()
@@ -167,6 +171,7 @@ func (m *Monster) GetAttackRoll() int {
 func (c *Monster) GetRoomID() int {
 	return c.RoomIN
 }
+
 func (m *Monster) GetDefense() int {
 	return m.Defense
 }

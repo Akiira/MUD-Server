@@ -127,17 +127,37 @@ func (em *EventManager) ExecuteNonCombatEvent(cc *ClientConnection, event *Clien
 	case "get":
 		output = em.GetRoom(cc.getCharactersRoomID()).GiveItemToPlayer(cc.character, event.Value)
 	case "drop":
-		if item, found := cc.getCharacter().GetAndRemoveItem(event.Value); found {
+		if em.IsTrading(cc.getCharactersName()) {
+			output = newFormattedStringSplice2(ct.Red, "\nYou can not drop items while you are trading.\n")
+		} else if item, found := cc.getCharacter().GetAndRemoveItem(event.Value); found {
 			em.GetRoom(cc.getCharactersRoomID()).AddItem(item)
 			output = newFormattedStringSplice("You dropped the " + item.getName() + " on the ground.\n")
 		} else {
 			output = newFormattedStringSplice("You dropped the " + item.getName() + " on the ground.\n")
 		}
 	case "move":
-		src := em.worldRooms[cc.getCharactersRoomID()]
-		dest := src.getConnectedRoom(convertDirectionToInt(event.Value))
+		if em.IsTrading(cc.getCharactersName()) {
+			output = newFormattedStringSplice2(ct.Red, "\nYou can not move rooms while you are trading.\n")
+		} else if em.IsInCombat(cc.getCharactersName()) {
+			output = newFormattedStringSplice2(ct.Red, "\nYou can not move rooms while you are in combat. If your need to get away try 'flee'.\n")
+		} else {
+			src := em.worldRooms[cc.getCharactersRoomID()]
+			dest := src.getConnectedRoom(convertDirectionToInt(event.Value))
 
-		msgType, output = cc.character.moveCharacter(src, dest)
+			msgType, output = cc.character.moveCharacter(src, dest)
+		}
+	case "flee":
+		if em.IsTrading(cc.getCharactersName()) {
+			output = newFormattedStringSplice2(ct.Red, "\nYou can not flee from a room while you are trading.\n")
+		} else {
+			src := em.worldRooms[cc.getCharactersRoomID()]
+			dest := src.getConnectedRoom(convertDirectionToInt(event.Value))
+
+			src.UnAggroPlayer(cc.getCharactersName())
+
+			msgType, output = cc.character.moveCharacter(src, dest)
+			output = append(cc.getCharacter().ApplyFleePenalty(), output...)
+		}
 	case "yell":
 		em.SendMessageToWorld(newServerMessageFS(newFormattedStringSplice2(ct.Blue, cc.character.Name+" says \""+event.Value+"\"")))
 	case "say":
@@ -151,6 +171,16 @@ func (em *EventManager) ExecuteNonCombatEvent(cc *ClientConnection, event *Clien
 
 	if len(output) > 0 {
 		cc.Write(newServerMessageTypeFS(msgType, output))
+	}
+}
+
+func (em *EventManager) SaveAllCharacters() {
+	for _, room := range em.worldRooms {
+		if room.IsLocal() {
+			for _, player := range room.CharactersInRoom {
+				SendCharactersXML(player.toXML())
+			}
+		}
 	}
 }
 
@@ -181,7 +211,7 @@ func (em *EventManager) AddPlayerToRoom(char *Character) {
 	if room := em.GetRoom(char); room != nil {
 		fmt.Println("\t\tAdding Player to room.")
 		room.AddPlayer(char)
-		if room.isLocal() {
+		if room.IsLocal() {
 			fmt.Println("\t\tSending message.")
 			char.SendMessage(room.GetDescription())
 		}
@@ -192,6 +222,14 @@ func (em *EventManager) RemovePlayerFromRoom(charName string) {
 	if room := em.GetRoom(charName); room != nil {
 		room.RemovePlayer(charName)
 	}
+}
+
+func (em *EventManager) IsInCombat(charName string) bool {
+	if room := em.GetRoom(charName); room != nil {
+		return room.IsAggroed(charName)
+	}
+
+	return false
 }
 
 //-----------------------------TRADING EVENT FUNCTIONS------------------------//
