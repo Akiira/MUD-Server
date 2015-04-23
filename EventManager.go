@@ -103,13 +103,13 @@ func (em *EventManager) ExecuteNonCombatEvent(cc *ClientConnection, event *Clien
 		output = cc.character.UnWieldWeapon()
 	case "wield":
 		output = cc.character.WieldWeapon(event.Value)
-	case "unequip":
+	case "unequip", "remove":
 		output = cc.character.UnEquipArmourByName(event.Value)
-	case "equip":
+	case "equip", "wear":
 		output = cc.character.EquipArmorByName(event.Value)
-	case "equipment":
+	case "equipment", "eq":
 		output = cc.character.GetEquipment()
-	case "inv":
+	case "inventory", "inv":
 		output = cc.character.PersonalInvetory.getInventoryDescription()
 	case "save", "exit":
 		SendCharactersXML(cc.getCharacter().toXML())
@@ -121,8 +121,8 @@ func (em *EventManager) ExecuteNonCombatEvent(cc *ClientConnection, event *Clien
 		if event.Value == "room" {
 			output = room.GetDescription()
 		} else {
-			if item := room.GetItem(event.Value); item != nil {
-				//output = item.getDescription() //TODO change return type of getDescr..
+			if _, found := room.GetItem(event.Value); found { //TODO change return type of getDescr..
+				//output = item.getDescription()
 			} else if _, found := cc.getCharacter().GetItem(event.Value); found {
 				//output = item.getDescription()
 			} else {
