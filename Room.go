@@ -120,7 +120,7 @@ func (room *Room) getConnectedRoom(exit int) *Room {
 
 func (room *Room) AddItem(itm Item_I) {
 	if itm != nil {
-		room.ItemsInRoom[itm.getName()] = itm
+		room.ItemsInRoom[itm.GetName()] = itm
 	}
 }
 
@@ -170,7 +170,7 @@ func (room *Room) GetItem(itemName string) (Item_I, bool) {
 
 func (room *Room) GetAndRemoveItem(itemName string) (Item_I, bool) {
 	if item, found := room.GetItem(itemName); found {
-		delete(room.ItemsInRoom, item.getName())
+		delete(room.ItemsInRoom, item.GetName())
 		return item, found
 	}
 
@@ -180,7 +180,7 @@ func (room *Room) GetAndRemoveItem(itemName string) (Item_I, bool) {
 func (room *Room) GiveItemToPlayer(char *Character, itemName string) []FormattedString {
 
 	if item, found := room.GetAndRemoveItem(itemName); found {
-		char.AddItemToInventory(item)
+		char.AddItem(item)
 
 		return newFormattedStringSplice("You succesfully picked up the item and added it to your invenctory")
 	} else {
@@ -238,7 +238,7 @@ func (room *Room) PopulateMonsters() {
 
 	for _, monsterName := range room.monsterTemplateNames {
 		if _, found := room.MonstersInRoom[monsterName]; found == false {
-			room.MonstersInRoom[monsterName] = newMonsterFromName(monsterName, room.ID)
+			room.MonstersInRoom[monsterName] = NewMonster(monsterName, room.ID)
 		}
 	}
 }
@@ -262,7 +262,7 @@ func (room *Room) GetDescription() []FormattedString {
 	output = ""
 
 	for _, itemPtr := range room.ItemsInRoom {
-		output += "\n\t" + itemPtr.getName()
+		output += "\n\t" + itemPtr.GetName()
 	}
 	fs.addMessage(ct.Yellow, output)
 	output = ""

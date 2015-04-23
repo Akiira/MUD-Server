@@ -27,7 +27,7 @@ func NewArmour(name1 string, descr string, def int, wearLoc string) Armour {
 
 func NewArmourFromXML(armourData *ArmourXML) *Armour {
 	arm := new(Armour)
-	arm.Item = *itemFromXML(armourData.ItemInfo)
+	arm.Item = *NewItemFromXML(armourData.ItemInfo)
 	arm.defense = armourData.Defense
 	arm.wearLocation = strings.ToLower(armourData.WearLocation)
 
@@ -36,27 +36,27 @@ func NewArmourFromXML(armourData *ArmourXML) *Armour {
 
 //------------------- GETTERS -----------------------------//
 
-func (arm *Armour) getItemType() int {
+func (arm *Armour) GetType() int {
 	return ARMOUR
 }
 
-func (arm *Armour) getCopy() Item_I {
+func (arm *Armour) GetCopy() Item_I {
 	armr := new(Armour)
 	*armr = *arm
 
 	return armr
 }
 
-func (arm *Armour) toXML() ItemXML_I {
+func (arm *Armour) ToXML() ItemXML_I {
 	armXML := new(ArmourXML)
-	armXML.ItemInfo = arm.Item.toXML().(*ItemXML)
+	armXML.ItemInfo = arm.Item.ToXML().(*ItemXML)
 	armXML.Defense = arm.defense
 	armXML.WearLocation = arm.wearLocation
 
 	return armXML
 }
 
-func (a ArmourXML) toItem() Item_I {
+func (a ArmourXML) ToItem() Item_I {
 	return NewArmourFromXML(&a)
 }
 
@@ -148,11 +148,11 @@ func (as *ArmourSet) IsArmourAt(loc string) bool {
 	return present
 }
 
-func (as *ArmourSet) toXML() *ArmourSetXML {
+func (as *ArmourSet) ToXML() *ArmourSetXML {
 	asXML := new(ArmourSetXML)
 
 	for _, arm := range as.equipedArmour {
-		asXML.ArmSet = append(asXML.ArmSet, *arm.toXML().(*ArmourXML))
+		asXML.ArmSet = append(asXML.ArmSet, *arm.ToXML().(*ArmourXML))
 	}
 
 	return asXML

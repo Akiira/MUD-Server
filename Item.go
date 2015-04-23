@@ -5,15 +5,15 @@ import (
 )
 
 type Item_I interface {
-	getName() string
-	getDescription() string //TODO change this to return []FormattedString
-	getItemType() int
-	getCopy() Item_I
-	toXML() ItemXML_I
+	GetName() string
+	GetDescription() []FormattedString
+	GetType() int
+	GetCopy() Item_I
+	ToXML() ItemXML_I
 }
 
 type ItemXML_I interface {
-	toItem() Item_I
+	ToItem() Item_I
 }
 
 const (
@@ -38,7 +38,7 @@ type ItemXML struct {
 	ItemWorth   int      `xml:"Worth"`
 }
 
-func itemFromXML(itemData *ItemXML) *Item {
+func NewItemFromXML(itemData *ItemXML) *Item {
 	itm := new(Item)
 	itm.description = itemData.Description
 	itm.itemLevel = itemData.ItemLevel
@@ -48,25 +48,25 @@ func itemFromXML(itemData *ItemXML) *Item {
 	return itm
 }
 
-func (i *Item) getName() string {
+func (i *Item) GetName() string {
 	return i.name
 }
 
-func (i *Item) getDescription() string {
-	return i.description
+func (i *Item) GetDescription() []FormattedString {
+	return newFormattedStringSplice(i.description)
 }
 
-func (i *Item) getItemType() int {
+func (i *Item) GetType() int {
 	return BASE_ITEM
 }
 
-func (i *Item) getCopy() Item_I {
+func (i *Item) GetCopy() Item_I {
 	itm := new(Item)
 	*itm = *i
 	return itm
 }
 
-func (i *Item) toXML() ItemXML_I {
+func (i *Item) ToXML() ItemXML_I {
 	xmlItem := new(ItemXML)
 	xmlItem.Name = i.name
 	xmlItem.Description = i.description
@@ -76,6 +76,6 @@ func (i *Item) toXML() ItemXML_I {
 	return xmlItem
 }
 
-func (i ItemXML) toItem() Item_I {
-	return itemFromXML(&i)
+func (i ItemXML) ToItem() Item_I {
+	return NewItemFromXML(&i)
 }

@@ -1,12 +1,13 @@
 package main
 
 type Agenter interface {
-	makeAttack(target Agenter) []FormattedString
-	takeDamage(amount int, typeOfDamge int)
-	respawn() *FmtStrCollection
-	addTarget(target Agenter)
+	Attack(target Agenter) []FormattedString
+	TakeDamage(amount int, typeOfDamge int)
+	Respawn() []FormattedString
+	AddTarget(target Agenter)
 
 	GetName() string
+	GetDescription() string
 	GetDefense() int
 	GetRoomID() int
 
@@ -32,7 +33,7 @@ type Agent struct {
 	Inteligence  int
 }
 
-func (a *Agent) setAgentStatsFromXML(charData *CharacterXML) {
+func (a *Agent) SetAgentStats(charData *CharacterXML) {
 	a.Strength = charData.Strength
 	a.Wisdom = charData.Wisdom
 	a.Inteligence = charData.Inteligence

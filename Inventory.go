@@ -14,24 +14,24 @@ type Inventory struct {
 
 //=================== CONSTRUCTORS =====================//
 
-func newInvXML() *InventoryXML {
+func NewInvXML() *InventoryXML {
 	invXML := new(InventoryXML)
 	invXML.Items = make([]interface{}, 10)
 
 	return invXML
 }
 
-func inventoryFromXML(invXml *InventoryXML) *Inventory {
-	inv := newInventory()
+func NewInventoryFromXML(invXml *InventoryXML) *Inventory {
+	inv := NewInventory()
 
 	for _, itm := range invXml.Items {
-		inv.AddItem(itm.(ItemXML_I).toItem())
+		inv.AddItem(itm.(ItemXML_I).ToItem())
 	}
 
 	return inv
 }
 
-func newInventory() *Inventory {
+func NewInventory() *Inventory {
 	i := new(Inventory)
 	i.items = make(map[string][]Item_I)
 
@@ -56,10 +56,10 @@ func (inv *Inventory) AddItems(items []Item_I) {
 
 //AddItem will add the supplied item to the inventory.
 func (inv *Inventory) AddItem(item Item_I) {
-	if val, ok := inv.items[item.getName()]; ok { // the item is already there
-		inv.items[item.getName()] = append(val, item)
+	if val, ok := inv.items[item.GetName()]; ok { // the item is already there
+		inv.items[item.GetName()] = append(val, item)
 	} else {
-		inv.items[item.getName()] = make([]Item_I, 0)
+		inv.items[item.GetName()] = make([]Item_I, 0)
 		inv.AddItem(item)
 	}
 }
@@ -92,7 +92,7 @@ func (inv *Inventory) GetAndRemoveItem(name string) (Item_I, bool) {
 	item, found := inv.GetItem(name)
 
 	if found {
-		inv.RemoveItem(item.getName())
+		inv.RemoveItem(item.GetName())
 		return item, true
 	} else {
 		return nil, false
@@ -113,7 +113,7 @@ func (inv *Inventory) GetItem(name string) (Item_I, bool) {
 	return nil, false
 }
 
-func (inv *Inventory) getInventoryDescription() []FormattedString {
+func (inv *Inventory) GetInventoryPage() []FormattedString {
 	desc := newFormattedStringCollection()
 	desc.addMessage2("\nItems\n")
 	desc.addMessage2(fmt.Sprintf("\t%-20s   %3s\n", "Item Name", "Qty"))
@@ -127,11 +127,11 @@ func (inv *Inventory) getInventoryDescription() []FormattedString {
 }
 
 func (inv *Inventory) toXML() *InventoryXML {
-	invXML := newInvXML()
+	invXML := NewInvXML()
 
 	for _, items := range inv.items {
 		for _, item := range items {
-			invXML.Items = append(invXML.Items, item.toXML())
+			invXML.Items = append(invXML.Items, item.ToXML())
 		}
 	}
 

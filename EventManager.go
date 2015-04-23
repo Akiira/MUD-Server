@@ -73,7 +73,7 @@ func (em *EventManager) ExecuteCombatRound() {
 
 			switch {
 			case action == "attack":
-				output = agent.makeAttack(target)
+				output = agent.Attack(target)
 			}
 
 			agent.SendMessage(newServerMessageFS(output))
@@ -104,9 +104,9 @@ func (em *EventManager) ExecuteNonCombatEvent(cc *ClientConnection, event *Clien
 	case "equipment", "eq":
 		output = cc.character.GetEquipment()
 	case "inventory", "inv":
-		output = cc.character.PersonalInvetory.getInventoryDescription()
+		output = cc.character.PersonalInvetory.GetInventoryPage()
 	case "save", "exit":
-		SendCharactersXML(cc.getCharacter().toXML())
+		SendCharactersXML(cc.getCharacter().ToXML())
 		output = newFormattedStringSplice("Character succesfully saved.\n")
 	case "stats":
 		output = cc.getCharacter().GetStats()
@@ -114,12 +114,12 @@ func (em *EventManager) ExecuteNonCombatEvent(cc *ClientConnection, event *Clien
 		room := em.GetRoom(cc)
 		if event.Value == "room" || event.Value == "" {
 			output = room.GetDescription()
-		} else if _, found := room.GetItem(event.Value); found { //TODO change return type of getDescr..
-			//output = item.getDescription()
-		} else if _, found := cc.getCharacter().GetItem(event.Value); found {
-			//output = item.getDescription()
-		} else if _, found := room.getAgentInRoom(event.Value); found {
-			//output = agent.getDescription()
+		} else if item, found := room.GetItem(event.Value); found {
+			output = item.GetDescription()
+		} else if item, found := cc.getCharacter().GetItem(event.Value); found {
+			output = item.GetDescription()
+		} else if agent, found := room.getAgentInRoom(event.Value); found {
+			output = newFormattedStringSplice("\n" + agent.GetDescription() + "\n")
 		} else {
 			output = newFormattedStringSplice("That item or creature could not be found anywhere.\n")
 		}
@@ -131,9 +131,9 @@ func (em *EventManager) ExecuteNonCombatEvent(cc *ClientConnection, event *Clien
 			output = newFormattedStringSplice2(ct.Red, "\nYou can not drop items while you are trading.\n")
 		} else if item, found := cc.getCharacter().GetAndRemoveItem(event.Value); found {
 			em.GetRoom(cc.getCharactersRoomID()).AddItem(item)
-			output = newFormattedStringSplice("You dropped the " + item.getName() + " on the ground.\n")
+			output = newFormattedStringSplice("You dropped the " + item.GetName() + " on the ground.\n")
 		} else {
-			output = newFormattedStringSplice("You dropped the " + item.getName() + " on the ground.\n")
+			output = newFormattedStringSplice("You dropped the " + item.GetName() + " on the ground.\n")
 		}
 	case "move":
 		if em.IsTrading(cc.getCharactersName()) {
@@ -144,7 +144,7 @@ func (em *EventManager) ExecuteNonCombatEvent(cc *ClientConnection, event *Clien
 			src := em.worldRooms[cc.getCharactersRoomID()]
 			dest := src.getConnectedRoom(convertDirectionToInt(event.Value))
 
-			msgType, output = cc.character.moveCharacter(src, dest)
+			msgType, output = cc.character.Move(src, dest)
 		}
 	case "flee":
 		if em.IsTrading(cc.getCharactersName()) {
@@ -155,7 +155,7 @@ func (em *EventManager) ExecuteNonCombatEvent(cc *ClientConnection, event *Clien
 
 			src.UnAggroPlayer(cc.getCharactersName())
 
-			msgType, output = cc.character.moveCharacter(src, dest)
+			msgType, output = cc.character.Move(src, dest)
 			output = append(cc.getCharacter().ApplyFleePenalty(), output...)
 		}
 	case "yell":
@@ -178,10 +178,14 @@ func (em *EventManager) SaveAllCharacters() {
 	for _, room := range em.worldRooms {
 		if room.IsLocal() {
 			for _, player := range room.CharactersInRoom {
-				SendCharactersXML(player.toXML())
+				SendCharactersXML(player.ToXML())
 			}
 		}
 	}
+}
+
+func (em *EventManager) GetRespawnRoom() *Room {
+	return em.worldRooms[worldRespawnRoomID]
 }
 
 func (em *EventManager) GetRoom(input interface{}) *Room {
@@ -268,7 +272,7 @@ func (em *EventManager) ExecuteTradeEvent(trader *Character, event *ClientMessag
 	trader.SendMessage("The trade is opened, what items would you like to trade? Type 'add' [item name] to add an item to the trade or 'add' [quantity] [item name].\n")
 	tradee.SendMessage("The trade is opened, what items would you like to trade? Type 'add' [item name] to add an item to the trade or 'add' [quantity] [item name].\n")
 
-	tradersItems, tradeesItems := newInventory(), newInventory()
+	tradersItems, tradeesItems := NewInventory(), NewInventory()
 	accepted := false
 
 	defer func() { //This ensures that no matter how the function returns, the correct person gets their items
@@ -328,16 +332,16 @@ func (em *EventManager) SendFinalTradeTerms(trader, tradee *Character, trderInv,
 
 	tradersMsg := newFormattedStringCollection()
 	tradersMsg.addMessage2("Here are the final terms of the trade, you will receive:\n")
-	tradersMsg.addMessages2(trdeeInv.getInventoryDescription())
+	tradersMsg.addMessages2(trdeeInv.GetInventoryPage())
 	tradersMsg.addMessage2("And are trading away:\n")
-	tradersMsg.addMessages2(trderInv.getInventoryDescription())
+	tradersMsg.addMessages2(trderInv.GetInventoryPage())
 	tradersMsg.addMessage2("If you accept the terms of this trade then type 'accept' else type 'reject'.\n")
 
 	tradeesMsg := newFormattedStringCollection()
 	tradeesMsg.addMessage2("Here are the final terms of the trade, you will receive:\n")
-	tradeesMsg.addMessages2(trderInv.getInventoryDescription())
+	tradeesMsg.addMessages2(trderInv.GetInventoryPage())
 	tradeesMsg.addMessage2("And are trading away:\n")
-	tradeesMsg.addMessages2(trdeeInv.getInventoryDescription())
+	tradeesMsg.addMessages2(trdeeInv.GetInventoryPage())
 	tradeesMsg.addMessage2("If you accept the terms of this trade then type 'accept' else type 'reject'.\n")
 
 	tradee.SendMessage(tradeesMsg.fmtedStrings)

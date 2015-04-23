@@ -38,7 +38,7 @@ func newCharacter(name string, room int, hp int, def int) *Character {
 	char := new(Character)
 	char.Name = name
 	char.currentHP = hp
-	char.PersonalInvetory = *newInventory()
+	char.PersonalInvetory = *NewInventory()
 	char.equippedArmour = *NewArmourSet()
 
 	return char
@@ -47,7 +47,7 @@ func newCharacter(name string, room int, hp int, def int) *Character {
 func characterFromXML(charData *CharacterXML) *Character {
 	char := new(Character)
 
-	char.setAgentStatsFromXML(charData)
+	char.SetAgentStats(charData)
 
 	char.gold = charData.Gold
 	char.Race = charData.Race
@@ -56,9 +56,9 @@ func characterFromXML(charData *CharacterXML) *Character {
 	char.level = charData.Level
 	char.experience = charData.Experience
 
-	char.equipedWeapon = weaponFromXML(&charData.EquipedWeapon)
+	char.equipedWeapon = NewWeaponFromXML(&charData.EquipedWeapon)
 	char.equippedArmour = *NewArmourSetFromXML(&charData.ArmSet)
-	char.PersonalInvetory = *inventoryFromXML(&charData.PersInv)
+	char.PersonalInvetory = *NewInventoryFromXML(&charData.PersInv)
 
 	return char
 }
@@ -69,7 +69,7 @@ func characterFromXML(charData *CharacterXML) *Character {
 
 func (c *Character) EquipArmorByName(name string) []FormattedString {
 	if item, found := c.GetItem(name); found {
-		if item.getItemType() == ARMOUR {
+		if item.GetType() == ARMOUR {
 			return c.EquipArmour(item.(*Armour))
 		}
 
@@ -92,15 +92,15 @@ func (c *Character) UnEquipArmourByName(name string) []FormattedString {
 	if armr == nil {
 		return newFormattedStringSplice("\nYou are not wearing a peice of armour with that name. \n")
 	}
-	c.AddItemToInventory(armr)
+	c.AddItem(armr)
 	return newFormattedStringSplice("\nYou took off the " + armr.name + ".\n")
 }
 
 func (c *Character) UnEquipArmourAt(location string) []FormattedString {
 	if c.equippedArmour.IsArmourAt(location) {
 		armr := c.equippedArmour.GetAndRemoveArmour(location)
-		c.AddItemToInventory(armr)
-		return newFormattedStringSplice(fmt.Sprintf("You succesfully removed the %s and stored it in your inventory.\n", armr.getName()))
+		c.AddItem(armr)
+		return newFormattedStringSplice(fmt.Sprintf("You succesfully removed the %s and stored it in your inventory.\n", armr.GetName()))
 	} else {
 		return newFormattedStringSplice("You are not wearing any armour there.\n")
 	}
@@ -124,11 +124,11 @@ func (c *Character) WieldWeapon(weapon interface{}) []FormattedString {
 
 	if weaponToEquip == nil {
 		return newFormattedStringSplice("\nYou don't have that item. If it is on the ground try 'get'ing it first.\n")
-	} else if weaponToEquip.getItemType() != WEAPON {
+	} else if weaponToEquip.GetType() != WEAPON {
 		return newFormattedStringSplice("\nThat item is not a weapon.\n")
 	} else if c.equipedWeapon == nil {
 		c.equipedWeapon = weaponToEquip.(*Weapon)
-		return newFormattedStringSplice("\nYou equiped " + c.equipedWeapon.getName() + ".\n")
+		return newFormattedStringSplice("\nYou equiped " + c.equipedWeapon.GetName() + ".\n")
 	} else {
 		return newFormattedStringSplice("\nYou already have a weapon equiped.\n")
 	}
@@ -136,7 +136,7 @@ func (c *Character) WieldWeapon(weapon interface{}) []FormattedString {
 
 func (c *Character) UnWieldWeapon() []FormattedString {
 	if weapon := c.equipedWeapon; weapon != nil {
-		c.AddItemToInventory(weapon)
+		c.AddItem(weapon)
 		c.equipedWeapon = nil
 		return newFormattedStringSplice("\nYou put the " + weapon.name + " back in your bag.\n")
 	} else {
@@ -150,17 +150,17 @@ func (c *Character) AddInventoryToInventory(otherInv *Inventory) {
 	c.PersonalInvetory.AddInventory(otherInv)
 }
 
-func (c *Character) AddItemsToInventory(items []Item_I) {
+func (c *Character) AddItems(items []Item_I) {
 	c.PersonalInvetory.AddItems(items)
 }
 
-func (c *Character) AddItemToInventory(item Item_I) {
+func (c *Character) AddItem(item Item_I) {
 	c.PersonalInvetory.AddItem(item)
 }
 
 // ===== General Functions
 
-func (char *Character) moveCharacter(source *Room, destination *Room) (int, []FormattedString) {
+func (char *Character) Move(source *Room, destination *Room) (int, []FormattedString) {
 
 	if destination != nil {
 
@@ -173,7 +173,7 @@ func (char *Character) moveCharacter(source *Room, destination *Room) (int, []Fo
 			source.RemovePlayer(char.Name)
 			destination.AddPlayer(char)
 
-			charXML := char.toXML()
+			charXML := char.ToXML()
 			charXML.CurrentWorld = destination.WorldID
 
 			SendCharactersXML(charXML)
@@ -185,7 +185,7 @@ func (char *Character) moveCharacter(source *Room, destination *Room) (int, []Fo
 	}
 }
 
-func (char *Character) makeAttack(target Agenter) []FormattedString {
+func (char *Character) Attack(target Agenter) []FormattedString {
 
 	if target == nil { // check that the target is still there, not dead from the previous round
 		return newFormattedStringSplice("\nYour target does not exist, perhaps you typed the name wrong or another player killed it!\n")
@@ -195,9 +195,9 @@ func (char *Character) makeAttack(target Agenter) []FormattedString {
 
 		a1 := char.GetAttack()
 		if a1 >= target.GetDefense() {
-			dmg := char.getDamage()
-			target.takeDamage(dmg, 0)
-			target.takeDamage(char.getDamage(), 0)
+			dmg := char.GetDamage()
+			target.TakeDamage(dmg, 0)
+			target.TakeDamage(char.GetDamage(), 0)
 			//fmt.Printf("\tPlayer did %d damage.\n", char.getDamage())
 
 			if target.IsDead() {
@@ -207,7 +207,7 @@ func (char *Character) makeAttack(target Agenter) []FormattedString {
 
 				return newFormattedStringSplice("You hit " + target.GetName() + " for " + strconv.Itoa(dmg) + " damage and it drops over dead.\n")
 			} else {
-				target.addTarget(char)
+				target.AddTarget(char)
 				var output []FormattedString
 				output = append(output, newFormattedString2(ct.Red, "\nYou were hit by "+char.Name+" for "+strconv.Itoa(dmg)+" damage!\n"))
 				target.SendMessage(newServerMessageFS(output))
@@ -222,11 +222,11 @@ func (char *Character) makeAttack(target Agenter) []FormattedString {
 	return newFormattedStringSplice("\nthe " + target.GetName() + " is already dead!\n")
 }
 
-func (c *Character) takeDamage(amount int, typeOfDamge int) {
+func (c *Character) TakeDamage(amount int, typeOfDamge int) {
 	c.currentHP -= amount
 }
 
-func (c *Character) addTarget(target Agenter) {
+func (c *Character) AddTarget(target Agenter) {
 	//Do nothing, required for Agenter interface
 }
 
@@ -235,25 +235,27 @@ func (c *Character) ApplyFleePenalty() []FormattedString {
 	return newFormattedStringSplice2(ct.Red, fmt.Sprintf("\nYou lost %d experience for fleeing.\n", 100*c.level))
 }
 
-func (c *Character) respawn() *FmtStrCollection {
+func (c *Character) Respawn() []FormattedString {
 	output := newFormattedStringCollection()
 	output.addMessage(ct.Red, "\nYou died!\n")
-	output.addMessage2("\nYou were respawned.\n")
+	output.addMessage2("\nYou repspawned.\n")
 
-	//These two lines are kinda ugly, maybe when a player dies the monster adds a respawn event to em
-	// and then the even manager passes the respawn room to the characters respawn function.
-	src := c.GetClientConnection().EventManager.worldRooms[c.GetClientConnection().getCharactersRoomID()]
-	dest := c.GetClientConnection().EventManager.worldRooms[worldRespawnRoomID]
+	src := eventManager.GetRoom(c)
+	dest := eventManager.GetRespawnRoom()
 
-	c.moveCharacter(src, dest)
+	c.Move(src, dest)
 	c.currentHP = c.MaxHitPoints
-	return output
+	return output.fmtedStrings
 }
 
 // ===== Getter Functions
 
 func (c *Character) GetName() string {
 	return c.Name
+}
+
+func (c *Character) GetDescription() string {
+	return c.Name //TODO GetDescription
 }
 
 func (c *Character) GetRoomID() int {
@@ -292,7 +294,7 @@ func (c *Character) GetItem(name string) (Item_I, bool) {
 	return c.PersonalInvetory.GetItem(name)
 }
 
-func (c *Character) getAlignment() string {
+func (c *Character) GetAlignment() string {
 	if c.Alignment > 400 {
 		return "Good"
 	} else if c.Alignment < -400 {
@@ -302,19 +304,19 @@ func (c *Character) getAlignment() string {
 	}
 }
 
-func (c *Character) getAttackRoll() string {
+func (c *Character) GetAttackRoll() string {
 	min := c.equipedWeapon.attack + c.Strength
 	max := 20 + c.equipedWeapon.attack + c.Strength
 	return fmt.Sprintf("%d to %d", min, max)
 }
 
-func (c *Character) getDamageRoll() string {
+func (c *Character) GetDamageRoll() string {
 	min := c.equipedWeapon.minDmg + c.Strength
 	max := c.equipedWeapon.maxDmg + c.Strength
 	return fmt.Sprintf("%d to %d", min, max)
 }
 
-func (c *Character) getDamage() int {
+func (c *Character) GetDamage() int {
 	return c.equipedWeapon.GetDamage() + c.Strength
 }
 
@@ -377,15 +379,15 @@ func (c *Character) GetStats() []FormattedString {
 	output.addMessage(ct.Green, "STR  :")
 	output.addMessage(ct.White, fmt.Sprintf("%2d %8s", c.Strength, ""))
 	output.addMessage(ct.Green, "HitRoll:")
-	output.addMessage(ct.White, fmt.Sprintf("%8s\n", c.getAttackRoll()))
+	output.addMessage(ct.White, fmt.Sprintf("%8s\n", c.GetAttackRoll()))
 	output.addMessage(ct.Green, "INT  :")
 	output.addMessage(ct.White, fmt.Sprintf("%2d %8s", c.Inteligence, ""))
 	output.addMessage(ct.Green, "DmgRoll:")
-	output.addMessage(ct.White, fmt.Sprintf("%8s\n", c.getDamageRoll()))
+	output.addMessage(ct.White, fmt.Sprintf("%8s\n", c.GetDamageRoll()))
 	output.addMessage(ct.Green, "WIS  :")
 	output.addMessage(ct.White, fmt.Sprintf("%2d %8s", c.Wisdom, ""))
 	output.addMessage(ct.Green, "Alignment:")
-	output.addMessage(ct.White, fmt.Sprintf("%8s\n", c.getAlignment()))
+	output.addMessage(ct.White, fmt.Sprintf("%8s\n", c.GetAlignment()))
 	output.addMessage(ct.Green, "DEX  :")
 	output.addMessage(ct.White, fmt.Sprintf("%2d %8s", c.Dexterity, ""))
 	output.addMessage(ct.Green, "Armour:")
@@ -422,7 +424,7 @@ func (c *Character) IsDead() bool {
 
 // ===== Misc Functions
 
-func (char *Character) toXML() *CharacterXML {
+func (char *Character) ToXML() *CharacterXML {
 
 	ch := new(CharacterXML)
 	ch.Name = char.Name
@@ -444,8 +446,8 @@ func (char *Character) toXML() *CharacterXML {
 	ch.Experience = char.experience
 
 	ch.WeaponComment = []byte("Equipped Weapon")
-	ch.EquipedWeapon = *char.equipedWeapon.toXML().(*WeaponXML)
-	ch.ArmSet = *char.equippedArmour.toXML()
+	ch.EquipedWeapon = *char.equipedWeapon.ToXML().(*WeaponXML)
+	ch.ArmSet = *char.equippedArmour.ToXML()
 	ch.PersInv = *char.PersonalInvetory.toXML()
 
 	ch.CurrentWorld = os.Args[1]

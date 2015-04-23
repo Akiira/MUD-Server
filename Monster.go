@@ -40,24 +40,24 @@ var monsterTemplatesG map[string]*Monster
 
 //------------------MONSTER CONSTRUCTORS------------------------------
 
-func newMonsterFromXML(monsterData MonsterXML) *Monster {
+func NewMonsterFromXML(monsterData MonsterXML) *Monster {
 	m := new(Monster)
 	m.Name = monsterData.Name
 	m.currentHP = monsterData.HP
 	m.Defense = monsterData.Defense
 	m.description = monsterData.Description
 	m.targets = make(map[string]*target)
-	m.weapon = monsterData.EquipedWeapon.toItem().(*Weapon)
+	m.weapon = monsterData.EquipedWeapon.ToItem().(*Weapon)
 
 	for index, itm := range monsterData.Loot.LootItem.Items {
-		drop := loot{item: (itm).(ItemXML_I).toItem(), dropRate: monsterData.Loot.DropRates[index]}
+		drop := loot{item: (itm).(ItemXML_I).ToItem(), dropRate: monsterData.Loot.DropRates[index]}
 		m.lootDrops = append(m.lootDrops, drop)
 	}
 
 	return m
 }
 
-func newMonsterFromName(name string, roomID int) *Monster {
+func NewMonster(name string, roomID int) *Monster {
 	m := new(Monster)
 	*m = *monsterTemplatesG[name]
 	m.targets = make(map[string]*target)
@@ -106,7 +106,7 @@ func (m *Monster) fightPlayers() {
 	}
 }
 
-func (m *Monster) addTarget(targetChar Agenter) {
+func (m *Monster) AddTarget(targetChar Agenter) {
 
 	_, exist := m.targets[targetChar.GetName()]
 
@@ -132,17 +132,16 @@ func (m *Monster) RemoveTarget(name string) {
 	}
 }
 
-func (m *Monster) makeAttack(target Agenter) []FormattedString {
-	fmt.Println("\t\tMonster making attack against player.")
+func (m *Monster) Attack(target Agenter) []FormattedString {
 	output := newFormattedStringCollection()
 	a1 := m.GetAttackRoll()
 	if a1 >= target.GetDefense() {
 
 		output.addMessage(ct.Red, fmt.Sprintf("The %s hit you for %d damage\n", m.Name, m.GetDamage()))
-		target.takeDamage(m.GetDamage(), 0)
+		target.TakeDamage(m.GetDamage(), 0)
 
 		if target.IsDead() {
-			output.addMessages(target.respawn())
+			output.addMessages2(target.Respawn())
 			delete(m.targets, target.GetName())
 
 		}
@@ -154,11 +153,11 @@ func (m *Monster) makeAttack(target Agenter) []FormattedString {
 	return output.fmtedStrings
 }
 
-func (m *Monster) takeDamage(amount int, typeOfDamge int) {
+func (m *Monster) TakeDamage(amount int, typeOfDamge int) {
 	m.currentHP -= amount
 }
 
-func (m *Monster) respawn() *FmtStrCollection {
+func (m *Monster) Respawn() []FormattedString {
 	return nil
 }
 
@@ -195,7 +194,7 @@ func (m *Monster) GetLoot() []Item_I {
 
 		for _, itm := range m.lootDrops {
 			if roll <= itm.dropRate {
-				lootItems = append(lootItems, itm.item.getCopy())
+				lootItems = append(lootItems, itm.item.GetCopy())
 			}
 		}
 	}
@@ -206,8 +205,8 @@ func (m *Monster) GetDamage() int {
 	return m.weapon.GetDamage() + m.Strength
 }
 
-func (m *Monster) getLookDescription() []FormattedString {
-	return newFormattedStringSplice2(ct.Yellow, m.description)
+func (m *Monster) GetDescription() string {
+	return m.description
 }
 
 func (m *Monster) SendMessage(msg interface{}) {
@@ -261,7 +260,7 @@ func LoadMonsterData() {
 	checkErrorWithMessage(err, true, " In load Monster Data function.")
 
 	for _, element := range monstersData.Monsters {
-		monsterTemplatesG[element.Name] = newMonsterFromXML(element)
+		monsterTemplatesG[element.Name] = NewMonsterFromXML(element)
 	}
 
 	fmt.Println("Monster Data Loaded.")

@@ -172,5 +172,5 @@ func (cc *ClientConnection) isConnectionClosed() bool {
 }
 
 func (cc *ClientConnection) giveItem(itm Item_I) {
-	cc.character.AddItemToInventory(itm)
+	cc.character.AddItem(itm)
 }
