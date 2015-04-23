@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"os"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -49,18 +50,20 @@ type Room struct {
 
 	//TODO change this to an Inventory object
 	ItemsInRoom map[string]Item_I
+	items_mutex sync.Mutex
 
 	//This is for the monsters native to this room
 	monsterTemplateNames []string
 }
 
 //This is a constructor that creates a room from xml data
-func newRoomFromXML(roomData RoomXML) *Room {
+func NewRoom(roomData RoomXML) *Room {
 	room := Room{
 		Name:        roomData.Name,
 		ID:          roomData.ID,
 		Description: roomData.Description,
 		WorldID:     roomData.WorldID,
+		items_mutex: sync.Mutex{},
 	}
 
 	for i := 0; i < 10; i++ {
@@ -75,6 +78,11 @@ func newRoomFromXML(roomData RoomXML) *Room {
 		room.CharactersInRoom = make(map[string]*Character)
 		room.MonstersInRoom = make(map[string]*Monster)
 		room.ItemsInRoom = make(map[string]Item_I)
+
+		for _, item := range roomData.Items.Items {
+			room.AddItem(NewItem(item.(*ItemXML)))
+		}
+
 		room.monsterTemplateNames = roomData.Monsters
 
 		room.PopulateMonsters()
@@ -83,7 +91,7 @@ func newRoomFromXML(roomData RoomXML) *Room {
 	return &room
 }
 
-//This function must be called after all rooms are created and is
+//setRoomLink must be called after all rooms are created and is
 // responsible for seting the exit pointers to point at the correct rooms
 func (room *Room) setRoomLink(roomLink map[int]*Room) {
 	for i := 0; i < 10; i++ {
@@ -93,9 +101,9 @@ func (room *Room) setRoomLink(roomLink map[int]*Room) {
 	}
 }
 
-func (room *Room) IsAggroed(name string) bool {
+func (room *Room) IsAggroed(charName string) bool {
 	for _, monster := range room.MonstersInRoom {
-		if monster.IsAttackingPlayer(name) {
+		if monster.IsAttackingPlayer(charName) {
 			return true
 		}
 	}
@@ -110,7 +118,7 @@ func (room *Room) IsLocal() bool {
 	return room.WorldID == LocalWorld
 }
 
-func (room *Room) getConnectedRoom(exit int) *Room {
+func (room *Room) GetConnectedRoom(exit int) *Room {
 	if exit != -1 {
 		return room.ExitLinksToRooms[exit]
 	} else {
@@ -169,6 +177,9 @@ func (room *Room) GetItem(itemName string) (Item_I, bool) {
 }
 
 func (room *Room) GetAndRemoveItem(itemName string) (Item_I, bool) {
+	room.items_mutex.Lock()
+	defer room.items_mutex.Unlock()
+
 	if item, found := room.GetItem(itemName); found {
 		delete(room.ItemsInRoom, item.GetName())
 		return item, found
@@ -186,10 +197,9 @@ func (room *Room) GiveItemToPlayer(char *Character, itemName string) []Formatted
 	} else {
 		return newFormattedStringSplice("That item was not found in the room.")
 	}
-
 }
 
-func (room *Room) getMonster(monsterName string) *Monster {
+func (room *Room) GetMonster(monsterName string) *Monster {
 
 	for name, mosnter := range room.MonstersInRoom {
 		name = strings.ToLower(name)
@@ -202,9 +212,9 @@ func (room *Room) getMonster(monsterName string) *Monster {
 	return nil
 }
 
-func (room *Room) getAgentInRoom(name string) (Agenter, bool) {
+func (room *Room) GetAgent(name string) (Agenter, bool) {
 
-	if val := room.getMonster(name); val != nil {
+	if val := room.GetMonster(name); val != nil {
 		return val, true
 	} else if val, found := room.GetPlayer(name); found {
 		return val, true
@@ -213,7 +223,7 @@ func (room *Room) getAgentInRoom(name string) (Agenter, bool) {
 	}
 }
 
-func (room *Room) killOffMonster(monsterName string) {
+func (room *Room) KillOffMonster(monsterName string) {
 	drops := room.MonstersInRoom[monsterName].GetLootAndCorpse()
 	for _, drop := range drops {
 		room.AddItem(drop)
@@ -342,15 +352,15 @@ type ExitXML struct {
 	ConnectedRoomID int      `xml:"RoomID"`
 }
 
-//TODO add localWorld field
 type RoomXML struct {
-	XMLName     xml.Name  `xml:"Room"`
-	ID          int       `xml:"ID"`
-	Name        string    `xml:"Name"`
-	Description string    `xml:"Description"`
-	WorldID     string    `xml:"WorldID"`
-	Monsters    []string  `xml:"Monster"`
-	Exits       []ExitXML `xml:"Exit"`
+	XMLName     xml.Name     `xml:"Room"`
+	ID          int          `xml:"ID"`
+	Name        string       `xml:"Name"`
+	Description string       `xml:"Description"`
+	WorldID     string       `xml:"WorldID"`
+	Items       InventoryXML `xml:"Inventory"`
+	Monsters    []string     `xml:"Monster"`
+	Exits       []ExitXML    `xml:"Exit"`
 }
 
 type RoomsXML struct {
@@ -359,7 +369,7 @@ type RoomsXML struct {
 	respawnRoomID int       `xml:"RespawnRoomID"`
 }
 
-func loadRooms() map[int]*Room {
+func LoadRooms() map[int]*Room {
 	xmlFile, err := os.Open(serverName + ".xml")
 	checkErrorWithMessage(err, true, " In load rooms function.")
 	defer xmlFile.Close()
@@ -373,7 +383,7 @@ func loadRooms() map[int]*Room {
 	rooms := make(map[int]*Room)
 
 	for _, roomData := range roomsData.Rooms {
-		getRoom := newRoomFromXML(roomData)
+		getRoom := NewRoom(roomData)
 		rooms[getRoom.ID] = getRoom
 	}
 
