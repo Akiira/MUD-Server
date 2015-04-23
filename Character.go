@@ -7,7 +7,6 @@ import (
 	"github.com/daviddengcn/go-colortext"
 	"math/rand"
 	"net"
-	"os"
 	"strconv"
 	"sync"
 )
@@ -29,22 +28,12 @@ type Character struct {
 	equippedArmour   ArmourSet
 
 	myClientConn *ClientConnection
-	inv_mutex    sync.Locker
+	inv_mutex    sync.Mutex
 }
 
-//=================== CONSTRUCTORS =====================//
+//=================== CONSTRUCTOR ======================//
 
-func NewCharacter(name string, room int, hp int, def int) *Character {
-	char := new(Character)
-	char.Name = name
-	char.currentHP = hp
-	char.PersonalInvetory = *NewInventory()
-	char.equippedArmour = *NewArmourSet()
-
-	return char
-}
-
-func NewCharacterFromXML(charData *CharacterXML) *Character {
+func NewCharacter(charData *CharacterXML) *Character {
 	char := new(Character)
 
 	char.SetAgentStats(charData)
@@ -58,6 +47,7 @@ func NewCharacterFromXML(charData *CharacterXML) *Character {
 	char.equipedWeapon = NewWeaponFromXML(&charData.EquipedWeapon)
 	char.equippedArmour = *NewArmourSetFromXML(&charData.ArmSet)
 	char.PersonalInvetory = *NewInventoryFromXML(&charData.PersInv)
+	char.inv_mutex = sync.Mutex{}
 
 	return char
 }
@@ -135,7 +125,7 @@ func (c *Character) UnWieldWeapon() []FormattedString {
 
 // ===== Inventory Functions
 
-func (c *Character) AddInventoryToInventory(otherInv *Inventory) {
+func (c *Character) AddInventory(otherInv *Inventory) {
 	c.PersonalInvetory.AddInventory(otherInv)
 }
 
@@ -151,12 +141,25 @@ func (c *Character) AddItem(item Item_I) {
 	}
 }
 
-func (char *Character) LockInventory() {
-	char.inv_mutex.Lock()
+func (c *Character) GetAndRemoveItems(names []string) (items []Item_I) {
+	for _, name := range names {
+		if item, found := c.GetAndRemoveItem(name); found {
+			items = append(items, item)
+		}
+	}
+
+	return items
 }
 
-func (char *Character) UnLockInventory() {
-	char.inv_mutex.Unlock()
+func (c *Character) GetAndRemoveItem(name string) (Item_I, bool) {
+	c.inv_mutex.Lock()
+	defer c.inv_mutex.Unlock()
+
+	return c.PersonalInvetory.GetAndRemoveItem(name)
+}
+
+func (c *Character) GetItem(name string) (Item_I, bool) {
+	return c.PersonalInvetory.GetItem(name)
 }
 
 // ===== General Functions
@@ -174,10 +177,7 @@ func (char *Character) Move(source *Room, destination *Room) (int, []FormattedSt
 			source.RemovePlayer(char.Name)
 			destination.AddPlayer(char)
 
-			charXML := char.ToXML()
-			charXML.CurrentWorld = destination.WorldID
-
-			SendCharactersXML(charXML)
+			SendCharactersXML(char.ToXML())
 
 			return REDIRECT, newFormattedStringSplice(servers[destination.WorldID])
 		}
@@ -287,24 +287,6 @@ func (c *Character) GetDefense() int {
 	return c.equippedArmour.GetDefense()
 }
 
-func (c *Character) GetAndRemoveItems(names []string) (items []Item_I) {
-	for _, name := range names {
-		if item, found := c.GetAndRemoveItem(name); found {
-			items = append(items, item)
-		}
-	}
-
-	return items
-}
-
-func (c *Character) GetAndRemoveItem(name string) (Item_I, bool) {
-	return c.PersonalInvetory.GetAndRemoveItem(name)
-}
-
-func (c *Character) GetItem(name string) (Item_I, bool) {
-	return c.PersonalInvetory.GetItem(name)
-}
-
 func (c *Character) GetAlignment() string {
 	if c.Alignment > 400 {
 		return "Good"
@@ -358,7 +340,7 @@ func (c *Character) GetTradeResponse() string {
 	return c.myClientConn.GetResponseToTrade()
 }
 
-func (c *Character) GetEquipment() []FormattedString {
+func (c *Character) GetEquipmentPage() []FormattedString {
 	output := newFormattedStringCollection()
 
 	output.addMessage(ct.Green, "\t\t\tEquipment Page for "+c.Name+"\n--------------------------------------------------------------------\n")
@@ -374,7 +356,7 @@ func (c *Character) GetEquipment() []FormattedString {
 	return output.fmtedStrings
 }
 
-func (c *Character) GetStats() []FormattedString {
+func (c *Character) GetStatsPage() []FormattedString {
 
 	output := newFormattedStringCollection()
 
@@ -461,7 +443,7 @@ func (char *Character) ToXML() *CharacterXML {
 	ch.ArmSet = *char.equippedArmour.ToXML()
 	ch.PersInv = *char.PersonalInvetory.toXML()
 
-	ch.CurrentWorld = os.Args[1]
+	ch.CurrentWorld = eventManager.GetPlayersWorld(char)
 
 	return ch
 }
@@ -538,6 +520,6 @@ func GetCharacterFromStorage(charName string) (char *Character, err error) {
 	}
 
 	//Decode the characters xml into a character object
-	char = NewCharacterFromXML(&queriedChar)
+	char = NewCharacter(&queriedChar)
 	return char, err
 }
