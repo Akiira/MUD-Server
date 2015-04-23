@@ -33,7 +33,7 @@ Looking southward, the trail can be seen ending in a dark cave entrance.</Descri
 	</Room>
 	<Room>
 		<ID>1001</ID>
-		<Name>A dark cave </Name>
+		<Name>A dark cave</Name>
 		<Description>Covered in a slimy sweat, those rough hewn walls close in about you like
 a wet blanket.  Rotting garbage litters the ground, adding a distinct odor
 to the cave.  Holding your nose against the smell and decay, you wonder if
@@ -41,6 +41,14 @@ you should explore deeper.</Description>
 		<WorldID>local</WorldID>
 		<Monster>Rabbit</Monster>
 		<Monster>Deer</Monster>
+		<Inventory>
+			<Item>
+				<Name>Pick Axe</Name>
+				<Description>Pick Axe</Description>
+				<Level>1</Level>
+				<Worth>15</Worth>
+			</Item>
+		</Inventory>		
 		<Exit> 
 			<Direction>n</Direction>	
 			<RoomID>1000</RoomID>			
