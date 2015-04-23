@@ -29,7 +29,7 @@ type ClientConnection struct {
 //CliecntConnection constructor constructs a new client connection and sets the
 //current event manager to the one supplied. This constructor is responsible
 //for getting the initial room description.
-func NewClientConnection(conn net.Conn, char *Character, decoder *gob.Decoder, encder *gob.Encoder) *ClientConnection {
+func NewClientConnection(conn net.Conn, char *Character, decoder *gob.Decoder, encder *gob.Encoder) {
 	cc := new(ClientConnection)
 	cc.myConn = conn
 
@@ -44,7 +44,7 @@ func NewClientConnection(conn net.Conn, char *Character, decoder *gob.Decoder, e
 	cc.tradeChannel = make(chan string)
 	cc.pingChannel = make(chan string)
 
-	return cc
+	go cc.Read()
 }
 
 //Read will continuously try to read from the connection established with the client.

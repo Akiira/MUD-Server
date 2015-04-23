@@ -29,7 +29,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	readServerList()
+	ReadServerAddresses()
 	go runServer()
 	GetInputFromUser()
 }
@@ -45,14 +45,14 @@ func GetInputFromUser() {
 		if input == "exit" {
 			os.Exit(1)
 		} else if input == "refreshserver" {
-			readServerList()
+			ReadServerAddresses()
 		}
 	}
 }
 
-//readServerList reads the list of server names and their corresponding addresses
+//ReadServerAddresses reads the list of server names and their corresponding addresses
 //in from a txt file. The names and addresses are stored in the global servers variable.
-func readServerList() {
+func ReadServerAddresses() error {
 	file, err := os.Open("serverConfig/serverList.txt")
 	if err != nil {
 		log.Fatal(err)
@@ -66,9 +66,7 @@ func readServerList() {
 		servers[readData[0]] = readData[1]
 	}
 
-	if err := scanner.Err(); err != nil {
-		log.Fatal(err)
-	}
+	return scanner.Err()
 }
 
 //NewServerListener takes an internet address - could just be a port number - and
@@ -105,35 +103,49 @@ func HandleConnection(conn net.Conn) (err error) {
 	var clientResponse ClientMessage
 	decoder := gob.NewDecoder(conn)
 
-	if err = decoder.Decode(&clientResponse); err != nil {
-		checkError(err, false)
-		return conn.Close()
-	}
+	err = decoder.Decode(&clientResponse)
+	checkError(err, false)
 
 	if clientResponse.Command == "heartbeat" {
-		err = gob.NewEncoder(conn).Encode(newServerMessageTypeS(REPLYPING, "beat"))
-		if err != nil {
-			return err
-		} else {
-			return conn.Close()
-		}
+		return HandleHeartBeatConnection(conn)
 	} else if clientResponse.Command == "refreshserver" {
-		err = ioutil.WriteFile("./serverConfig/serverList.txt", []byte(clientResponse.Value), 0666)
-		checkError(err, true)
-		readServerList()
-
-		return conn.Close()
-	} else { //it means this connection is from the player for game play
-		var clientsCharacter *Character
-
-		if clientsCharacter, err = GetCharacterFromStorage(clientResponse.getUsername()); err == nil {
-			clientConnection := NewClientConnection(conn, clientsCharacter, decoder, gob.NewEncoder(conn))
-			eventManager.AddPlayerToRoom(clientsCharacter)
-			go clientConnection.Read()
-		}
-
-		return err
+		return HandleServerRefresh(conn, clientResponse.Value)
+	} else {
+		return HandlePlayerConnection(conn, decoder, clientResponse.getUsername())
 	}
+}
+
+func HandleServerRefresh(conn net.Conn, updatedAddress string) (err error) {
+	defer conn.Close()
+
+	err = ioutil.WriteFile("./serverConfig/serverList.txt", []byte(updatedAddress), 0666)
+
+	//Since failing to update these addresses means the server cant do its job
+	//any more, its best to just shut it down.
+	checkError(err, true)
+
+	return ReadServerAddresses()
+}
+
+func HandleHeartBeatConnection(conn net.Conn) (err error) {
+	defer conn.Close()
+
+	//Simply send a beat back to let the central server know
+	//this server is still alive
+	err = gob.NewEncoder(conn).Encode(newServerMessageTypeS(REPLYPING, "beat"))
+
+	return err
+}
+
+func HandlePlayerConnection(conn net.Conn, decoder *gob.Decoder, charsName string) (err error) {
+	var clientsCharacter *Character
+
+	if clientsCharacter, err = GetCharacterFromStorage(charsName); err == nil {
+		NewClientConnection(conn, clientsCharacter, decoder, gob.NewEncoder(conn))
+		eventManager.AddPlayerToRoom(clientsCharacter)
+	}
+
+	return err
 }
 
 //TODO is this more appropiate here or in the character class?
