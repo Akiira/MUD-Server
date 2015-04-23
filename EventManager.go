@@ -90,87 +90,100 @@ func (em *EventManager) ExecuteNonCombatEvent(cc *ClientConnection, event *Clien
 
 	switch event.getCommand() {
 	case "auction": //This is to start an auction
-		output = em.StartAuction(cc.getCharacter(), event.Value)
+		output = em.StartAuction(cc.GetCharacter(), event.Value)
 	case "bid":
 		output = em.BidOnAuction(cc, event.getBid())
 	case "unwield", "uw":
 		output = cc.character.UnWieldWeapon()
-	case "wield", "w":
+	case "wield", "wi":
 		output = cc.character.WieldWeapon(event.Value)
 	case "unequip", "remove", "rm":
 		output = cc.character.UnEquipArmourByName(event.Value)
-	case "equip", "wear":
+	case "equip", "wear", "we":
 		output = cc.character.EquipArmorByName(event.Value)
 	case "equipment", "eq":
 		output = cc.character.GetEquipment()
 	case "inventory", "inv":
 		output = cc.character.PersonalInvetory.GetInventoryPage()
 	case "save", "exit":
-		SendCharactersXML(cc.getCharacter().ToXML())
+		SendCharactersXML(cc.GetCharacter().ToXML())
 		output = newFormattedStringSplice("Character succesfully saved.\n")
 	case "stats":
-		output = cc.getCharacter().GetStats()
-	case "look":
+		output = cc.GetCharacter().GetStats()
+	case "look", "l":
 		room := em.GetRoom(cc)
-		if event.Value == "room" || event.Value == "" {
+		if event.Value == "room" || event.Value == "" || event.Value == "r" {
 			output = room.GetDescription()
 		} else if item, found := room.GetItem(event.Value); found {
 			output = item.GetDescription()
-		} else if item, found := cc.getCharacter().GetItem(event.Value); found {
+		} else if item, found := cc.GetCharacter().GetItem(event.Value); found {
 			output = item.GetDescription()
 		} else if agent, found := room.getAgentInRoom(event.Value); found {
 			output = newFormattedStringSplice("\n" + agent.GetDescription() + "\n")
 		} else {
 			output = newFormattedStringSplice("That item or creature could not be found anywhere.\n")
 		}
-
 	case "get", "g":
-		output = em.GetRoom(cc.getCharactersRoomID()).GiveItemToPlayer(cc.character, event.Value)
+		output = em.GetRoom(cc.GetCharactersRoomID()).GiveItemToPlayer(cc.character, event.Value)
 	case "drop", "d":
-		if em.IsTrading(cc.getCharactersName()) {
-			output = newFormattedStringSplice2(ct.Red, "\nYou can not drop items while you are trading.\n")
-		} else if item, found := cc.getCharacter().GetAndRemoveItem(event.Value); found {
-			em.GetRoom(cc.getCharactersRoomID()).AddItem(item)
-			output = newFormattedStringSplice("You dropped the " + item.GetName() + " on the ground.\n")
-		} else {
-			output = newFormattedStringSplice("You dropped the " + item.GetName() + " on the ground.\n")
-		}
+		output = em.Drop(cc.GetCharacter(), event.Value)
+	case "level", "lvl":
+		output = cc.GetCharacter().LevelUp()
 	case "move":
-		if em.IsTrading(cc.getCharactersName()) {
-			output = newFormattedStringSplice2(ct.Red, "\nYou can not move rooms while you are trading.\n")
-		} else if em.IsInCombat(cc.getCharacter()) {
-			output = newFormattedStringSplice2(ct.Red, "\nYou can not move rooms while you are in combat. If your need to get away try 'flee'.\n")
-		} else {
-			src := em.worldRooms[cc.getCharactersRoomID()]
-			dest := src.getConnectedRoom(convertDirectionToInt(event.Value))
-
-			msgType, output = cc.character.Move(src, dest)
-		}
+		msgType, output = em.Move(cc.GetCharacter(), event.Value)
 	case "flee":
-		if em.IsTrading(cc.getCharactersName()) {
-			output = newFormattedStringSplice2(ct.Red, "\nYou can not flee from a room while you are trading.\n")
-		} else {
-			src := em.worldRooms[cc.getCharactersRoomID()]
-			dest := src.getConnectedRoom(convertDirectionToInt(event.Value))
-
-			src.UnAggroPlayer(cc.getCharactersName())
-
-			msgType, output = cc.character.Move(src, dest)
-			output = append(cc.getCharacter().ApplyFleePenalty(), output...)
-		}
+		msgType, output = em.Flee(cc.GetCharacter(), event.Value)
 	case "yell":
 		em.SendMessageToWorld(newServerMessageFS(newFormattedStringSplice2(ct.Blue, cc.character.Name+" says \""+event.Value+"\"")))
 	case "say":
 		formattedOutput := newFormattedStringSplice2(ct.Blue, cc.character.Name+" says \""+event.Value+"\"")
 		em.SendMessageToRoom(cc.character.RoomIN, ServerMessage{Value: formattedOutput})
 	case "trade":
-		go em.ExecuteTradeEvent(cc.getCharacter(), event)
+		output = em.Trade(cc, event)
 	case "help":
 		output = newFormattedStringSplice("\nYou can use the following commands\nattack\ninv\nlook\nyell\nsay\ntrade\nbid\nwield\nunwield\nequip\nget\nmove\nauction\n")
 	}
 
 	if len(output) > 0 {
 		cc.Write(newServerMessageTypeFS(msgType, output))
+	}
+}
+
+func (em *EventManager) Drop(char *Character, itemName string) []FormattedString {
+	if em.IsTrading(char.GetName()) {
+		return newFormattedStringSplice2(ct.Red, "\nYou can not drop items while you are trading.\n")
+	} else if item, found := char.GetAndRemoveItem(itemName); found {
+		em.GetRoom(char.GetRoomID()).AddItem(item)
+		return newFormattedStringSplice("You dropped the " + item.GetName() + " on the ground.\n")
+	} else {
+		return newFormattedStringSplice("You dropped the " + item.GetName() + " on the ground.\n")
+	}
+}
+
+func (em *EventManager) Move(char *Character, direction string) (int, []FormattedString) {
+	if em.IsTrading(char.GetName()) {
+		return GAMEPLAY, newFormattedStringSplice2(ct.Red, "\nYou can not move rooms while you are trading.\n")
+	} else if em.IsInCombat(char) {
+		return GAMEPLAY, newFormattedStringSplice2(ct.Red, "\nYou can not move rooms while you are in combat. If your need to get away try 'flee'.\n")
+	} else {
+		src := em.GetRoom(char)
+		dest := src.getConnectedRoom(convertDirectionToInt(direction))
+
+		return char.Move(src, dest)
+	}
+}
+
+func (em *EventManager) Flee(char *Character, direction string) (int, []FormattedString) {
+	if em.IsTrading(char.GetName()) {
+		return GAMEPLAY, newFormattedStringSplice2(ct.Red, "\nYou can not flee from a room while you are trading.\n")
+	} else {
+		src := em.worldRooms[char.GetRoomID()]
+		dest := src.getConnectedRoom(convertDirectionToInt(direction))
+
+		src.UnAggroPlayer(char.GetName())
+
+		msgType, output := char.Move(src, dest)
+		return msgType, append(char.ApplyFleePenalty(), output...)
 	}
 }
 
@@ -199,7 +212,7 @@ func (em *EventManager) GetRoom(input interface{}) *Room {
 	case int:
 		roomID = input
 	case *ClientConnection:
-		roomID = input.getCharactersRoomID()
+		roomID = input.GetCharactersRoomID()
 	case *Character:
 		roomID = input.GetRoomID()
 	}
@@ -237,6 +250,17 @@ func (em *EventManager) IsInCombat(char *Character) bool {
 }
 
 //-----------------------------TRADING EVENT FUNCTIONS------------------------//
+
+func (em *EventManager) Trade(cc *ClientConnection, event *ClientMessage) []FormattedString {
+	if em.IsInCombat(cc.GetCharacter()) {
+		return newFormattedStringSplice("\nYou can not start a trade while in combat.\n")
+	} else if em.IsTrading(cc.GetCharactersName()) {
+		return newFormattedStringSplice("\nYou are already trading with someone. Finish that then try again.\n")
+	} else {
+		go em.ExecuteTradeEvent(cc.GetCharacter(), event)
+		return nil
+	}
+}
 
 func (em *EventManager) IsTrading(charName string) bool {
 	val, found := em.traders[charName]
