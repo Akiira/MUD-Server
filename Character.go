@@ -144,7 +144,11 @@ func (c *Character) AddItems(items []Item_I) {
 }
 
 func (c *Character) AddItem(item Item_I) {
-	c.PersonalInvetory.AddItem(item)
+	if item.GetName() == "Gold" {
+		c.gold += item.GetWorth()
+	} else {
+		c.PersonalInvetory.AddItem(item)
+	}
 }
 
 func (char *Character) LockInventory() {
@@ -182,9 +186,12 @@ func (char *Character) Move(source *Room, destination *Room) (int, []FormattedSt
 	}
 }
 
+//Attack executes an attack, by the character, against the supplied target. It is
+//required for the Agenter interface. Player experience is automatically handled
+//here. If the target dies the correct clean up functions are called.
 func (char *Character) Attack(target Agenter) []FormattedString {
 
-	if target == nil { // check that the target is still there, not dead from the previous round
+	if target == nil {
 		return newFormattedStringSplice("\nYour target does not exist, perhaps you typed the name wrong or another player killed it!\n")
 	}
 
@@ -199,7 +206,7 @@ func (char *Character) Attack(target Agenter) []FormattedString {
 			if target.IsDead() {
 				char.experience += 10 * target.GetLevel()
 				room := eventManager.GetRoom(char)
-				room.killOffMonster(target.GetName())
+				room.KillOffMonster(target.GetName())
 
 				return newFormattedStringSplice("You hit " + target.GetName() + " for " + strconv.Itoa(dmg) + " damage and it drops over dead.\n")
 			} else {
