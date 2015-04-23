@@ -196,14 +196,14 @@ func (room *Room) getMonster(monsterName string) *Monster {
 	return nil
 }
 
-func (room *Room) getAgentInRoom(name string) Agenter {
+func (room *Room) getAgentInRoom(name string) (Agenter, bool) {
 
 	if val := room.getMonster(name); val != nil {
-		return val
+		return val, true
 	} else if val, found := room.GetPlayer(name); found {
-		return val
+		return val, true
 	} else { // in case, it's already dead, return nil
-		return nil
+		return nil, false
 	}
 }
 

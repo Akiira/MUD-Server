@@ -64,11 +64,9 @@ func (em *EventManager) ExecuteCombatRound() {
 	alreadyActed := make(map[string]bool)
 
 	for _, event := range em.eventQue {
-		//TODO sort events by initiative stat before executing them
-		action := event.action
-		agent := event.agent
+		action, agent := event.action, event.agent
 
-		target := em.worldRooms[agent.GetRoomID()].getAgentInRoom(event.target)
+		target, _ := em.worldRooms[agent.GetRoomID()].getAgentInRoom(event.target)
 
 		if _, found := alreadyActed[agent.GetName()]; !found {
 			alreadyActed[agent.GetName()] = true
@@ -86,10 +84,6 @@ func (em *EventManager) ExecuteCombatRound() {
 	em.queue_lock.Unlock()
 }
 
-//TODO add checks around the needed commands to prevent players from droping items during trades
-// or moving during trades.
-
-//TODO move any command that requires more then 3 lines to its own function
 func (em *EventManager) ExecuteNonCombatEvent(cc *ClientConnection, event *ClientMessage) {
 	var output []FormattedString
 	var msgType int = GAMEPLAY
@@ -118,17 +112,18 @@ func (em *EventManager) ExecuteNonCombatEvent(cc *ClientConnection, event *Clien
 		output = cc.getCharacter().GetStats()
 	case "look":
 		room := em.GetRoom(cc)
-		if event.Value == "room" {
+		if event.Value == "room" || event.Value == "" {
 			output = room.GetDescription()
+		} else if _, found := room.GetItem(event.Value); found { //TODO change return type of getDescr..
+			//output = item.getDescription()
+		} else if _, found := cc.getCharacter().GetItem(event.Value); found {
+			//output = item.getDescription()
+		} else if _, found := room.getAgentInRoom(event.Value); found {
+			//output = agent.getDescription()
 		} else {
-			if _, found := room.GetItem(event.Value); found { //TODO change return type of getDescr..
-				//output = item.getDescription()
-			} else if _, found := cc.getCharacter().GetItem(event.Value); found {
-				//output = item.getDescription()
-			} else {
-				output = newFormattedStringSplice("That item could not be found anywhere.\n")
-			}
+			output = newFormattedStringSplice("That item or creature could not be found anywhere.\n")
 		}
+
 	case "get":
 		output = em.GetRoom(cc.getCharactersRoomID()).GiveItemToPlayer(cc.character, event.Value)
 	case "drop":
@@ -217,7 +212,6 @@ func (em *EventManager) SetPlayerToNotTrading(name string) {
 	em.trade_lock.Unlock()
 }
 
-//TODO check players are not in combat before starting trade
 func (em *EventManager) ExecuteTradeEvent(trader *Character, event *ClientMessage) {
 
 	em.SetPlayerToTrading(trader.GetName())
@@ -229,7 +223,7 @@ func (em *EventManager) ExecuteTradeEvent(trader *Character, event *ClientMessag
 		return
 	}
 
-	em.SetPlayerToTrading(tradee.GetName()) //TODO should we double check they are still in the room?
+	em.SetPlayerToTrading(tradee.GetName())
 	defer em.SetPlayerToNotTrading(tradee.GetName())
 
 	trader.SendMessage("The trade is opened, what items would you like to trade? Type 'add' [item name] to add an item to the trade or 'add' [quantity] [item name].\n")
@@ -291,21 +285,24 @@ func (em *EventManager) GetTradeItemsFromPlayers(trader, tradee *Character, trde
 	wg.Wait()
 }
 
-//TODO combine msg to same person into one server msg to make it appear cleaner on clients side
 func (em *EventManager) SendFinalTradeTerms(trader, tradee *Character, trderInv, trdeeInv *Inventory) {
-	//send final terms out to players
-	trader.SendMessage("Here are the final terms of the trade, you will receive:\n")
-	trader.SendMessage(trdeeInv.getInventoryDescription())
-	trader.SendMessage("And are trading away:\n")
-	trader.SendMessage(trderInv.getInventoryDescription())
 
-	tradee.SendMessage("Here are the final terms of the trade, you will receive:\n")
-	tradee.SendMessage(trderInv.getInventoryDescription())
-	tradee.SendMessage("And are trading away:\n")
-	tradee.SendMessage(trdeeInv.getInventoryDescription())
+	tradersMsg := newFormattedStringCollection()
+	tradersMsg.addMessage2("Here are the final terms of the trade, you will receive:\n")
+	tradersMsg.addMessages2(trdeeInv.getInventoryDescription())
+	tradersMsg.addMessage2("And are trading away:\n")
+	tradersMsg.addMessages2(trderInv.getInventoryDescription())
+	tradersMsg.addMessage2("If you accept the terms of this trade then type 'accept' else type 'reject'.\n")
 
-	trader.SendMessage("If you accept the terms of this trade then type 'accept' else type 'reject'.\n")
-	tradee.SendMessage("If you accept the terms of this trade then type 'accept' else type 'reject'.\n")
+	tradeesMsg := newFormattedStringCollection()
+	tradeesMsg.addMessage2("Here are the final terms of the trade, you will receive:\n")
+	tradeesMsg.addMessages2(trderInv.getInventoryDescription())
+	tradeesMsg.addMessage2("And are trading away:\n")
+	tradeesMsg.addMessages2(trdeeInv.getInventoryDescription())
+	tradeesMsg.addMessage2("If you accept the terms of this trade then type 'accept' else type 'reject'.\n")
+
+	tradee.SendMessage(tradeesMsg.fmtedStrings)
+	trader.SendMessage(tradersMsg.fmtedStrings)
 }
 
 func (em *EventManager) AskFinalTradePrompt(trader, tradee *Character) bool {
@@ -338,7 +335,7 @@ func (em *EventManager) StartAuction(char *Character, itemName string) (output [
 	if !em.IsAuctionRunning() {
 		if item, found := char.GetAndRemoveItem(itemName); found {
 			em.auction = newAuction(item)
-			go em.runAuction()
+			go em.RunAuction()
 			output = newFormattedStringSplice("Your auction was succesfully started.")
 		} else {
 			output = newFormattedStringSplice("Could not start the auction because you do not have that item.")
@@ -362,8 +359,7 @@ func (em *EventManager) BidOnAuction(cc *ClientConnection, bid int) []FormattedS
 	}
 }
 
-//TODO send better message
-func (em *EventManager) sendPeriodicAuctionInfo() {
+func (em *EventManager) SendPeriodicAuctionInfo() {
 	for {
 		time.Sleep(time.Second * 5)
 		if em.auction.timeTillOver() > time.Second*5 {
@@ -374,9 +370,9 @@ func (em *EventManager) sendPeriodicAuctionInfo() {
 	}
 }
 
-func (em *EventManager) runAuction() {
+func (em *EventManager) RunAuction() {
 
-	go em.sendPeriodicAuctionInfo()
+	go em.SendPeriodicAuctionInfo()
 
 	for {
 

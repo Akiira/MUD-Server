@@ -188,7 +188,7 @@ func (char *Character) moveCharacter(source *Room, destination *Room) (int, []Fo
 func (char *Character) makeAttack(target Agenter) []FormattedString {
 
 	if target == nil { // check that the target is still there, not dead from the previous round
-		return newFormattedStringSplice("\nYour target does not exist any more!\n")
+		return newFormattedStringSplice("\nYour target does not exist, perhaps you typed the name wrong or another player killed it!\n")
 	}
 
 	if !target.IsDead() {
