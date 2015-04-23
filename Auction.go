@@ -40,7 +40,7 @@ func (a *Auction) isOver() bool {
 
 func (a *Auction) awardItemToWinner(winner *Bid) {
 	winner.bidder.Write(newServerMessageS("You won the auction."))
-	winner.bidder.giveItem(a.itemUp)
+	winner.bidder.GiveItem(a.itemUp)
 }
 
 func (a *Auction) getAuctionInfo() ServerMessage {
@@ -49,7 +49,7 @@ func (a *Auction) getAuctionInfo() ServerMessage {
 	msg.addMessage2(fmt.Sprintf("\tItem: %-15s ", a.itemUp.GetName()))
 
 	if a.highestBid != nil {
-		msg.addMessage2(fmt.Sprintf("Current Bid: %d     Bidder: %-15s", a.highestBid.amount, a.highestBid.bidder.getCharactersName()))
+		msg.addMessage2(fmt.Sprintf("Current Bid: %d     Bidder: %-15s", a.highestBid.amount, a.highestBid.bidder.GetCharactersName()))
 	} else {
 		msg.addMessage2("\tCurrent Bid: None")
 	}

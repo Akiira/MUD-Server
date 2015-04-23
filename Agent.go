@@ -10,6 +10,7 @@ type Agenter interface {
 	GetDescription() string
 	GetDefense() int
 	GetRoomID() int
+	GetLevel() int
 
 	IsDead() bool
 
@@ -21,6 +22,9 @@ type Agent struct {
 	currentHP    int
 	MaxHitPoints int
 	RoomIN       int
+	Level        int
+	Defense      int
+	Attack       int
 	//	PersonalInv    Inventory
 	//	EquippedArmour ArmourSet
 
@@ -44,4 +48,21 @@ func (a *Agent) SetAgentStats(charData *CharacterXML) {
 	a.MaxHitPoints = charData.HP
 	a.Name = charData.Name
 	a.RoomIN = charData.RoomIN
+	a.Level = charData.Level
+}
+
+func (a *Agent) GetLevel() int {
+	return a.Level
+}
+
+func (a *Agent) incrementLevel() {
+	a.Level++
+}
+
+func (a *Agent) incrementAttack() {
+	a.Attack++
+}
+
+func (a *Agent) incrementDefense() {
+	a.Defense++
 }
