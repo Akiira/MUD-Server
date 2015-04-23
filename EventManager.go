@@ -179,8 +179,10 @@ func (em *EventManager) GetRoom(input interface{}) *Room {
 
 func (em *EventManager) AddPlayerToRoom(char *Character) {
 	if room := em.GetRoom(char); room != nil {
+		fmt.Println("\t\tAdding Player to room.")
 		room.AddPlayer(char)
 		if room.isLocal() {
+			fmt.Println("\t\tSending message.")
 			char.SendMessage(room.GetDescription())
 		}
 	}
@@ -213,7 +215,6 @@ func (em *EventManager) SetPlayerToNotTrading(name string) {
 }
 
 func (em *EventManager) ExecuteTradeEvent(trader *Character, event *ClientMessage) {
-
 	em.SetPlayerToTrading(trader.GetName())
 	defer em.SetPlayerToNotTrading(trader.GetName())
 

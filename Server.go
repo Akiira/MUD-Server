@@ -101,29 +101,38 @@ func runServer() {
 	}
 }
 
-func HandleConnection(conn net.Conn) error {
+func HandleConnection(conn net.Conn) (err error) {
 	var clientResponse ClientMessage
-
 	decoder := gob.NewDecoder(conn)
-	err := decoder.Decode(&clientResponse)
-	checkError(err, false)
+
+	if err = decoder.Decode(&clientResponse); err != nil {
+		checkError(err, false)
+		return conn.Close()
+	}
 
 	if clientResponse.Command == "heartbeat" {
 		err = gob.NewEncoder(conn).Encode(newServerMessageTypeS(REPLYPING, "beat"))
-		checkError(err, false)
-
-		return conn.Close()
+		if err != nil {
+			return err
+		} else {
+			return conn.Close()
+		}
 	} else if clientResponse.Command == "refreshserver" {
-		err := ioutil.WriteFile("./serverConfig/serverList.txt", []byte(clientResponse.Value), 0666)
+		err = ioutil.WriteFile("./serverConfig/serverList.txt", []byte(clientResponse.Value), 0666)
 		checkError(err, true)
 		readServerList()
 
 		return conn.Close()
 	} else { //it means this connection is from the player for game play
-		clientConnection := NewClientConnection(conn, eventManager, clientResponse, decoder)
-		go clientConnection.Read()
+		var clientsCharacter *Character
 
-		return nil
+		if clientsCharacter, err = GetCharacterFromStorage(clientResponse.getUsername()); err == nil {
+			clientConnection := NewClientConnection(conn, clientsCharacter, decoder, gob.NewEncoder(conn))
+			eventManager.AddPlayerToRoom(clientsCharacter)
+			go clientConnection.Read()
+		}
+
+		return err
 	}
 }
 

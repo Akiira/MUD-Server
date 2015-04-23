@@ -202,7 +202,7 @@ func (char *Character) makeAttack(target Agenter) []FormattedString {
 
 			if target.IsDead() {
 				// TODO  reward player exp
-				room := char.myClientConn.CurrentEM.worldRooms[char.RoomIN] //TODO fix this line
+				room := char.myClientConn.EventManager.worldRooms[char.RoomIN] //TODO fix this line
 				room.killOffMonster(target.GetName())
 
 				return newFormattedStringSplice("You hit " + target.GetName() + " for " + strconv.Itoa(dmg) + " damage and it drops over dead.\n")
@@ -237,8 +237,8 @@ func (c *Character) respawn() *FmtStrCollection {
 
 	//These two lines are kinda ugly, maybe when a player dies the monster adds a respawn event to em
 	// and then the even manager passes the respawn room to the characters respawn function.
-	src := c.GetClientConnection().CurrentEM.worldRooms[c.GetClientConnection().getCharactersRoomID()]
-	dest := c.GetClientConnection().CurrentEM.worldRooms[worldRespawnRoomID]
+	src := c.GetClientConnection().EventManager.worldRooms[c.GetClientConnection().getCharactersRoomID()]
+	dest := c.GetClientConnection().EventManager.worldRooms[worldRespawnRoomID]
 
 	c.moveCharacter(src, dest)
 	c.currentHP = c.MaxHitPoints
@@ -497,9 +497,11 @@ type CharacterXML struct {
 
 //GetCharacterFromStorage querys the characterStorage server for the characters
 //data and stores it into a new character object.
-func GetCharacterFromStorage(charName string) *Character {
+func GetCharacterFromStorage(charName string) (char *Character, err error) {
 	conn, err := net.Dial("tcp", servers["characterStorage"])
-	checkError(err, true)
+	if err != nil {
+		return char, err
+	}
 	defer conn.Close()
 
 	enc := gob.NewEncoder(conn)
@@ -507,11 +509,17 @@ func GetCharacterFromStorage(charName string) *Character {
 
 	var queriedChar CharacterXML
 
-	err = enc.Encode(newServerMessageTypeS(GETFILE, charName))
-	checkError(err, true)
+	//Request file from server
+	if err = enc.Encode(newServerMessageTypeS(GETFILE, charName)); err != nil {
+		return char, err
+	}
 
-	err = dec.Decode(&queriedChar)
-	checkError(err, true)
+	//Decone the character from message
+	if err = dec.Decode(&queriedChar); err != nil {
+		return char, err
+	}
 
-	return characterFromXML(&queriedChar)
+	//Decode the characters xml into a character object
+	char = characterFromXML(&queriedChar)
+	return char, err
 }

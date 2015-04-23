@@ -21,26 +21,25 @@ type ClientConnection struct {
 	pingChannel chan string
 
 	character *Character
-	CurrentEM *EventManager
+
+	//TODO this field can be removed since it is a global variable now
+	EventManager *EventManager
 }
 
 //CliecntConnection constructor constructs a new client connection and sets the
 //current event manager to the one supplied. This constructor is responsible
 //for getting the initial room description.
-func NewClientConnection(conn net.Conn, em *EventManager, clientResponse ClientMessage, decoder *gob.Decoder) *ClientConnection {
+func NewClientConnection(conn net.Conn, char *Character, decoder *gob.Decoder, encder *gob.Encoder) *ClientConnection {
 	cc := new(ClientConnection)
 	cc.myConn = conn
 
-	cc.myEncoder = gob.NewEncoder(conn)
+	cc.myEncoder = encder
 	cc.myDecoder = decoder
 
-	cc.character = GetCharacterFromStorage(clientResponse.getUsername()) //maybe this should be moved out to Server.go
+	cc.character = char
+	char.myClientConn = cc
 	cc.character.myClientConn = cc
-	cc.CurrentEM = em
-	em.AddPlayerToRoom(cc.getCharacter()) //maybe this should be moved out to Server.go
-
-	//Send the client a description of their starting room
-	em.ExecuteNonCombatEvent(cc, &ClientMessage{Command: "look", Value: "room"})
+	cc.EventManager = eventManager
 
 	cc.tradeChannel = make(chan string)
 	cc.pingChannel = make(chan string)
@@ -53,7 +52,7 @@ func NewClientConnection(conn net.Conn, em *EventManager, clientResponse ClientM
 //and cleaning up the character from the world. When a succesful read occures
 //the corresponding event is added to the event queu or executed rightaway.
 func (cc *ClientConnection) Read() {
-	defer cc.CurrentEM.RemovePlayerFromRoom(cc.getCharactersName())
+	defer cc.EventManager.RemovePlayerFromRoom(cc.getCharactersName())
 	defer cc.myConn.Close()
 
 	for {
@@ -66,13 +65,13 @@ func (cc *ClientConnection) Read() {
 
 		if clientResponse.CombatAction {
 			event := newEventFromMessage(clientResponse, cc.character)
-			cc.CurrentEM.AddEvent(event)
+			cc.EventManager.AddEvent(event)
 		} else if clientResponse.getCommand() == "ping" {
 			go cc.SendToPingChannel()
 		} else if clientResponse.IsTradeCommand() {
 			go cc.SendToTradeChannel(clientResponse)
 		} else {
-			go cc.CurrentEM.ExecuteNonCombatEvent(cc, &clientResponse)
+			go cc.EventManager.ExecuteNonCombatEvent(cc, &clientResponse)
 		}
 
 		if clientResponse.Command == "exit" || err != nil {
