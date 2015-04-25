@@ -88,8 +88,9 @@ func RunServer() {
 	LoadMonsterData()
 	serverName = os.Args[1]
 	eventManager = NewEventManager()
-
-	listener := NewServerListener(servers[serverName])
+	serverAddr := ":" + (strings.Split(servers[serverName], ":"))[1]
+	fmt.Println(serverAddr)
+	listener := NewServerListener(serverAddr)
 
 	for {
 		conn, err := listener.Accept()
