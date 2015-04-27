@@ -20,7 +20,7 @@ Looking southward, the trail can be seen ending in a dark cave entrance.</Descri
 its daily defense against the goblins and balrogs to the south, it is
 literally an impenetrable wall.  To the north is the intersection of
 Vertic Avenue and Law Avenue.</Description>
-		<WorldID>local</WorldID>
+		<WorldID>world2</WorldID>
 		<Exit> 
 			<Direction>n</Direction>
 			<RoomID>2001</RoomID>			
@@ -38,7 +38,7 @@ Vertic Avenue and Law Avenue.</Description>
 the south, you see the massive south gate of Darkhaven, known as Darkwall.
 The cobbled roads of Vertic Avenue and Law Avenue lie in the four
 cardinal directions.</Description>
-		<WorldID>local</WorldID>
+		<WorldID>world2</WorldID>
 		<Exit> 
 			<Direction>s</Direction>
 			<RoomID>2000</RoomID>			
@@ -57,7 +57,7 @@ a particularly dark alley to the west which citizens commonly avoid.
 Grinning, you imagine the cloaked thief lurking in the shadows. Rising
 up to the east are a number of tall trees, no doubt from the park upon
 which the street was named. Vertic Avenue extends to the north and south.</Description>
-		<WorldID>local</WorldID>
+		<WorldID>world2</WorldID>
 		<Exit> 
 			<Direction>s</Direction>
 			<RoomID>2001</RoomID>			
@@ -76,7 +76,7 @@ which the street was named. Vertic Avenue extends to the north and south.</Descr
 intersection bustles with activity as citizens go about their business.
 To the east and west runs Market Street, lined with the exotic shops of
 Darkhaven, while Vertic Avenue lies to the north and south.</Description>
-		<WorldID>local</WorldID>
+		<WorldID>world2</WorldID>
 		<Exit> 
 			<Direction>s</Direction>
 			<RoomID>2002</RoomID>			
@@ -84,6 +84,10 @@ Darkhaven, while Vertic Avenue lies to the north and south.</Description>
 		<Exit> 
 			<Direction>n</Direction>
 			<RoomID>2004</RoomID>			
+		</Exit>
+		<Exit> 
+			<Direction>e</Direction>
+			<RoomID>2006</RoomID>			
 		</Exit>
 	</Room>
 	
@@ -95,13 +99,13 @@ with discarded bits of paper and sacks from the shops. The dirt road was
 recently extended as the markets of Darkhaven continue to grow and spread
 across the southern end of town. To the south, dust and loud, haggling
 voices drift in from the main intersection of the market.</Description>
-		<WorldID>local</WorldID>
+		<WorldID>world2</WorldID>
 		<Exit> 
 			<Direction>s</Direction>
 			<RoomID>2003</RoomID>			
 		</Exit>
 		<Exit> 
-			<Direction>s</Direction>
+			<Direction>n</Direction>
 			<RoomID>2005</RoomID>			
 		</Exit>
 	</Room>
@@ -117,7 +121,7 @@ A plaque set into the base of the fountain attracts your eye.  Cobblestone
 roads lead away in the four cardinal directions, while to the northeast
 and northwest are forested paths.  The cathedral spires of Notre Dame
 de Sioux rise with majesty above the treetops to the northwest.</Description>
-		<WorldID>local</WorldID>
+		<WorldID>world2</WorldID>
 		<Exit> 
 			<Direction>s</Direction>
 			<RoomID>2004</RoomID>			
@@ -132,7 +136,7 @@ de Sioux rise with majesty above the treetops to the northwest.</Description>
 and pavilions encourage potential customers to come inspect a shopkeeper's
 wares.  To the north is the Food Market, while the tent to the south is
 dedicated to repairing items.  Market Street stretches to the east and west.</Description>
-		<WorldID>local</WorldID>
+		<WorldID>world2</WorldID>
 		<Exit> 
 			<Direction>w</Direction>
 			<RoomID>2003</RoomID>			
@@ -149,7 +153,7 @@ dedicated to repairing items.  Market Street stretches to the east and west.</De
 her son to shabby equipment, she took up the job of putting protective suits
 of mail together.  The Daring Attack is to the east.  An opening in the tent leads back out north onto Market Street.
 There is a small sign here.</Description>
-		<WorldID>local</WorldID>
+		<WorldID>world2</WorldID>
 		<Exit> 
 			<Direction>n</Direction>
 			<RoomID>2006</RoomID>			
@@ -169,7 +173,7 @@ practice dummies hung from the ceiling.  A counter in the center of the
 room is where the keeper of this shop does business.  To the west is
 the Solid Parry, while an opening in the tent to the north leads
 back out onto Market Street.</Description>
-		<WorldID>local</WorldID>
+		<WorldID>world2</WorldID>
 		<Exit> 
 			<Direction>w</Direction>
 			<RoomID>2007</RoomID>			
@@ -186,7 +190,7 @@ back out onto Market Street.</Description>
 		<Description>You smile at the familiar sight of Market Street and its glorious pavilions.
 The ring of sword on sword can be heard to the south, while the dairy is
 situated to the north.  Market Street extends east and west.</Description>
-		<WorldID>local</WorldID>
+		<WorldID>world2</WorldID>
 		<Exit> 
 			<Direction>s</Direction>
 			<RoomID>2008</RoomID>			
@@ -208,7 +212,7 @@ have been laid out and labeled properly on several long shelves.  You notice
 many bottles of milk, which Matilda considers to be more important than even
 water, carefully stacked in the northeast corner.  To the west is the
 Darkhaven Bakery, while Market Street lies to the south.</Description>
-		<WorldID>local</WorldID>
+		<WorldID>world2</WorldID>
 		<Exit> 
 			<Direction>w</Direction>
 			<RoomID>2011</RoomID>			
@@ -226,7 +230,7 @@ of the marvelous city, each waiting in line for their daily bread.  Gazing
 eastward, you see a farmer's shop which sells all forms of dairy products.
 A butcher's shop also lies to the west, while an opening in the tent to
 the south leads back out onto Market Street.</Description>
-		<WorldID>local</WorldID>
+		<WorldID>world2</WorldID>
 		<Exit> 
 			<Direction>s</Direction>
 			<RoomID>2006</RoomID>			
