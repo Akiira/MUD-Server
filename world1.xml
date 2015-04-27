@@ -3,9 +3,12 @@
 	<RespawnRoomID>1000</RespawnRoomID>
 	
 	<Room>
-		<ID>2007</ID>
-		<Name>Path</Name>
-		<Description>other world.</Description>
+		<ID>2000</ID>
+		<Name>Inside Darkwall, Southern Gate of Darkhaven</Name>
+		<Description>You stand inside Darkwall, the southern gate of Darkhaven. Named after
+its daily defense against the goblins and balrogs to the south, it is
+literally an impenetrable wall.  To the north is the intersection of
+Vertic Avenue and Law Avenue.</Description>
 		<WorldID>world2</WorldID>
 		<Exit> 
 			<Direction>s</Direction>
@@ -28,7 +31,7 @@ Looking southward, the trail can be seen ending in a dark cave entrance.</Descri
 		</Exit>
 		<Exit> 
 			<Direction>n</Direction>
-			<RoomID>2007</RoomID>			
+			<RoomID>2000</RoomID>			
 		</Exit>
 	</Room>
 	<Room>
