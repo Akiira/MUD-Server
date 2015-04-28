@@ -103,9 +103,10 @@ func (inv *Inventory) GetAndRemoveItem(name string) (Item_I, bool) {
 //If the item is found it is not removed from the inventory.
 //If the item is not found the pointer is nil and bool is false.
 func (inv *Inventory) GetItem(name string) (Item_I, bool) {
+	lowerCaseName := strings.ToLower(name)
 	for itmName, items := range inv.items {
 		itmName = strings.ToLower(itmName)
-		if strings.Contains(itmName, name) && len(items) > 0 {
+		if strings.Contains(itmName, lowerCaseName) && len(items) > 0 {
 			return items[len(items)-1], true
 		}
 	}
