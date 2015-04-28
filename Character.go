@@ -326,9 +326,9 @@ func (c *Character) GetItemsToTrade(inv *Inventory, wg *sync.WaitGroup) {
 		} else {
 			if item, found := c.GetAndRemoveItem(response); found {
 				inv.AddItem(item)
-				c.SendMessage("One " + item.GetName() + " was added to the trade pool.\n")
+				c.SendMessage("\nOne " + item.GetName() + " was added to the trade pool.\n")
 			} else {
-				c.SendMessage("You do not have any more of the item: " + response + ".\n")
+				c.SendMessage("\nYou do not have any more of the item: " + response + ".\n")
 			}
 		}
 	}
