@@ -143,7 +143,7 @@ func (room *Room) RemovePlayer(charName string) {
 	if _, found := room.GetPlayer(charName); found {
 		delete(room.CharactersInRoom, charName)
 	} else {
-		fmt.Fprint(os.Stderr, "Failed to find: ", charName, " in Room: ", room.Name, ", in RemovePlayer")
+		fmt.Fprint(os.Stderr, "Failed to find: ", charName, " in Room: ", room.Name, ", in RemovePlayer\n")
 	}
 }
 
@@ -158,7 +158,7 @@ func (room *Room) GetPlayer(charName string) (*Character, bool) {
 		char, found := room.CharactersInRoom[strings.ToLower(charName)]
 		return char, found
 	} else {
-		fmt.Fprint(os.Stderr, "Failed to find: ", charName, " in Room: ", room.Name, ", in GetPlayer")
+		fmt.Fprint(os.Stderr, "Failed to find: ", charName, " in Room: ", room.Name, ", in GetPlayer\n")
 		return nil, false
 	}
 }
@@ -172,7 +172,7 @@ func (room *Room) GetItem(itemName string) (Item_I, bool) {
 		}
 	}
 
-	fmt.Fprint(os.Stderr, "Failed to find: ", itemName, " in Room: ", room.Name, ", in GetItem")
+	fmt.Fprint(os.Stderr, "Failed to find: ", itemName, " in Room: ", room.Name, ", in GetItem\n")
 	return nil, false
 }
 
@@ -193,9 +193,9 @@ func (room *Room) GiveItemToPlayer(char *Character, itemName string) []Formatted
 	if item, found := room.GetAndRemoveItem(itemName); found {
 		char.AddItem(item)
 
-		return newFormattedStringSplice("You succesfully picked up the item and added it to your invenctory")
+		return newFormattedStringSplice("You succesfully picked up the item and added it to your invenctory\n")
 	} else {
-		return newFormattedStringSplice("That item was not found in the room.")
+		return newFormattedStringSplice("\nThat item was not found in the room.\n")
 	}
 }
 

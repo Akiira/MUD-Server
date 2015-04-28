@@ -164,6 +164,9 @@ func (em *EventManager) ExecuteNonCombatEvent(cc *ClientConnection, event *Clien
 		output = em.Trade(cc, event)
 	case "help":
 		output = newFormattedStringSplice("\nYou can use the following commands\nattack\ninv\nlook\nyell\nsay\ntrade\nbid\nwield\nunwield\nequip\nget\nmove\nauction\n")
+	case "prc":
+		room := em.GetRoom(cc)
+		output = newFormattedStringSplice(fmt.Sprintf("%v", room.CharactersInRoom))
 	default:
 		output = newFormattedStringSplice("\n" + event.Command + " is not a recognized command.\n")
 	}
