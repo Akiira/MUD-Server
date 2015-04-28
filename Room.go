@@ -153,7 +153,7 @@ func (room *Room) UnAggroPlayer(charName string) {
 
 func (room *Room) GetPlayer(charName string) (*Character, bool) {
 	if room.CharactersInRoom != nil {
-		char, found := room.CharactersInRoom[charName]
+		char, found := room.CharactersInRoom[strings.ToLower(charName)]
 
 		return char, found
 	} else {
