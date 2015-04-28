@@ -1,5 +1,5 @@
-central 127.0.0.1:6600
-characterStorage 127.0.0.1:6601
-newChar 127.0.0.1:6602
-world1 127.0.0.1:6701
-world2 127.0.0.1:6702
+central grace.hbg.psu.edu:6600
+characterStorage grace.hbg.psu.edu:6601
+newChar grace.hbg.psu.edu:6602
+world1 ada.hbg.psu.edu:6701
+world2 zeno.hbg.psu.edu:6702
