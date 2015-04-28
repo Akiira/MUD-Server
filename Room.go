@@ -134,7 +134,7 @@ func (room *Room) AddPlayer(char *Character) {
 
 	if room.IsLocal() {
 		eventManager.SendMessageToRoom(room.ID, newServerMessageFS(newFormattedStringSplice2(ct.Blue, "\n"+char.Name+" has entered this room.")))
-		room.CharactersInRoom[char.Name] = char
+		room.CharactersInRoom[strings.ToLower(char.Name)] = char
 	}
 	char.RoomIN = room.ID
 }
@@ -197,11 +197,9 @@ func (room *Room) GiveItemToPlayer(char *Character, itemName string) []Formatted
 }
 
 func (room *Room) GetMonster(monsterName string) *Monster {
-
 	for name, mosnter := range room.MonstersInRoom {
-		name = strings.ToLower(name)
 
-		if strings.Contains(name, monsterName) {
+		if strings.Contains(strings.ToLower(name), monsterName) {
 			return mosnter
 		}
 	}
