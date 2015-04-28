@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/daviddengcn/go-colortext"
 	"io"
+	"os"
 	"strings"
 )
 
@@ -72,16 +73,19 @@ func (inv *Inventory) PossesItem(name string) bool {
 
 //RemoveItem removes an item with the specified name from the inventory.
 //If the item was not present then no change is made.
-func (inv *Inventory) RemoveItem(name string) {
-	_, found := inv.GetItem(name)
-
-	if found {
+func (inv *Inventory) RemoveItem(name string) bool {
+	if _, found := inv.GetItem(name); found {
 		if len(inv.items[name]) == 1 {
 			delete(inv.items, name)
 		} else {
 			items := inv.items[name]
 			inv.items[name] = items[0 : len(items)-1]
 		}
+
+		return true
+	} else {
+		fmt.Fprintln(os.Stderr, "Failed to remove: "+name+", from inventory.")
+		return false
 	}
 }
 
@@ -89,11 +93,8 @@ func (inv *Inventory) RemoveItem(name string) {
 //name and removes it from the inventory.
 //If the item is not found the pointer is nil and bool is false.
 func (inv *Inventory) GetAndRemoveItem(name string) (Item_I, bool) {
-	item, found := inv.GetItem(name)
-
-	if found {
-		inv.RemoveItem(item.GetName())
-		return item, true
+	if item, found := inv.GetItem(name); found {
+		return item, inv.RemoveItem(item.GetName())
 	} else {
 		return nil, false
 	}

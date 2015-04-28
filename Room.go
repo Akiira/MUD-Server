@@ -141,7 +141,7 @@ func (room *Room) AddPlayer(char *Character) {
 
 func (room *Room) RemovePlayer(charName string) {
 	if _, found := room.GetPlayer(charName); found {
-		eventManager.SendMessageToRoom(room.ID, newServerMessageFS(newFormattedStringSplice2(ct.Blue, "\n"+char.Name+" has left the room.")))
+		eventManager.SendMessageToRoom(room.ID, newServerMessageFS(newFormattedStringSplice2(ct.Blue, "\n"+charName+" has left the room.")))
 		delete(room.CharactersInRoom, strings.ToLower(charName))
 	} else {
 		fmt.Fprint(os.Stderr, "Failed to find: ", charName, " in Room: ", room.Name, ", in RemovePlayer\n")
