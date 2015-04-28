@@ -140,8 +140,7 @@ func (room *Room) AddPlayer(char *Character) {
 }
 
 func (room *Room) RemovePlayer(charName string) {
-	if char, found := room.GetPlayer(charName); found {
-		char.RoomIN = -1
+	if _, found := room.GetPlayer(charName); found {
 		delete(room.CharactersInRoom, charName)
 	}
 }
