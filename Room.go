@@ -142,6 +142,8 @@ func (room *Room) AddPlayer(char *Character) {
 func (room *Room) RemovePlayer(charName string) {
 	if _, found := room.GetPlayer(charName); found {
 		delete(room.CharactersInRoom, charName)
+	} else {
+		fmt.Fprint(os.Stderr, "Failed to find: ", charName, " in Room: ", room.Name, ", in RemovePlayer")
 	}
 }
 
@@ -154,9 +156,9 @@ func (room *Room) UnAggroPlayer(charName string) {
 func (room *Room) GetPlayer(charName string) (*Character, bool) {
 	if room.CharactersInRoom != nil {
 		char, found := room.CharactersInRoom[strings.ToLower(charName)]
-
 		return char, found
 	} else {
+		fmt.Fprint(os.Stderr, "Failed to find: ", charName, " in Room: ", room.Name, ", in GetPlayer")
 		return nil, false
 	}
 }
@@ -170,6 +172,7 @@ func (room *Room) GetItem(itemName string) (Item_I, bool) {
 		}
 	}
 
+	fmt.Fprint(os.Stderr, "Failed to find: ", itemName, " in Room: ", room.Name, ", in GetItem")
 	return nil, false
 }
 

@@ -35,10 +35,9 @@ func main() {
 }
 
 func GetInputFromUser() {
-	var input string
+	in := bufio.NewReader(os.Stdin)
 	for {
-
-		fmt.Scan(&input)
+		input, _ := in.ReadString('\n')
 		input = strings.TrimSpace(input)
 
 		if input == "exit" {
@@ -48,6 +47,8 @@ func GetInputFromUser() {
 			os.Exit(1)
 		} else if input == "refreshserver" {
 			ReadServerAddresses()
+		} else if input == "p room" {
+
 		} else {
 			fmt.Println("Bad input.")
 		}
