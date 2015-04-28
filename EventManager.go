@@ -8,27 +8,60 @@ import (
 	"time"
 )
 
+//EventManager handles execution of events that can be done in the world. The
+//manager does not actually execute the game logic but is responsible for
+//calling functions that do. The event manager is only responsible for a subset
+//of the rooms that make up the virtual world.
 type EventManager struct {
-	trade_lock sync.Mutex
-	auctn_mutx sync.Mutex
-	queue_lock sync.Mutex
-	eventQue   []Event
+
+	//worldRooms holds all rooms of the virtual world that this server is
+	//responsible for.
 	worldRooms map[int]*Room
 
-	auction *Auction
-	traders map[string]bool
+	//eventQue holds all combat events then event manger has received from playesr
+	//or monsters since the execution of the last combat round.
+	eventQue   []Event
+	queue_lock sync.Mutex
+
+	//auction is responsible for holding the current on going auction. Only one
+	//auction can be ongoing at a time. If no auction is ongoing this should be nil.
+	//To ensure these constraints are not violated, most interactions with the
+	//auction are surrounded by a mutex.
+	auction    *Auction
+	auctn_mutx sync.Mutex
+
+	//Players involved with a trade have certain actions restricted, so their
+	//trade status must be tracked. For consistency, any changes to a players
+	//trade status are surrounded buy a lock.
+	traders    map[string]bool
+	trade_lock sync.Mutex
 }
 
+//NewEventManager constructs a new event manager. It is required that the room
+//data be in the same folder that this is executed in. This constructors starts
+//the 6 second tick for combat rounds and this should not be started anywhere else.
 func NewEventManager() *EventManager {
 	em := new(EventManager)
 	em.eventQue = make([]Event, 0, 10)
 	em.worldRooms = LoadRooms()
 	em.traders = make(map[string]bool)
-	go em.StartCombatRounds()
+	go em.startCombatRounds()
 
 	return em
 }
 
+//startCombatRounds is a private function that will ensure the combat round is
+//executed every six seconds. It should only be called once by the constructor.
+func (em *EventManager) startCombatRounds() {
+	for {
+		time.Sleep(time.Second * 6)
+		go em.ExecuteCombatRound()
+	}
+}
+
+//SendMessageToWorld sends the given message to all players connected to this
+//world server, i.e. players in rooms that this even manager is responsible
+//for handleling.
 func (em *EventManager) SendMessageToWorld(msg ServerMessage) {
 	for _, room := range em.worldRooms {
 		for _, char := range room.CharactersInRoom {
@@ -37,6 +70,8 @@ func (em *EventManager) SendMessageToWorld(msg ServerMessage) {
 	}
 }
 
+//SendMessageToRoom sends the given message to the room with the given room id.
+//This message will be seen by all playesr in that room and only players in that room.
 func (em *EventManager) SendMessageToRoom(roomID int, msg ServerMessage) {
 	room := em.GetRoom(roomID)
 
@@ -45,17 +80,13 @@ func (em *EventManager) SendMessageToRoom(roomID int, msg ServerMessage) {
 	}
 }
 
+//AddEvent will add the given event to the event Q. This is only for non-combat
+//events. This function may block while waiting for the event Q lock. Non-combat
+//events should be handled elsewhere, since they can be executed right away.
 func (em *EventManager) AddEvent(event Event) {
 	em.queue_lock.Lock()
 	em.eventQue = append(em.eventQue, event)
 	em.queue_lock.Unlock()
-}
-
-func (em *EventManager) StartCombatRounds() {
-	for {
-		time.Sleep(time.Second * 6)
-		go em.ExecuteCombatRound()
-	}
 }
 
 func (em *EventManager) ExecuteCombatRound() {
@@ -142,6 +173,8 @@ func (em *EventManager) ExecuteNonCombatEvent(cc *ClientConnection, event *Clien
 	}
 }
 
+//---------------------------- GENERAL COMMAND FUNCTIONS ---------------------//
+
 func (em *EventManager) Look(char *Character, target string) []FormattedString {
 	room := em.GetRoom(char)
 	if target == "room" || target == "" || target == "r" {
@@ -196,6 +229,8 @@ func (em *EventManager) Flee(char *Character, direction string) (int, []Formatte
 		}
 	}
 }
+
+//---------------------------- UTILITY FUNCTIONS -----------------------------//
 
 func (em *EventManager) SaveAllCharacters() {
 	for _, room := range em.worldRooms {
@@ -267,7 +302,7 @@ func (em *EventManager) IsInCombat(char *Character) bool {
 	return false
 }
 
-//-----------------------------TRADING EVENT FUNCTIONS------------------------//
+//---------------------------- TRADING EVENT FUNCTIONS -----------------------//
 
 func (em *EventManager) Trade(cc *ClientConnection, event *ClientMessage) []FormattedString {
 	if em.IsInCombat(cc.GetCharacter()) {

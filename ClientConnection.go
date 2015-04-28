@@ -7,6 +7,9 @@ import (
 	"time"
 )
 
+//ClientConnection handles interactions between a client and the server. If
+//messages needs to be sent to a client or read from a client it should be done
+//only through this class.
 type ClientConnection struct {
 	myConn    net.Conn
 	myEncoder *gob.Encoder
@@ -23,7 +26,7 @@ type ClientConnection struct {
 	character *Character
 }
 
-//CliecntConnection constructor constructs a new client connection and starts
+//NewClientConnection constructs a new client connection and starts
 //a new thread to continuously read from the connection.
 func NewClientConnection(conn net.Conn, char *Character, decoder *gob.Decoder, encder *gob.Encoder) {
 	cc := new(ClientConnection)
