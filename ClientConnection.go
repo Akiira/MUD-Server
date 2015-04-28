@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"encoding/gob"
 	"fmt"
 	"net"
@@ -62,6 +63,7 @@ func (cc *ClientConnection) Read() {
 		} else if clientsMsg.GetCommand() == "ping" {
 			go cc.SendToPingChannel()
 		} else if clientsMsg.IsTradeCommand() {
+			fmt.Fprint(os.Stderr, cc.character.GetName(), ": Sending message to trade channel: ", clientsMsg)
 			go cc.SendToTradeChannel(clientsMsg)
 		} else {
 			go eventManager.ExecuteNonCombatEvent(cc, &clientsMsg)
