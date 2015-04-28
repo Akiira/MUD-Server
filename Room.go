@@ -221,11 +221,13 @@ func (room *Room) GetAgent(name string) (Agenter, bool) {
 }
 
 func (room *Room) KillOffMonster(monsterName string) {
-	drops := room.MonstersInRoom[monsterName].GetLootAndCorpse()
-	for _, drop := range drops {
-		room.AddItem(drop)
+	if monster := room.GetMonster(monsterName); monster != nil {
+		drops := room.MonstersInRoom[monsterName].GetLootAndCorpse()
+		for _, drop := range drops {
+			room.AddItem(drop)
+		}
+		delete(room.MonstersInRoom, monsterName)
 	}
-	delete(room.MonstersInRoom, monsterName)
 }
 
 func (room *Room) repopulateRoomTick(timeInMinutes time.Duration) {
