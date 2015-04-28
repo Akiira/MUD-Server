@@ -168,15 +168,12 @@ func (char *Character) Move(source *Room, destination *Room) (int, []FormattedSt
 
 	if source != nil && destination != nil {
 		source.RemovePlayer(char.Name)
+		destination.AddPlayer(char)
 
 		if destination.IsLocal() {
-			destination.AddPlayer(char)
-
 			return GAMEPLAY, destination.GetDescription()
 		} else {
-			destination.AddPlayer(char)
 			SendCharactersXML(char.ToXML())
-
 			return REDIRECT, newFormattedStringSplice(servers[destination.WorldID])
 		}
 	} else {
