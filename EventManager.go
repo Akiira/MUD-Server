@@ -164,7 +164,7 @@ func (em *EventManager) Drop(char *Character, itemName string) []FormattedString
 		em.GetRoom(char.GetRoomID()).AddItem(item)
 		return newFormattedStringSplice("You dropped the " + item.GetName() + " on the ground.\n")
 	} else {
-		return newFormattedStringSplice("You do not appear to have " + itemName +".\n")
+		return newFormattedStringSplice("You do not appear to have " + itemName + ".\n")
 	}
 }
 
@@ -186,7 +186,7 @@ func (em *EventManager) Flee(char *Character, direction string) (int, []Formatte
 		return GAMEPLAY, newFormattedStringSplice2(ct.Red, "\nYou can not flee from a room while you are trading.\n")
 	} else {
 		src := em.GetRoom(char)
-		
+
 		if dest := src.GetConnectedRoom(convertDirectionToInt(direction)); dest != nil {
 			src.UnAggroPlayer(char.GetName())
 			msgType, output := char.Move(src, dest)

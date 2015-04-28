@@ -20,7 +20,7 @@ func newClientMessage(cmd string, val string) *ClientMessage {
 
 func (msg *ClientMessage) IsTradeCommand() bool {
 	switch msg.Command {
-	case "accept", "done", "add":
+	case "accept", "done", "add", "reject":
 		return true
 	}
 
