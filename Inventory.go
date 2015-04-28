@@ -106,7 +106,7 @@ func (inv *Inventory) GetAndRemoveItem(name string) (Item_I, bool) {
 func (inv *Inventory) GetItem(name string) (Item_I, bool) {
 	for itmName, items := range inv.items {
 		itmName = strings.ToLower(itmName)
-		if strings.Contains(itmName, name) && len(items) > 0 {
+		if strings.Contains(itmName, strings.ToLower(name)) && len(items) > 0 {
 			return items[len(items)-1], true
 		}
 	}
