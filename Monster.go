@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"os"
+	"strings"
 	"sync"
 	"time"
 )
@@ -16,14 +17,16 @@ type Monster struct {
 	Agent
 	Defense     int
 	description string
-	targets     map[string]*target
-	em          EventManager
-	weapon      *Weapon
-	lootDrops   []loot
 
-	fightingPlayersMutex sync.Mutex
-	fightingPlayers      bool
-	lastTarget           Agenter
+	em        EventManager
+	weapon    *Weapon
+	lootDrops []loot
+
+	targets       map[string]*target
+	targets_mutex sync.Mutex
+
+	fightingPlayers  bool
+	fightPlyrs_Mutex sync.Mutex
 }
 
 type target struct {
@@ -76,10 +79,10 @@ func (m *Monster) fightPlayers() {
 	for {
 		time.Sleep(2 * time.Second)
 
-		m.fightingPlayersMutex.Lock()
+		m.fightPlyrs_Mutex.Lock()
 		if m.currentHP <= 0 || len(m.targets) <= 0 {
 			m.fightingPlayers = false
-			m.fightingPlayersMutex.Unlock()
+			m.fightPlyrs_Mutex.Unlock()
 			break
 		}
 
@@ -102,54 +105,66 @@ func (m *Monster) fightPlayers() {
 			event := NewEvent(m, "attack", attackTarget.Name)
 			eventManager.AddEvent(event)
 		}
-		m.fightingPlayersMutex.Unlock()
+		m.fightPlyrs_Mutex.Unlock()
 	}
 }
 
 func (m *Monster) AddTarget(targetChar Agenter) {
+	m.targets_mutex.Lock()
+	defer m.targets_mutex.Unlock()
 
-	_, exist := m.targets[targetChar.GetName()]
-
-	if exist {
+	if _, exist := m.targets[targetChar.GetName()]; exist {
 		m.targets[targetChar.GetName()].aggro += 5
 	} else {
-		fmt.Println("\tAdding player to target list.")
 		targ := target{aggro: 5, attackTarget: targetChar.(*Character)}
 		m.targets[targetChar.GetName()] = &targ
 
-		m.fightingPlayersMutex.Lock()
+		m.fightPlyrs_Mutex.Lock()
 		if len(m.targets) == 1 && m.fightingPlayers == false {
 			m.fightingPlayers = true
 			go m.fightPlayers()
 		}
-		m.fightingPlayersMutex.Unlock()
+		m.fightPlyrs_Mutex.Unlock()
 	}
 }
 
 func (m *Monster) RemoveTarget(name string) {
+	m.targets_mutex.Lock()
+	defer m.targets_mutex.Unlock()
+
 	if _, found := m.targets[name]; found {
 		delete(m.targets, name)
 	}
 }
 
 func (m *Monster) Attack(target Agenter) []FormattedString {
-	output := newFormattedStringCollection()
-	a1 := m.GetAttackRoll()
-	if a1 >= target.GetDefense() {
+	m.targets_mutex.Lock()
+	defer m.targets_mutex.Unlock()
 
-		output.addMessage(ct.Red, fmt.Sprintf("The %s hit you for %d damage\n", m.Name, m.GetDamage()))
-		target.TakeDamage(m.GetDamage(), 0)
+	//If the player died or fled then the monster cant attack
+	if !m.IsAttackingPlayer(target.GetName()) || target.GetRoomID() != m.RoomIN {
+		return nil
+	}
+
+	output := newFormattedStringCollection()
+
+	if m.GetAttackRoll() >= target.GetDefense() {
+		dmg := m.GetDamage()
+		output.addMessage(ct.Red, fmt.Sprintf("The %s hit you for %d damage\n", m.Name, dmg))
+		target.TakeDamage(dmg, 0)
 
 		if target.IsDead() {
 			output.addMessages2(target.Respawn())
 			delete(m.targets, target.GetName())
-
 		}
+
 		target.SendMessage(newServerMessageFS(output.fmtedStrings))
 		return output.fmtedStrings
 	}
+
 	output.addMessage(ct.Red, fmt.Sprintf("The %s's attack missed you.\n", m.Name))
 	target.SendMessage(newServerMessageFS(output.fmtedStrings))
+
 	return output.fmtedStrings
 }
 
@@ -219,7 +234,7 @@ func (m *Monster) IsDead() bool {
 
 func (m *Monster) IsAttackingPlayer(name string) bool {
 	for _, targets := range m.targets {
-		if targets.attackTarget.Name == name {
+		if strings.EqualFold(targets.attackTarget.Name, name) {
 			return true
 		}
 	}
