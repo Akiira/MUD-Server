@@ -153,7 +153,6 @@ func (cc *ClientConnection) GetResponseToPing(start time.Time) time.Duration {
 }
 
 func (cc *ClientConnection) GetAverageRoundTripTime() (avg time.Duration) {
-
 	for i := 0; i < 10; i++ {
 		cc.Write(newServerMessageTypeS(PING, "ping"))
 		avg += cc.GetResponseToPing(time.Now())
