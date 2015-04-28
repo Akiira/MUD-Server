@@ -141,7 +141,8 @@ func (room *Room) AddPlayer(char *Character) {
 
 func (room *Room) RemovePlayer(charName string) {
 	if _, found := room.GetPlayer(charName); found {
-		delete(room.CharactersInRoom, charName)
+		fmt.Fprint(os.Stderr, "Removing: ", charName, " From Room: ", room.Name, ", in RemovePlayer\n")
+		delete(room.CharactersInRoom, strings.ToLower(charName))
 	} else {
 		fmt.Fprint(os.Stderr, "Failed to find: ", charName, " in Room: ", room.Name, ", in RemovePlayer\n")
 	}
