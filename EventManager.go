@@ -71,9 +71,11 @@ func (em *EventManager) ExecuteCombatRound() {
 		if _, found := alreadyActed[agent.GetName()]; !found {
 			alreadyActed[agent.GetName()] = true
 
-			switch {
-			case action == "attack":
+			switch action {
+			case "attack", "a", "atk":
 				output = agent.Attack(target)
+			default:
+				output = newFormattedStringSplice("\n" + action + " is not a recognized command.\n")
 			}
 
 			agent.SendMessage(newServerMessageFS(output))
@@ -110,7 +112,7 @@ func (em *EventManager) ExecuteNonCombatEvent(cc *ClientConnection, event *Clien
 		output = newFormattedStringSplice("Character succesfully saved.\n")
 	case "stats":
 		output = cc.GetCharacter().GetStatsPage()
-	case "look", "l":
+	case "look", "ls":
 		output = em.Look(cc.GetCharacter(), event.Value)
 	case "get", "g":
 		output = em.GetRoom(cc.GetCharactersRoomID()).GiveItemToPlayer(cc.character, event.Value)
@@ -131,6 +133,8 @@ func (em *EventManager) ExecuteNonCombatEvent(cc *ClientConnection, event *Clien
 		output = em.Trade(cc, event)
 	case "help":
 		output = newFormattedStringSplice("\nYou can use the following commands\nattack\ninv\nlook\nyell\nsay\ntrade\nbid\nwield\nunwield\nequip\nget\nmove\nauction\n")
+	default:
+		output = newFormattedStringSplice("\n" + event.Command + " is not a recognized command.\n")
 	}
 
 	if len(output) > 0 {
@@ -160,7 +164,7 @@ func (em *EventManager) Drop(char *Character, itemName string) []FormattedString
 		em.GetRoom(char.GetRoomID()).AddItem(item)
 		return newFormattedStringSplice("You dropped the " + item.GetName() + " on the ground.\n")
 	} else {
-		return newFormattedStringSplice("You dropped the " + item.GetName() + " on the ground.\n")
+		return newFormattedStringSplice("You do not appear to have " + itemName + ".\n")
 	}
 }
 
@@ -181,13 +185,15 @@ func (em *EventManager) Flee(char *Character, direction string) (int, []Formatte
 	if em.IsTrading(char.GetName()) {
 		return GAMEPLAY, newFormattedStringSplice2(ct.Red, "\nYou can not flee from a room while you are trading.\n")
 	} else {
-		src := em.worldRooms[char.GetRoomID()]
-		dest := src.GetConnectedRoom(convertDirectionToInt(direction))
+		src := em.GetRoom(char)
 
-		src.UnAggroPlayer(char.GetName())
-
-		msgType, output := char.Move(src, dest)
-		return msgType, append(char.ApplyFleePenalty(), output...)
+		if dest := src.GetConnectedRoom(convertDirectionToInt(direction)); dest != nil {
+			src.UnAggroPlayer(char.GetName())
+			msgType, output := char.Move(src, dest)
+			return msgType, append(char.ApplyFleePenalty(), output...)
+		} else {
+			return GAMEPLAY, newFormattedStringSplice("\nNo exit in that direction.\n")
+		}
 	}
 }
 
