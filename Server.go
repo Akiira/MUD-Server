@@ -8,6 +8,7 @@ import (
 	"log"
 	"net"
 	"os"
+	"runtime"
 	"strings"
 )
 
@@ -31,9 +32,12 @@ func main() {
 	gob.Register(ArmourSetXML{})
 	gob.Register(ItemXML{})
 
-	ReadServerAddresses()
+	//Set the number of process to get true parralellism, not just concurrency.
+	runtime.GOMAXPROCS(4)
 
+	ReadServerAddresses()
 	go RunServer()
+
 	GetInputFromUser()
 }
 
