@@ -19,21 +19,26 @@ var (
 )
 
 func main() {
-	gob.Register(WeaponXML{})
-	gob.Register(ArmourXML{})
-	gob.Register(ArmourSetXML{})
-	gob.Register(ItemXML{})
 
 	if len(os.Args) < 2 {
 		fmt.Println(os.Args[0] + " requires 1 arguments, worldname")
 		os.Exit(1)
 	}
 
+	//Required for gob encoder to marshal into generic interface
+	gob.Register(WeaponXML{})
+	gob.Register(ArmourXML{})
+	gob.Register(ArmourSetXML{})
+	gob.Register(ItemXML{})
+
 	ReadServerAddresses()
+
 	go RunServer()
 	GetInputFromUser()
 }
 
+//GetInputFromUser allows a users to shut the server down or refresh the list of
+// addresses and servers that this server is aware of.
 func GetInputFromUser() {
 	in := bufio.NewReader(os.Stdin)
 	for {
@@ -47,8 +52,6 @@ func GetInputFromUser() {
 			os.Exit(1)
 		} else if input == "refreshserver" {
 			ReadServerAddresses()
-		} else if input == "p room" {
-
 		} else {
 			fmt.Println("Bad input.")
 		}
@@ -57,6 +60,7 @@ func GetInputFromUser() {
 
 //ReadServerAddresses reads the list of server names and their corresponding addresses
 //in from a txt file. The names and addresses are stored in the global servers variable.
+//If the scanner threw an error during this process, that error is returned.
 func ReadServerAddresses() error {
 	file, err := os.Open("serverConfig/serverList.txt")
 	if err != nil {
@@ -97,12 +101,18 @@ func RunServer() {
 		checkError(err, false)
 
 		if err == nil {
+			//HandleConnection is not called with a goroutine because we want the
+			//return value and because HandleConnection will already start goroutines
+			//when when needed (By creating Client Connection object for clients).
 			err = HandleConnection(conn)
 			checkError(err, false)
 		}
 	}
 }
 
+//HandleConnection will take a connection from either a client or the Login-Storage
+// server and ensure it is handeled appropiatly. Any errors that arise during
+// this process are returned.
 func HandleConnection(conn net.Conn) (err error) {
 	var clientResponse ClientMessage
 	decoder := gob.NewDecoder(conn)
@@ -119,6 +129,8 @@ func HandleConnection(conn net.Conn) (err error) {
 	}
 }
 
+//HandleServerRefresh will read the serverList.txt file in the serverConfig folder
+// and update the list of servers and their address stored in this program.
 func HandleServerRefresh(conn net.Conn, updatedAddress string) (err error) {
 	defer conn.Close()
 
@@ -144,6 +156,9 @@ func HandleHeartBeatConnection(conn net.Conn) (err error) {
 	return err
 }
 
+//HandlePlayerConnection creates a new ClientConnection object and returns any
+//possible errors during this creation. The net.Conn object is closed by the
+//client connection and should not be defered or explicitly closed here.
 func HandlePlayerConnection(conn net.Conn, decoder *gob.Decoder, charsName string) (err error) {
 	fmt.Println("Player Connection established")
 	var clientsCharacter *Character
