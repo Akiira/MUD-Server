@@ -7,7 +7,6 @@ import (
 	"time"
 )
 
-//this is suppose to be an event
 type ClientMessage struct {
 	CombatAction bool
 	Command      string
