@@ -1,4 +1,9 @@
- <?xml version="1.0"?>
+<!--
+	All room descriptions taken from:
+	http://www.realmsofdespair.com/
+-->
+
+<?xml version="1.0"?>
  <Rooms>
 	<RespawnRoomID>2000</RespawnRoomID>	
 	
